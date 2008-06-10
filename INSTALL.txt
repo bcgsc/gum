@@ -5,7 +5,7 @@ GUM is a Grok application. A GUM buildout can be created with zc.buildout.
 
 To get started you would do something like this:
 
-  $ svn co https://svn.bcgsc.ca/svn/gum/trunk gum
+  $ hg clone http://bcgsc.ca/scm/hg.repo/gum
   $ cd gum
   $ ./bootstrap/bootstrap.py
   $ ./bin/buildout
