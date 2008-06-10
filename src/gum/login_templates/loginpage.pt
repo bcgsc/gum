@@ -1,0 +1,35 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+<div metal:fill-slot="content">
+
+	<form method="post"
+	    tal:attributes="action python:view.url()">
+	  <h1>Please log in</h1>
+	
+	  <div class="row">
+	    <div class="label">
+	      <label for="login">Login name:</label>
+	    </div>
+	    <div class="field">
+	      <input type="text" name="login" id="login" />
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="label">
+	      <label for="password">Password:</label>
+	    </div>
+	    <div class="field">
+	      <input type="password" name="password" id="password" />
+	    </div>
+	  </div>
+
+	  <div class="row">
+	    <input type="hidden" name="camefrom" value=""
+	           tal:attributes="value request/camefrom | nothing">
+	    <input type="submit" name="gum.Login" value="Log in" />
+	  </div>
+	</form>
+
+</div>
+
+</html>

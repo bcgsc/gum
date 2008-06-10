@@ -1,0 +1,39 @@
+User Security
+*************
+
+:Test-Layer: functional
+
+Web access to our Models is only through Views. The modification Views have
+been protected by permissions. Attempting to view the adduser form brings
+up an Unauthorized error:
+
+  >>> from zope.testbrowser.testing import Browser
+  >>> browser = Browser()
+  >>> browser.handleErrors = False
+  >>> browser.open("http://localhost:8080/gumsite/adduser")
+  Traceback (most recent call last):
+    ...
+  Unauthorized: (<gum.ldapapp.AddUser object at ...>, '__call__', u'gum.Add')
+
+When we log in, we can access the view just fine:
+
+  >>> from zope.securitypolicy.rolepermission import rolePermissionManager
+  >>> rolePermissionManager.grantPermissionToRole('gum.Add',
+  ...                                             'zope.Manager')
+  >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
+  >>> browser.open("http://localhost:8080/gumsite/adduser")
+
+We can now add a user through the web user interface:
+
+  >>> browser.getControl(name="form.cn").value = "Manfred the Mammoth"
+  >>> browser.getControl(name="form.sn").value = "Mammoth"
+  >>> browser.getControl(name="form.givenName").value = "Manfred"
+  >>> browser.getControl(name="form.uid").value = "mmammoth"
+  >>> browser.getControl(name="form.email").value = "manfred@grokmail.cave"
+  >>> browser.getControl(name="form.telephoneNumber").value = "1-800-EAT-GROK"
+  >>> browser.getControl("Add User entry").click()
+
+We can clean-up our test LDAP by deleting the user that we just created:
+
+  >>> browser.open("http://localhost:8080/gumsite/users/@@deleteuser?id=mmammoth")
+

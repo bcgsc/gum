@@ -1,0 +1,75 @@
+User Modify
+***********
+
+:Test-Layer: functional
+
+Our functional testing set-up has created and configured a working
+instance of a GUM site. It connects to an LDAP testing environment:
+
+  >>> gumsite = getRootFolder()['gumsite']
+  >>> dbc = gumsite.ldap_connection()
+  >>> str(dbc)[:42]
+  '<ldapadapter.utility.LDAPConnection object'
+
+We can create a new user by supplying a unique name:
+
+  >>> from gum.user import User
+  >>> caveman = User('caveman')
+
+The User object implements the IUser interface, this is a schema that
+describes all data about a User:
+
+  >>> from gum.interfaces import IUser
+  >>> IUser.providedBy(caveman)
+  True
+
+We can modify the User object:
+
+  >>> caveman.cn = 'GROK SMASH'
+  >>> caveman.sn = 'Zope'
+  >>> caveman.givenName = 'GROK'
+  >>> caveman.description = 'ME GROK!'
+  >>> caveman.telephoneNumber = '1-900-HOT-GROK'
+  >>> caveman.street = 'Plains of Africa'
+  >>> caveman.roomNumber = 'Cave #101'
+
+Setting the object in our Users container saves the data into LDAP:
+
+  >>> gumsite['users'][caveman.uid] = caveman
+
+Group memberships can be managed with Views on the User object. We will
+add the caveman to the employee group:
+
+  >>> from zope.component import getMultiAdapter
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+  >>> request.form['gid'] = 'employee'
+  >>> class TestPrincipal(object):
+  ...     id = 'ssmith'
+  >>> request.setPrincipal( TestPrincipal() )
+  >>> grant_membership_view = getMultiAdapter((caveman, request), name='grant')
+  >>> grant_membership_view.update()
+  >>> gumsite['groups']['employee'].uids
+  [u'jdoe', u'ssmith', u'caveman']
+
+And then we will remove the caveman from the employee group:
+
+  >>> revoke_membership_view = getMultiAdapter((caveman, request), name='revoke')
+  >>> revoke_membership_view.update()
+  >>> gumsite['groups']['employee'].uids
+  [u'jdoe', u'ssmith']
+
+We can have two User objects that refer to the same ldap entry. Normally
+we wouldn't want to do this, but it is useful for testing:
+
+  >>> groktwin = User('caveman')
+  >>> (groktwin.cn, groktwin.givenName) == (caveman.cn, caveman.givenName)
+  True
+  >>> (groktwin.street, groktwin.roomNumber) == (caveman.street, caveman.roomNumber)
+  True
+
+We can delete an entry. In Zope 3 style, delete is the responsibility of
+the Users container:
+
+  >>> del gumsite['users']['caveman']
+

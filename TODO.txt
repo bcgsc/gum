@@ -1,0 +1,44 @@
+To-Do
+-----
+
+Feature Requests
+----------------
+
+ * Email Notification
+  - optional check-box on account creation to notify user
+  - implementation:
+    * New Account Creation fires an IObjectCreatedEvent filtered on IUser objects
+    * gscgum:
+      - create a separate package for GSC-specific components
+      - subscriber responds to notification by doing a simple
+        HTTP POST to the Password Reset Service in the public Plone.
+
+ * User Browse
+  - investigate Zope 3 pagination options
+
+ * Validation
+  - make selection of Users in the Groups more pleasant
+  - proper handling of the validation of Users within the Group
+
+ * Extended User schema:
+  - support core set of fields
+  - view in gscgum to support GSC-specific user entry editing
+
+ * Extended Group schema:
+  - Group Leads, Group Notes, Group URL
+
+ * Extended Security:
+  - Groups can be closed, semi-closed or open, dictates who can
+    add/remove members
+
+ * Testing
+  - refactor for unit tests?
+
+ * Grok 0.12 support
+  - need new releases of ldappas and ldapadapter
+  - how to install python-ldap via buildout?
+
+Bugs
+----
+
+ * Groups with no users should still be viewable

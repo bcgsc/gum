@@ -1,0 +1,74 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>User Search: <span tal:replace="context/title" /></h2>
+
+		<h3>Search Criteria:</h3>
+		<ul>
+			<li tal:condition="context/organizations">
+				Organizations: <span tal:repeat="org context/organizations">
+			   	<span tal:replace="org" />
+			    <tal:comma tal:condition="not: repeat/org/end">, </tal:comma>
+				</span>
+			</li>
+			<li tal:condition="context/streets">
+				Offices: <span tal:repeat="office context/streets">
+				<span tal:replace="office" /><tal:comma tal:condition="not: repeat/office/end">, </tal:comma></span>
+			</li>
+			<li tal:condition="context/employeeTypes">
+				Employee Types: <span tal:repeat="etype context/employeeTypes">
+				<span tal:replace="etype" /><tal:comma tal:condition="not: repeat/etype/end">, </tal:comma></span>
+			</li>
+			<li tal:condition="context/orgunitTypes">
+				Organizational Unit Types: <span tal:repeat="outype context/orgunitTypes">
+				<span tal:replace="outype" /><tal:comma tal:condition="not: repeat/outype/end">, </tal:comma></span>
+			</li>
+		</ul>
+		
+		<p>Export 
+		  <a href="#"
+			 tal:attributes="href view/export_url_pdf">this search result</a>
+			as a PDF file.
+		</p>
+
+		<p>Export 
+		  <a href="#"
+			 tal:attributes="href view/export_url_csv">this search result</a>
+			as a CSV file.
+		</p>
+
+		<table class="data sortable" id="usersearch">
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+				<th>Phone</th>
+				<th>User Id</th>
+				<th>Office Location</th>
+				<th>Employee Type</th>
+				<th>Organizational Unit Type</th>
+			</tr>
+			
+			<tr tal:repeat="user view/users">
+				<td>
+					<a href="#"
+						tal:attributes="href python:view.url(user)"
+					 	tal:content="user/cn" />
+				</td>
+				<td>
+					<a href="#"
+					   tal:attributes="href string:mailto:${user/email}"
+					   tal:content="user/email" />
+				</td>
+				<td tal:content="user/telephoneNumber" />
+				<td tal:content="user/uid" />
+				<td><span tal:replace="user/street" /> - <span tal:replace="user/roomNumber" /></td>
+				<td tal:content="user/employeeType" />
+				<td tal:content="user/ou" />
+			</tr>
+
+		</table>
+		
+    </div>
+
+</html>

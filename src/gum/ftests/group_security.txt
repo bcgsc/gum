@@ -1,0 +1,84 @@
+Security Group
+**************
+
+:Test-Layer: functional
+
+First, we create some test fixtures:
+
+  >>> from gum.user import User
+  >>> lwheel = User('lwheel','cn','sn')
+  >>> lwheel.save()
+  >>> lwheel.changePassword('lwheel','lwheel')
+  >>> jwheel = User('jwheel','cn','sn')
+  >>> jwheel.sn = 'Zope'
+  >>> jwheel.save()
+  >>> jwheel.changePassword('jwheel','jwheel')
+
+Groups can currrently be edited by an member of that group. This is somewhat
+simplistic, so we may revisit group security in the future.
+
+  >>> from zope.testbrowser.testing import Browser
+  >>> mgrbrowser = Browser()
+  >>> mgrbrowser.handleErrors = False
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/@@addgroup")
+  Traceback (most recent call last):
+    ...
+  Unauthorized: (<gum.ldapapp.AddGroup object at ...>, '__call__', u'gum.Add')
+
+When we log in, we can access the view just fine. While we are at it we will
+set-up browsing sessions for our two users:
+
+  >>> from zope.securitypolicy.rolepermission import rolePermissionManager
+  >>> rolePermissionManager.grantPermissionToRole('gum.Add',
+  ...                                             'zope.Manager')
+  >>> from zope.securitypolicy.interfaces import IPrincipalPermissionManager
+  >>> mgrbrowser.addHeader('Authorization', 'Basic mgr:mgrpw')
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/@@addgroup")
+  >>> import base64, urllib
+  >>> jwheel_cookie = 'gum.auth=%s' % urllib.quote(base64.encodestring('jwheel:jwheel'))
+  >>> lwheel_cookie = 'gum.auth=%s' % urllib.quote(base64.encodestring('lwheel:lwheel'))
+  >>> lwheel_browser = Browser()
+  >>> lwheel_browser.handleErrors = False
+  >>> lwheel_browser.addHeader('Cookie', lwheel_cookie )
+  >>> jwheel_browser = Browser()
+  >>> jwheel_browser.handleErrors = False
+  >>> jwheel_browser.addHeader('Cookie', jwheel_cookie)
+
+We can now add a Group through the web user interface:
+
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/@@addgroup")
+  >>> mgrbrowser.getControl(name="form.cn").value = "WheelInventors"
+  >>> mgrbrowser.getControl(name="form.description").value = "Tribe to the lands South of Grok"
+  >>> mgrbrowser.getControl(name="form.uids.add").click()
+  >>> mgrbrowser.getControl(name="form.uids.0.").value = 'jwheel'
+  >>> mgrbrowser.getControl("Add Group entry").click()
+
+That user does not yet belong to our new group, so they are not
+allowed to modify the Group:
+
+  >>> lwheel_browser.open("http://localhost:8080/gumsite/groups/WheelInventors/@@editgroup")
+  Traceback (most recent call last):
+  ...
+  Unauthorized: (<gum.group.GroupEdit object at ...>, '__call__', u'gum.EditGroup')
+
+Waaaaaa! How to test the AJAX widget? Maybe we need this widget to degrade to 
+non-JS browsers?
+
+#Our other user does though, they will add the second user to the group:
+#
+#  >>> jwheel_browser.open("http://localhost:8080/gumsite/groups/WheelInventors/@@editgroup")
+#  >>> jwheel_browser.getControl(name="input.form.uids").value = 'lwheel'
+#  >>> jwheel_browser.getControl(name="form.uids.add").click()
+#  >>> jwheel_browser.getControl(name="form.uids.1.").value = 'lwheel'
+#  >>> jwheel_browser.getControl("Save Changes").click()
+#
+#Now our second user should be able to edit the group:
+#
+#  >>> lwheel_browser.open("http://localhost:8080/gumsite/groups/WheelInventors/@@editgroup")
+
+We can clean-up our test LDAP by deleting the users and group that we just created:
+
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/users/@@deleteuser?id=jwheel")
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/users/@@deleteuser?id=lwheel")
+  >>> mgrbrowser.open("http://localhost:8080/gumsite/groups/@@deletegroup?id=WheelInventors")
+

@@ -1,0 +1,52 @@
+Modify Organization
+*******************
+
+:Test-Layer: functional
+
+We will start a browser session as a manager user:
+
+  >>> from zope.testbrowser.testing import Browser
+  >>> browser = Browser()
+  >>> browser.handleErrors = False
+  >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
+
+Organizations can be added:
+
+  >>> browser.open("http://localhost:8080/gumsite/orgs/@@addorg")
+  >>> browser.getControl(name="form.title").value = "Clan Campfire"
+  >>> browser.getControl(name="form.id").value = "clancampfire"
+  >>> browser.getControl(name="form.description").value = "ME GROK CLAN!"
+  >>> browser.getControl(name="form.employeeTypes.add").click()
+  >>> browser.getControl(name="form.employeeTypes.0.").value = "Alive"
+  >>> browser.getControl(name="form.employeeTypes.add").click()
+  >>> browser.getControl(name="form.employeeTypes.1.").value = "Dead"
+  >>> browser.getControl(name="form.orgunitTypes.add").click()
+  >>> browser.getControl(name="form.orgunitTypes.0.").value = "Hunter"
+  >>> browser.getControl(name="form.orgunitTypes.add").click()
+  >>> browser.getControl(name="form.orgunitTypes.1.").value = "Gatherer"
+  >>> browser.getControl("Add Organization").click()
+
+Organizations can be edited:
+
+  >>> browser.open("http://localhost:8080/gumsite/orgs/clancampfire/@@editorg")
+  >>> browser.getControl(name="form.description").value = "ME GROK CLAN! YOU GROK CLAN!"
+  >>> browser.getControl("Save changes").click()
+
+Organizations can contain Office Locations:
+
+  >>> browser.open("http://localhost:8080/gumsite/orgs/clancampfire/@@addofficelocation")
+  >>> browser.getControl(name="form.title").value = "Grok Summer Cave"
+  >>> browser.getControl(name="form.street").value = "1 Grok Meadows"
+  >>> browser.getControl(name="form.postalAddressSuite").value = "#1"
+  >>> browser.getControl(name="form.localityName").value = "Timbuktu"
+  >>> browser.getControl(name="form.st").value = "Caveland"
+  >>> browser.getControl(name="form.postalCode").value = "90210"
+  >>> browser.getControl(name="form.telephoneNumber").value = "1-900-HOT-GROK"
+  >>> browser.getControl(name="form.fax").value = "1-800-555-GROK"
+  >>> browser.getControl(name="form.rooms.add").click()
+  >>> browser.getControl(name="form.rooms.0.").value = "The Grotto"
+  >>> browser.getControl("Add Office Location").click()
+
+Organizations can be deleted:
+
+  >>> browser.open("http://localhost:8080/gumsite/orgs/@@deleteorg?id=clancampfire")

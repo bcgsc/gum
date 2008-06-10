@@ -1,0 +1,16 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Transcript</h2>
+
+		<p>Modification made to the entry <pre tal:content="context/dn" /></p>
+		<p>Modification Principal: <pre tal:content="context/principal_id" /></p>
+		<ul>
+			<li> Before: <pre tal:content="context/before" /></li>
+			<li> After: <pre tal:content="context/after" /></li>
+			
+		</ul>
+    </div>
+
+</html>

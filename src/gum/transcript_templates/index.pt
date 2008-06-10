@@ -1,0 +1,75 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content"
+		 tal:define="site view/site">
+
+		<h2>Transcripts</h2>
+
+		<p>Record of all LDAP User and Group modifications made through this GUM Application instance.</p>
+		
+		<table class="listing">
+			<tr>
+				<th>LDAP Server</th>
+				<td tal:content="site/ldap_host"/>
+			</tr>
+			<tr>
+				<th>LDAP User Search Base</th>
+				<td tal:content="site/ldap_user_search_base" />
+			</tr>
+			<tr>
+				<th>LDAP Group Search Base</th>
+				<td tal:content="site/ldap_group_search_base" />
+			</tr>	
+		</table>
+		
+		<table class="listing">
+			
+			<tr>
+				<th>Distinguished Name</th>
+				<th>Modified By</th>
+				<th>Modification Datetime</th>
+				<th>Differences</th>
+			</tr>
+			
+			<tr tal:repeat="trst python:context.sorted_by_date()[:100]">
+				<td><span tal:content="trst/dn" /></td>
+				<td tal:define="user trst/user"><span tal:replace="user/cn" /></td>
+				<td tal:content="python: str(trst.observation_datetime)[:len('2007-02-21 14:56')]" />
+				<td>
+					<table class="diff">
+						<tr>
+							<th>Attribute</th>
+							<th>Before</th>
+							<th>After</th>
+						</tr>
+						<tr tal:repeat="diff trst/diffs">
+						
+							<tal:single tal:condition="python: diff.has_key('before')">
+							<td tal:content="diff/attribute" />
+							<td tal:content="diff/before" />
+							<td tal:content="diff/after" />
+							</tal:single>
+							
+							<tal:multi tal:condition="python: diff.has_key('removed')">
+							<td tal:content="diff/attribute" />
+							<td>
+								Removed: <span tal:repeat="entry diff/removed">
+								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+								</span>
+							</td>
+							<td>
+								Added: <span tal:repeat="entry diff/added">
+								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+								</span>
+							</td>
+							</tal:multi>
+						
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+		</table>
+    </div>
+
+</html>

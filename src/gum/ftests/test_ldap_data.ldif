@@ -1,0 +1,79 @@
+dn: dc=example,dc=com
+objectClass: dcObject
+objectClass: organization
+dc: example
+o: Example Organization
+
+# Organizational Role for Directory Manager
+dn: cn=Manager,dc=example,dc=com
+objectClass: person
+objectClass: top
+cn: Manager
+sn: Manager
+userPassword: {SSHA}zumOvz5F7QHsjxZc7gImuXmnsMT2a0PT
+
+dn: ou=Webusers,dc=example,dc=com
+ou: Webusers
+objectClass: top
+objectClass: organizationalUnit
+
+dn: uid=jdoe,ou=Webusers,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: jdoe
+userPassword: {SSHA}zumOvz5F7QHsjxZc7gImuXmnsMT2a0PT
+sn: Doe
+cn: John Doe
+givenName: John
+mail: jdoe@example.com
+title: Staff Scientist
+telephoneNumber: (604) 707 5900 extn 5410
+o: example
+employeeType: Full Time
+roomNumber: 1st floor - offices
+street: 570 West 7th Ave
+ou: Bioinformatics
+
+dn: uid=ssmith,ou=Webusers,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: ssmith
+userPassword: {SSHA}zumOvz5F7QHsjxZc7gImuXmnsMT2a0PT
+sn: Smith
+cn: Sally Smith
+givenName: Sally
+mail: ssmith@example.com
+title: Staff Scientist
+telephoneNumber: (604) 707 5900 extn 5410
+o: example
+employeeType: Full Time
+roomNumber: 1st floor - offices
+street: 570 West 7th Ave
+ou: Bioinformatics
+
+dn: ou=Groups,dc=example,dc=com
+ou: Groups
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=Webgroups,ou=Groups,dc=example,dc=com
+ou: Webgroups
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=employee,ou=Webgroups,ou=Groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: employee
+uniqueMember: uid=jdoe,ou=Webusers,dc=example,dc=com
+uniqueMember: uid=ssmith,ou=Webusers,dc=example,dc=com
+
+dn: cn=admin,ou=Webgroups,ou=Groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: admin
+uniqueMember: uid=ssmith,ou=Webusers,dc=example,dc=com

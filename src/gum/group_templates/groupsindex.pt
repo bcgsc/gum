@@ -1,0 +1,26 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Groups</h2>
+
+		<table class="listing">
+			<tr>
+				<th>Group Id</th>
+				<th>Description</th>
+			</tr>
+			
+			<tr tal:repeat="group context/values">
+				<td>
+					<a href="#"
+					   tal:attributes="href string:./${group/cn}"
+					   tal:content="group/cn" />
+				</td>
+				<td tal:content="group/description" />
+			</tr>
+		
+		</table>
+		
+    </div>
+
+</html>

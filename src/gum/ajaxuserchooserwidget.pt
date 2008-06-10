@@ -1,0 +1,48 @@
+<div xmlns:tal="http://xml.zope.org/namespaces/tal"
+     xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+
+<p tal:define="form_value view/_getFormValue">
+  <input type="hidden" name="foo.marker" id="foo.marker"
+         tal:define="marker string:${view/name}.marker"
+         tal:attributes="name marker; id marker" />
+  <tal:loop tal:repeat="item form_value">
+    <input type="hidden" name="foo" id="value.0.foo" value="item"
+           tal:condition="item"
+           tal:attributes="name string:${view/name};
+                           id string:value.${repeat/item/index}.${view/name};
+                           value item" />
+  </tal:loop>
+  <input type="hidden" id="foo" tal:attributes="id view/name" />
+  <select id="select.foo" size="5"
+          tal:attributes="id string:select.${view/name};
+                          size python:min(max(len(form_value), 5), 12)">
+    <tal:loop tal:repeat="item form_value">
+      <option tal:condition="item" tal:content="item"
+              tal:attributes="value item">item</option>
+    </tal:loop>
+  </select>
+  <button
+      type="button" onclick="sequenceRemoveItem('foo')"
+      tal:attributes="onclick string:sequenceRemoveItem('${view/name}')"
+      i18n:translate="button-remove">
+    Remove
+  </button>
+</p>
+
+<div>
+
+  <input type="text" id="input.foo"
+         tal:attributes="id string:input.${view/name}"
+         value="Click here to add a User" onfocus="this.value=''"
+         i18n:attributes="value" />
+  <div id="autocomplete_choices" class="autocomplete"></div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	var user_name_auto_completer = new Ajax.Autocompleter("input.form.uids", "autocomplete_choices", "../../autocompletesearchuidaddable", {paramName: "search_term", minChars: 2});
+	//]]>
+	</script>
+
+</div>
+
+</div>

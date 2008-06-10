@@ -1,0 +1,60 @@
+XML-RPC Web Service
+*******************
+
+:Test-Layer: functional
+
+GUM is a handy way of querying via XML-RPC. This is easier to script
+against than raw LDAP queries, and it preserves any events that happen
+as a result of modifications to LDAP via GUM.
+
+Except right now we only have two read-only methods. We could add more
+as needed ...
+
+Also this should ideally be more of a unit test coverage thing, but we
+have to do more refactoring for GUM, especially with the LDAP integration.
+But this should at least remind Kevin not to break things in the future ...
+
+We can set-up an XML-RPC client connection:
+
+  >>> from gum.ftests.xmlrpc_helper import ServerProxy
+  >>> gumapi = ServerProxy("http://localhost:8080/gumsite")
+ 
+We can query for information about a group. Note that if the group doesn't
+exist, we still get back an empty result set. This is kinda wrong behaviour,
+and when we fix it, this test suite will also need to be adjusted ...
+
+  >>> gumapi.get_group_info_by_id('bogusgroup')
+  {'description': '', 'uids': [], 'title': 'bogusgroup'}
+
+We can also query for information about a user. Same oddball empty result
+bevaviour:
+
+  >>> gumapi.get_user_info_by_id('bogususer')
+  {'telephoneNumber': '', 'cn': '', 'email': ''}
+ 
+Let's try and test something useful. We will first create a group, with a
+single user, then get that information back using the XML-RPC API:
+
+  >>> gumsite = getRootFolder()['gumsite']
+  >>> from gum.group import Group
+  >>> from gum.user import User
+  >>> joe = User('joe','cn','sn',)
+  >>> joe.cn = 'ME JOE'
+  >>> joe.save()
+  >>> tribe = Group('mammoth hunters')
+  >>> tribe.description = 'band of neanderthals'
+  >>> tribe.uids = ['joe',]
+  >>> tribe.save()
+  >>> gumapi.get_group_info_by_id('mammoth hunters')
+  {'description': 'band of neanderthals', 'uids': ['joe'], 'title': 'mammoth hunters'}
+
+We can also query for information about 'joe':
+
+  >>> gumapi.get_user_info_by_id('joe')
+  {'telephoneNumber': '', 'cn': 'ME JOE', 'email': ''}
+
+Then we gotta remember to clean-up LDAP:
+
+  >>> del gumsite['groups']['mammoth hunters']
+  >>> del gumsite['users']['joe']
+

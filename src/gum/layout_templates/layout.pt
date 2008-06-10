@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en" metal:define-macro="page">
+
+<head>
+<link rel="stylesheet" tal:attributes="href static/juice.css" type="text/css" />
+<script tal:attributes="src static/sorttable.js" type="text/javascript"></script>
+<script tal:attributes="src static/prototype.js" type="text/javascript"></script>
+<script tal:attributes="src static/scriptaculous.js" type="text/javascript"></script>
+<script tal:attributes="src static/sequence.js" type="text/javascript"></script>
+<script tal:attributes="src static/gum.js" type="text/javascript"></script>
+</head>
+
+<body>
+	
+	<div id="portal-top">
+		<tal:block replace="structure provider:top.gum" />		
+	</div>
+	
+    <div id="content">
+      <div metal:define-slot="content">
+        Application information goes here.
+      </div>
+    </div>
+	
+	<div id="portal-bottom">
+		<tal:block replace="structure provider:bottom.gum" />	
+	</div>
+
+</body>
+</html>

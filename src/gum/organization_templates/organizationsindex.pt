@@ -1,0 +1,27 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Organizations</h2>
+			
+		<table class="data">
+			<tr>
+				<th>Name</th>
+				<th>Members</th>
+			</tr>
+			
+			<tr tal:repeat="org context/values">
+				<td>
+					<a href="#"
+					   tal:attributes="href python:view.url(org)"
+					   tal:content="org/title|nothing">
+					Organization Name</a>
+				</td>
+				<td>
+					<span tal:replace="org/member_count" />
+				</td>
+			</tr>
+		</table>
+    </div>
+	
+</html>

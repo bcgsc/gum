@@ -1,0 +1,41 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+	<h2>Search Results</h2>
+	
+	<tal:results tal:define="results view/results">
+		
+	<p tal:condition="not: results">Your search term of "<span tal:replace="request/search_term" />" returned no results.</p>
+	
+	<table class="listing" tal:condition="results">
+	
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Phone</th>
+			<th>User Id</th>
+		</tr>
+		
+		<tr tal:repeat="user view/results">
+			<td>
+				<a href="#"
+					tal:attributes="href python:view.url(user)"
+				 	tal:content="user/cn" />
+			</td>
+			<td>
+				<a href="#"
+				   tal:attributes="href string:mailto:${user/email}"
+				   tal:content="user/email" />
+			</td>
+			<td tal:content="user/telephoneNumber" />
+			<td tal:content="user/uid" />
+		</tr>
+	
+	</table>
+	
+	</tal:results>
+	
+	</div>
+
+</html>

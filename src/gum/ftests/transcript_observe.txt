@@ -1,0 +1,66 @@
+Observe Transcript
+******************
+
+:Test-Layer: functional
+
+Transcripts are a record of all modifciations made to LDAP
+through the GUM application. They have the assumption that other
+tools may be used to modify LDAP, and as such are not expected to
+have a complete record of all changes.
+
+Our Users and Groups fire three events:
+
+ * ObjectCreatedEvent
+ * ObjectModifiedEvent
+ * ObjectRemovedEvent (not yet implemented)
+
+Transcripts are record for Users and Groups. Every time a modifcation
+happens to LDAP, we record a transcript. These are stored in the 
+'transcripts' container:
+
+  >>> import grok
+  >>> from gum.interfaces import ITranscripts
+  >>> app = grok.getSite()
+  >>> transcript_container = app['transcripts']
+  >>> ITranscripts.providedBy(transcript_container)
+  True
+
+This container starts out empty:
+
+  >>> len(transcript_container)
+  0
+
+However, if we create a User, a transcript is recorded. Note that the
+Views are responsible for firing off the events, so we'll simulate a
+browser session:
+
+  >>> from zope.testbrowser.testing import Browser
+  >>> browser = Browser()
+  >>> browser.handleErrors = False
+  >>> from zope.securitypolicy.rolepermission import rolePermissionManager
+  >>> rolePermissionManager.grantPermissionToRole('gum.Add',
+  ...                                             'zope.Manager')
+  >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
+  >>> browser.open("http://localhost:8080/gumsite/@@adduser")
+  >>> browser.getControl(name="form.cn").value = "Manfred the Mammoth"
+  >>> browser.getControl(name="form.sn").value = "Mammoth"
+  >>> browser.getControl(name="form.givenName").value = "Manfred"
+  >>> browser.getControl(name="form.uid").value = "mmammoth"
+  >>> browser.getControl(name="form.email").value = "manfred@grokmail.cave"
+  >>> browser.getControl(name="form.telephoneNumber").value = "1-800-EAT-GROK"
+  >>> browser.getControl("Add User entry").click()
+  >>> len(transcript_container)
+  1
+
+We can query for our transcript by the date added and the dn:
+
+  >>> from gum.user import User
+  >>> user = User('mmammoth')
+
+XXX TBD:
+
+ * query for transcript and test it ...
+  
+Finally, let's clean-up the test LDAP:
+
+  >>> del app['users']['mmammoth']

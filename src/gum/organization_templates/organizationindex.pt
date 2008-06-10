@@ -1,0 +1,137 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Organization: <span tal:replace="context/title" />
+		</h2>
+
+		<p tal:content="context/description" />
+		
+		<table><tr><td>
+		
+		<h3>People</h3>
+		
+		<p>This organization has <span tal:replace="context/member_count" /> members.</p>
+		
+		<form action="../@@orgsearch">
+			
+			<h1>Filter People</h1>
+			
+			<input type="hidden" name="organizations:list" value="#"
+			    tal:attributes="value context/__name__" />
+			
+			<div class="field">
+				<label>Office Location</label>
+				<div class="formHelp"></div>
+				<div tal:repeat="office context/offices">
+					<input type="checkbox" name="streets:list" value="#"
+					     tal:attributes="value office/street" /> <span tal:replace="office/title" /><br />
+				</div>
+			</div>
+			
+			<div class="field">
+				<label>Employee Type</label>
+				<div class="formHelp"></div>
+				<div tal:repeat="employeeType context/employeeTypes">
+					<input type="checkbox" name="employeeTypes:list" value="#"
+					    tal:attributes="value employeeType" /> <span tal:replace="employeeType" /><br />
+				</div>
+			</div>
+			
+			<div class="field">
+				<label>Organizational Unit Types</label>
+				<div class="formHelp"></div>
+				<div tal:repeat="orgunitType context/orgunitTypes">
+					<input type="checkbox" name="orgunitTypes:list" value="#"
+					    tal:attributes="value orgunitType" /> <span tal:replace="orgunitType" /><br />
+				</div>
+			</div>
+			
+			<div class="field">
+				<input type="submit" name="search" value="Display Users">
+			</div>
+		
+		</form>
+		
+		</td><td style="padding-left: 2em;">
+		
+		<h3>Offices</h3>
+		
+		<table class="listing"
+		       tal:repeat="office context/values">
+			<tr>
+				<th>Short Name</th>
+				<td tal:content="office/title" />
+			</tr>
+			<tr>
+				<th>Address</th>
+				<td>
+					<span tal:replace="office/street" />
+					<span tal:condition="office/postalAddressSuite"
+					      tal:replace="string: - ${office/postalAddressSuite}" /><br />
+					<span tal:replace="office/localityName" />
+					<span tal:condition="office/st" 
+					      tal:content="string:, ${office/st}"/><br />
+					<span tal:replace="office/postalCode" /><br />
+				</td>
+			</tr>
+			<tr>
+				<th>Phone</th>
+				<td tal:content="office/telephoneNumber" />
+			</tr>
+			<tr>
+				<th>Fax</th>
+				<td tal:content="office/fax" />
+			</tr>
+			<tr tal:condition="office/rooms">
+				<th>Rooms</th>
+				<td>
+					<ul tal:repeat="room office/rooms">
+						<li tal:content="room" />
+					</ul>
+			</tr>
+			<tr tal:condition="view/is_admin">
+				<th>Edit this Office Location</th>
+				<td>
+					<ul>
+						<li>
+							<a href="#"
+							   tal:attributes="href python:view.url(office,'editofficelocation')">Edit <span tal:replace="office/title" /></a></li>
+						<li>
+						<a href="#"
+						   tal:attributes="href python:view.url(context,'deleteofficelocation') + '?id=%s' % office.__name__">
+						<img src="#"
+						   tal:attributes="src static/delete.png" alt="Delete" /></a>
+						Delete <span tal:replace="office/title" />
+						</li>
+					</ul>
+				</td>
+			</tr>
+		</table>
+
+		<p tal:condition="view/is_admin">
+		<a href="#"
+		   tal:attributes="href python: view.url(context, 'addofficelocation')"><img src="#" tal:attributes="src static/add.png" alt="Add Office Location" />
+			Add Office Location</a>
+		</p>
+		
+		<h3>Employee Types</h3>
+		<ul>
+			<li tal:repeat="etype context/employeeTypes">
+			<span tal:replace="etype" />
+			</li>
+		</ul>
+		
+		<h3>Organizational Unit Types</h3>
+		<ul>
+			<li tal:repeat="orgtype context/orgunitTypes">
+			<span tal:replace="orgtype" />
+			</li>
+		</ul>
+		
+		</td></tr>
+		</table>
+		
+    </div>
+	
+</html>

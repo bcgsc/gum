@@ -1,0 +1,16 @@
+<ul id="groupmembers">
+	<li tal:condition="not: context/groups">
+		User does not belong to any groups.
+	</li>
+	<li tal:repeat="group context/groups">
+		<a id="revoke" 
+		   tal:attributes="href python:view.url(context, 'revoke') + '?gid=%s' % group.cn">
+		<img src="#"
+		   tal:attributes="src static/delete.png" alt="Delete" />
+		Revoke</a>
+		<a href="#"
+			tal:attributes="href python:view.url(group)"
+			tal:content="group/cn" />
+		<br clear="both" />
+	</li>
+</ul>

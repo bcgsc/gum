@@ -1,0 +1,47 @@
+Install
+-------
+
+GUM is a Grok application. A GUM buildout can be created with zc.buildout.
+
+To get started you would do something like this:
+
+  $ svn co https://svn.bcgsc.ca/svn/gum/trunk gum
+  $ cd gum
+  $ ./bootstrap/bootstrap.py
+  $ ./bin/buildout
+
+You should now be able to bring up the application with:
+
+  $ ./bin/zopectl start
+
+The default buildout will install additional parts for development and 
+testing. To install just the parts required to use in a production 
+environment use:
+
+ $ ./bin/buildout -c production.cfg
+
+
+LDAP Instance
+-------------
+
+To default buildout of GUM configures an LDAP instance. You must have
+OpenLDAP pre-installed (currently this works on Mac OS X, will need tweaking
+for other OSes). You must start this instance before running the app or
+functional tests:
+
+  $ ./bin/slapd start
+
+If you need to debug LDAP, it can be started in debug mode with:
+
+  $ /usr/libexec/slapd -f ./parts/slapd/slapd.conf -d 255 \
+    -h ldap://127.0.0.1:1700
+
+Note that the functional tests expect the server to start on port 1700.
+
+
+TO-DO
+-----
+
+Some bits still require manual intervention:
+
+ * python-ldap bindings need to be installed into your Python.

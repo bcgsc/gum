@@ -1,0 +1,49 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>GUM: Group, User Manager application</h2>
+		
+		<p>
+		GUM allows you to browse and search through users and groups
+		in an LDAP server.
+		</p>
+		
+		<table><tr><td style="width: 50%; padding-right: 2em; vertical-align: top;">
+		<form action="./simpleusersearch" 
+			  method="get"
+			  style="margin-top: 2em; margin-bottom: 4em;">
+		<h1>Quick User Search</h1>
+			<input type="text" id="autocomplete" name="search_term"/><input type="submit" value=" Search "/>
+			<div id="autocomplete_choices" class="autocomplete"></div>
+
+			<script type="text/javascript">
+			//<![CDATA[
+			var user_name_auto_completer = new Ajax.Autocompleter("autocomplete", "autocomplete_choices", "./autocompletesearch", {paramName: "search_term", minChars: 2});
+			//]]>
+			</script>
+		</form>
+		
+		</td><td style="width: 50%; vertical-align: top;">
+
+		<table class="listing">
+			<tr>
+				<th>LDAP Server</th>
+				<td tal:content="context/ldap_host"/>
+			</tr>
+			<tr>
+				<th>LDAP Users</th>
+				<td tal:content="context/ldap_user_search_base" />
+			</tr>
+			<tr>
+				<th>LDAP Groups</th>
+				<td tal:content="context/ldap_group_search_base" />
+			</tr>	
+		</table>
+
+		</td></tr>
+		</table>
+		
+    </div>
+
+</html>

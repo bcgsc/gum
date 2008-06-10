@@ -1,0 +1,17 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Smart Searches</h2>
+		
+		<ul>
+			<li tal:repeat="smart view/smartsearches">
+				<a href="#"
+				   tal:attributes="href smart/__name__"
+				   tal:content="smart/title" />
+			</li>
+		</ul>
+		
+    </div>
+
+</html>

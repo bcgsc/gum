@@ -1,0 +1,94 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+		<h2>Group: <span tal:replace="context/cn" /></h2>
+
+		<pre tal:content="context/description" />
+		
+		<p>Distinguished Name (dn): <span tal:content="context/dn" />
+		</p>
+		
+		<table class="listing">
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+				<th>Phone</th>
+				<th>User Id</th>
+			</tr>
+
+			<tr tal:repeat="user context/users">
+				<td>
+					<a href="#"
+						tal:attributes="href python:view.url(user)"
+					 	tal:content="user/cn"
+					 	tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+				</td>
+				<td>
+					<a href="#"
+					   tal:attributes="href string:mailto:${user/email}"
+					   tal:content="user/email"
+					   tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+				</td>
+				<td>
+					<span tal:content="user/telephoneNumber" 
+					      tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+				</td>
+				<td tal:content="user/uid" />
+			</tr>
+
+		</table>
+		
+		<tal:mod tal:condition="python: len(context.transcripts()) > 0">
+		<h3>Modifications made to this Entry</h3>
+		
+		<table class="listing">
+			<tr>
+				<th>Modified By</th>
+				<th>Modification Datetime</th>
+				<th>Differences</th>
+			</tr>
+			
+			<tr tal:repeat="trst context/transcripts">
+				<td tal:define="user trst/user"><span tal:replace="user/cn" /></td>
+				<td tal:content="python: str(trst.observation_datetime)[:len('2007-02-21 14:56')]" />
+				<td>
+					<table class="diff">
+						<tr>
+							<th>Attribute</th>
+							<th>Before</th>
+							<th>After</th>
+						</tr>
+						<tr tal:repeat="diff trst/diffs">
+
+							<tal:single tal:condition="python: diff.has_key('before')">
+							<td tal:content="diff/attribute" />
+							<td tal:content="diff/before" />
+							<td tal:content="diff/after" />
+							</tal:single>
+							
+							<tal:multi tal:condition="python: diff.has_key('removed')">
+							<td tal:content="diff/attribute" />
+							<td>
+								Removed: <span tal:repeat="entry diff/removed">
+								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+								</span>
+							</td>
+							<td>
+								Added: <span tal:repeat="entry diff/added">
+								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+								</span>
+							</td>
+							</tal:multi>
+							
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		</tal:mod>
+		
+		
+    </div>
+
+</html>
