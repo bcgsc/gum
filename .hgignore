@@ -1,0 +1,12 @@
+syntax: glob
+*.pyc
+bin
+src/*.egg-info
+src/trips/*.pyc
+src/trips/interfaces/*.pyc
+src/trips/data_import/*.pyc
+parts
+develop-eggs
+.installed.cfg
+build
+var
