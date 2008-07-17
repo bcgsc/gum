@@ -1,0 +1,53 @@
+User Add
+********
+
+:Test-Layer: functional
+
+The User Add screen code is major crufty. Let's make sure it works as
+desired:
+
+  >>> from zope.testbrowser.testing import Browser
+  >>> from zope.securitypolicy.rolepermission import rolePermissionManager
+  >>> rolePermissionManager.grantPermissionToRole('gum.Add',
+  ...                                             'zope.Manager')
+  >>> browser = Browser()
+  >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
+  >>> browser.handleErrors = False
+  >>> browser.open("http://localhost:8080/gumsite/adduser")
+
+We can now add a user through the web user interface:
+
+  >>> browser.getControl(name="form.cn").value = "Manfred the Mammoth"
+  >>> browser.getControl(name="form.sn").value = "Mammoth"
+  >>> browser.getControl(name="form.givenName").value = "Manfred"
+  >>> browser.getControl(name="form.uid").value = "mmammoth"
+  >>> browser.getControl(name="form.email").value = "manfred@grokmail.cave"
+  >>> browser.getControl(name="form.telephoneNumber").value = "1-800-EAT-GROK"
+  >>> browser.getControl(name="form.description").value = "The famous mammoth."
+  >>> browser.getControl("Add User entry").click()
+
+What do we get?
+
+  >>> gumsite = getRootFolder()['gumsite']
+  >>> manfred = gumsite['users']['mmammoth']
+  >>> manfred.cn
+  u'Manfred the Mammoth'
+
+  >>> manfred.sn
+  u'Mammoth'
+
+  >>> manfred.telephoneNumber
+  u'1-800-EAT-GROK'
+
+  >>> manfred.description
+  u'The famous mammoth.'
+
+Email was giving us problems:
+
+  >>> manfred.email
+  u'manfred@grokmail.cave'
+
+We can clean-up our test LDAP by deleting the user that we just created:
+
+  >>> browser.open("http://localhost:8080/gumsite/users/@@deleteuser?id=mmammoth")
+
