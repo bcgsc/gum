@@ -266,14 +266,16 @@ class User(grok.Model):
         entry = { 'objectClass':
                   ['top', 'person', 'organizationalPerson', 'inetOrgPerson'],}
         # TO-DO clean-up
-        for attrname in ['cn','sn','givenName','mail','street','description',
+        for attrname in ['cn','sn','givenName','street','description',
             'roomNumber','o','ou','employeeType','uid',
             'telephoneNumber']:
             if getattr(self, attrname, None):
                 entry[attrname] = [getattr(self, attrname, None),]
         if getattr(self, 'job_title', None):
             entry['title'] = [getattr(self, 'job_title', None),]
-        
+        if getattr(self, 'email', None):
+            entry['mail'] = [getattr(self, 'email', None),]
+    
         return entry
     
     @property
