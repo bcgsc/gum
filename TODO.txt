@@ -6,12 +6,6 @@ Feature Requests
 
  * Email Notification
   - optional check-box on account creation to notify user
-  - implementation:
-    * New Account Creation fires an IObjectCreatedEvent filtered on IUser objects
-    * gscgum:
-      - create a separate package for GSC-specific components
-      - subscriber responds to notification by doing a simple
-        HTTP POST to the Password Reset Service in the public Plone.
 
  * User Browse
   - investigate Zope 3 pagination options
@@ -33,10 +27,6 @@ Feature Requests
 
  * Testing
   - refactor for unit tests?
-
- * Grok 0.12 support
-  - need new releases of ldappas and ldapadapter
-  - how to install python-ldap via buildout?
 
 Bugs
 ----

@@ -1,3 +1,7 @@
+0.7
+
+  First public release.
+
 0.6.2
 
   Starting a history file.
