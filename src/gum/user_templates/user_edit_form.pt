@@ -27,7 +27,7 @@
 
   <table class="form-fields">
     <tbody>
-      <tal:block repeat="widget view/form/widgets">
+      <tal:block repeat="widget view/widgets">
         <tr>
           <td class="label" tal:define="hint widget/hint">
             <label tal:condition="python:hint"
@@ -58,8 +58,8 @@
   </table>
 
   <div id="actionsView">
-    <span class="actionButtons" tal:condition="view/form/availableActions">
-      <input tal:repeat="action view/form/actions"
+    <span class="actionButtons" tal:condition="view/availableActions">
+      <input tal:repeat="action view/actions"
              tal:replace="structure action/render"
              />
     </span>
