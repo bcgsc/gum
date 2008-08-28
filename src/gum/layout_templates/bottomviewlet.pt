@@ -2,42 +2,42 @@
 
 <div id="actions" tal:define="principal request/principal">
 	
-<div tal:condition="not: view/is_logged_in">
+<div tal:condition="not: viewlet/is_logged_in">
 	You are not logged in. Please
 	<a href="#"
 	   tal:attributes="href python: view.url(view.app(), 'loginpage')">log in</a>
 	to manage GUM.
 </div>
 
-<div tal:condition="view/is_logged_in">
+<div tal:condition="viewlet/is_logged_in">
 
 	<p>You are logged in as <span tal:replace="principal/title" />
 	(<span tal:on-error="string:zope.Manager" tal:replace="principal/uid" />).
     </p>
 
-	<div tal:condition="view/is_admin">
+	<div tal:condition="viewlet/is_admin">
 
 	<table class="actions"><tr><td>
 	<h3>Global Actions</h3>
 
 	<ul>
 		<li>
-			<a href="#" tal:attributes="href python: view.url(view.app(), 'adduser')" >Add User Account</a>
+			<a href="#" tal:attributes="href python: view.url(viewlet.app(), 'adduser')" >Add User Account</a>
 		</li>
 		<li>
-			<a href="#" tal:attributes="href python: view.url(view.app(), 'addgroup')" >Add Group</a>
+			<a href="#" tal:attributes="href python: view.url(viewlet.app(), 'addgroup')" >Add Group</a>
 		</li>
 		<li>
-			<a href="#" tal:attributes="href python: view.url(view.app()['orgs'], 'addorg')">Add Organization</a>
+			<a href="#" tal:attributes="href python: view.url(viewlet.app()['orgs'], 'addorg')">Add Organization</a>
 		</li>
 		<li>
-			<a href="#" tal:attributes="href python: view.url(view.app()['smart'], 'addsmart')">Add Smart Search</a>
+			<a href="#" tal:attributes="href python: view.url(viewlet.app()['smart'], 'addsmart')">Add Smart Search</a>
 		</li>
 	</ul>
 
 	</td><td>
 
-	<tal:contextual tal:define="typeinfo view/get_type_info"
+	<tal:contextual tal:define="typeinfo viewlet/get_type_info"
 					tal:condition="typeinfo">
 
 	<h3>Actions for the <span tal:replace="typeinfo/typename" />

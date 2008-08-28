@@ -1,7 +1,7 @@
 <h1>GUM: Group, User Manager</h1>
 
 <ul id="portal-globalnav">
-	<li class="plain" tal:repeat="obj view/nav">
+	<li class="plain" tal:repeat="obj viewlet/nav">
 		<a href="#" tal:attributes="href python:view.url(obj)"
 		   tal:content="obj/title" />
 	</li>
