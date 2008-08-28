@@ -5,7 +5,7 @@
 <div tal:condition="not: viewlet/is_logged_in">
 	You are not logged in. Please
 	<a href="#"
-	   tal:attributes="href python: view.url(view.app(), 'loginpage')">log in</a>
+	   tal:attributes="href python: view.url(viewlet.app(), 'loginpage')">log in</a>
 	to manage GUM.
 </div>
 
