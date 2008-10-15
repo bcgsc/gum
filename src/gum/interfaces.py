@@ -304,6 +304,14 @@ class ISmartSearch(Interface, IBaseContent):
     )
 
 
+class IExtensionMaker(Interface):
+    def __init__(self):
+        "Create an IExtension instance"
+
+class IExtension(Interface):
+    title = TextLine(title=u"Title")
+
+
 #
 # Content Type Info is stored as Tagged Values on the content interfaces
 #

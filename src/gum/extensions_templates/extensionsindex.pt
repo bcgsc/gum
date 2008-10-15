@@ -1,0 +1,39 @@
+<html metal:use-macro="context/@@layout/macros/page">
+
+    <div metal:fill-slot="content">
+
+        <h2>GUM Extensions</h2>
+        
+        <p>Extensions are add-ons for GUM that provide additional
+           functionality.</p>
+          
+        <h2>Installed Extensions</h2>
+        
+        <ul tal:condition="context/installed">
+            <li tal:repeat="ext context/values">
+                <p><a tal:attributes="href python:view.url(ext)"
+                      tal:content="ext/title" /></p>
+            </li>
+        </ul>
+    
+        <p tal:condition="not: context/installed">
+            There are no installed extensions.
+        </p>
+
+        <h2>Available Extensions</h2>
+        
+        <ul tal:condition="context/available">
+            <li tal:repeat="ext context/available">
+                <p><a tal:attributes="href python:view.url(context,'add',
+                      {'name':view.get_ext_name(ext)} )"
+                      tal:content="ext/title" /></p>
+            </li>
+        </ul>
+        
+        <p tal:condition="not: context/available">
+            There are no available extensions.
+        </p>
+    
+    </div>
+
+</html>

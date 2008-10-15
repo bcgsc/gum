@@ -7,7 +7,7 @@ from gum.ldapapp import LDAPApp
 from gum.organization import Organizations
 from gum.interfaces import IOrganization
 from gum.smart import SmartSearches
-
+from gum.extensions import Extensions
 
 class migrate04to05(object):
     def __init__(self, app):
@@ -39,6 +39,18 @@ class migrate05to06(object):
         
         return "Smart Searches Container added."
 
+class migrate06to08(object):
+    def __init__(self, app):
+        self.app = app
+    
+    def up(self):
+        self.app.version = (0,8,0)
+        
+        ext = Extensions()
+        ext.title = 'Extensions'
+        self.app['extensions'] = ext
+        
+        return 'Extensions Container added.'
 
 class upgradeApplication(grok.View):
     """
@@ -53,7 +65,7 @@ class upgradeApplication(grok.View):
     
     def update(self):
         if not hasattr(self.context, 'version'):
-            self.context.version = (0,4,2)
+            self.context.version = (0,6,0)
     
     def render(self):
         if self.context.version == (0,4,2):
@@ -63,6 +75,11 @@ class upgradeApplication(grok.View):
             ( '.'.join( [str(x) for x in self.context.version] ), results )
         elif self.context.version == (0,5,0):
             migration = migrate05to06(app = self.context)
+            results = migration.up()
+            return "Application upgraded to %s.\n\n%s\n" % \
+            ( '.'.join( [str(x) for x in self.context.version] ), results )
+        elif self.context.version == (0,6,0):
+            migration = migrate06to08(app = self.context)
             results = migration.up()
             return "Application upgraded to %s.\n\n%s\n" % \
             ( '.'.join( [str(x) for x in self.context.version] ), results )

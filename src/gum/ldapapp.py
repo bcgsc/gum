@@ -23,6 +23,7 @@ from gum.user import Users, User
 from gum.organization import Organizations
 from gum.transcript import Transcripts
 from gum.smart import SmartSearches
+from gum.extensions import Extensions
 from gum.cookiecredentials import CookieCredentialsPlugin
 from gum.interfaces import ILDAPUserGroupLocation
 from gum.interfaces import ITranscript, IOrganization
@@ -83,7 +84,9 @@ class LDAPApp(grok.Application, grok.Container):
         self['orgs'].title = 'Organizations'
         self['smart'] = SmartSearches()
         self['smart'].title = 'Smart Searches'
-        
+        self['plugins'] = Extensions()
+        self['plugins'].title = 'Extensions'
+    
     def ldap_connection(self):
         "LDAP connection"
         return zapi.queryUtility(IManageableLDAPAdapter, 'gumldapda').connect()
