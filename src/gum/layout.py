@@ -7,6 +7,11 @@ from zope.securitypolicy.interfaces import IGrantInfo
 from zope.app.interface import queryType
 from zope.app.content.interfaces import IContentType
 from gum.interfaces import IUser, IGroup, IOrganization
+import grokcore.view
+
+class Resources(grokcore.view.DirectoryResource):
+    grokcore.view.name('resources')
+    grokcore.view.path('resources')
 
 class Layout(grok.View):
     "Shared layout for the application"

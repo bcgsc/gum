@@ -232,7 +232,7 @@ class GroupEdit(grok.EditForm):
     grok.context(Group)
     grok.name('editgroup')
     grok.require(u'gum.EditGroup')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     label = 'Edit Group'
     form_fields = grok.AutoFields(Group).omit('dn')

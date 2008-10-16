@@ -3,12 +3,12 @@
       lang="en" metal:define-macro="page">
 
 <head>
-<link rel="stylesheet" tal:attributes="href static/juice.css" type="text/css" />
-<script tal:attributes="src static/sorttable.js" type="text/javascript"></script>
-<script tal:attributes="src static/prototype.js" type="text/javascript"></script>
-<script tal:attributes="src static/scriptaculous.js" type="text/javascript"></script>
-<script tal:attributes="src static/sequence.js" type="text/javascript"></script>
-<script tal:attributes="src static/gum.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/@@/resources/juice.css" type="text/css" />
+<script src="/@@/resources/sorttable.js" type="text/javascript"></script>
+<script src="/@@/resources/prototype.js" type="text/javascript"></script>
+<script src="/@@/resources/scriptaculous.js" type="text/javascript"></script>
+<script src="/@@/resources/sequence.js" type="text/javascript"></script>
+<script src="/@@/resources/gum.js" type="text/javascript"></script>
 </head>
 
 <body>

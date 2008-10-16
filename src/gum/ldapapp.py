@@ -133,7 +133,7 @@ class Edit(grok.EditForm):
     grok.context(LDAPApp)
     grok.name('edit')
     grok.require('zope.Manager')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     @grok.action('Save changes')
     def edit(self, **data):
@@ -202,7 +202,7 @@ class AddUser(grok.AddForm):
     grok.context(LDAPApp)
     grok.name('adduser')
     grok.require(u'gum.Add')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     form_fields = grok.AutoFields(User)
     form_fields = form_fields.select( 'cn',
@@ -352,7 +352,7 @@ class AddGroup(grok.AddForm):
     grok.context(LDAPApp)
     grok.name('addgroup')
     grok.require(u'gum.Add')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     form_fields = grok.AutoFields(Group).omit('dn','title')
     label = "Add Group"

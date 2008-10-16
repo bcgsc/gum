@@ -45,7 +45,7 @@ class AddSmartSearch(grok.AddForm):
     grok.context(SmartSearches)
     grok.name('addsmart')
     grok.require(u'gum.Add')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     form_fields = grok.Fields(
         id=schema.TextLine(title=u"id"))
@@ -65,7 +65,7 @@ class EditSmartSearch(grok.EditForm):
     grok.context(SmartSearch)
     grok.name('editsmart')
     grok.require(u'gum.Edit')
-    template = grok.PageTemplateFile('gum_edit_form.pt')
+    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
     
     form_fields = grok.AutoFields(SmartSearch)
 
