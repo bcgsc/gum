@@ -65,7 +65,7 @@ class AddOrganization(grok.AddForm):
     grok.context(Organizations)
     grok.name('addorg')
     grok.require(u'gum.Add')
-    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
+    template = grok.PageTemplateFile('gum_edit_form.pt')
     
     form_fields = grok.AutoFields(Organization)
     form_fields = form_fields.select( 'title',
@@ -275,7 +275,7 @@ class OrganizationEdit(grok.EditForm):
     grok.context(Organization)
     grok.name('editorg')
     grok.require(u'gum.Edit')
-    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
+    template = grok.PageTemplateFile('gum_edit_form.pt')
 
     label = 'Edit Organization'
     form_fields = grok.AutoFields(Organization)
@@ -310,7 +310,7 @@ class OfficeLocationAdd(grok.AddForm):
     grok.context(Organization)
     grok.name('addofficelocation')
     grok.require(u'gum.Add')
-    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
+    template = grok.PageTemplateFile('gum_edit_form.pt')
     
     form_fields = grok.AutoFields(OfficeLocation)
     label = "Add Office Location"
@@ -328,7 +328,7 @@ class OfficeLocationEdit(grok.EditForm):
     grok.context(OfficeLocation)
     grok.name('editofficelocation')
     grok.require(u'gum.Edit')
-    template = grok.PageTemplateFile('resources/gum_edit_form.pt')
+    template = grok.PageTemplateFile('gum_edit_form.pt')
 
     label = 'Edit Office Location'
     form_fields = grok.AutoFields(OfficeLocation)

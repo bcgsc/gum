@@ -27,3 +27,7 @@ def quote( value ):
     for char in special_chars:
         value = value.replace(char, '\\%s' % char)
     return value
+
+def edit_form_template():
+    """Return a Page Template suitable for usage in GUM Form Views"""
+    return grok.PageTemplateFile('gum_edit_form.pt')
