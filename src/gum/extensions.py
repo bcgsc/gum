@@ -19,9 +19,9 @@ class Extensions(grok.Container):
     def available(self):
         "List of uninstalled extensions"
         return [
-            ext_maker[1].make()
+            ext_maker[1].new()
             for ext_maker in component.getUtilitiesFor(IExtensionMaker)
-            if not self.is_installed(ext_maker[1].make())
+            if not self.is_installed(ext_maker[1].new())
         ]
 
 
@@ -34,13 +34,20 @@ class ExtensionsIndex(grok.View):
         return getattr(ext, 'grokcore.component.directive.name')
 
 
-class AddExtension(grok.View):
-    grok.context(Extensions)
-    grok.name('add')
+class Add(grok.View):
+    grok.require(u'gum.Edit')
     
     def render(self, name):
         ext_maker = component.getUtility(IExtensionMaker, name)
-        ext = ext_maker.make()
+        ext = ext_maker.new()
         self.context[name] = ext
         
         return self.redirect(self.url(ext, 'edit'))
+
+class Delete(grok.View):
+    grok.require(u'gum.Edit')
+    
+    def render(self, name):
+        del self.context[name]
+        
+        return self.redirect(self.url(self.context))

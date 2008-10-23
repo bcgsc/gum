@@ -52,8 +52,7 @@
 		<li>
 			<a href="#"
 			   tal:attributes="href python:'../@@%s?id=%s' % ( typeinfo['actions']['delete']['name'], context.__name__ )">
-			<img src="#"
-			   tal:attributes="src static/delete.png" alt="Delete" /></a>
+			<img src="/@@/resources/delete.png" alt="Delete" /></a>
 			Delete <span tal:replace="context/title" />
 		</li>
 	</ul>

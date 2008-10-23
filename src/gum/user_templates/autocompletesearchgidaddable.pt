@@ -1,10 +1,9 @@
 <ul>
 	<li tal:repeat="group view/groups">
 		<span tal:replace="group/cn" />
-		<img src="#"
+		<img src="/@@/resources/add.png"
 			 alt="Add" 
 			 onclick="#"
-			 tal:attributes="src static/add.png;
-						     onclick string:updateGroupMembers('${view/add_url}','${group/cn}')" />
+			 tal:attributes="onclick string:updateGroupMembers('${view/add_url}','${group/cn}')" />
 	</li>
 </ul>

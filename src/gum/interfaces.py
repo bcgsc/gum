@@ -305,8 +305,10 @@ class ISmartSearch(Interface, IBaseContent):
 
 
 class IExtensionMaker(Interface):
-    def __init__(self):
-        "Create an IExtension instance"
+    def new():
+        "Create a new IExtension instance"
+    def load():
+        "Load an existing IExtension instance"
 
 class IExtension(Interface):
     title = TextLine(title=u"Title")

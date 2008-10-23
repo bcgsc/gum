@@ -13,6 +13,8 @@
             <li tal:repeat="ext context/values">
                 <p><a tal:attributes="href python:view.url(ext)"
                       tal:content="ext/title" /></p>
+                <p><a tal:attributes="href python:view.url(context, data={'name':view.get_ext_name(ext)})">
+                    delete extension</a></p>
             </li>
         </ul>
     

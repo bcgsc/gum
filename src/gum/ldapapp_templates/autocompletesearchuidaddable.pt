@@ -1,10 +1,9 @@
 <ul>
 	<li tal:repeat="user view/users">
 		<span tal:replace="user/cn" />
-		<img src="#"
+		<img src="/@@/resources/add.png"
 			 alt="Add" 
 			 onclick="#"
-			 tal:attributes="src static/add.png;
-						     onclick string:sequenceAddClicked('form.uids','${user/uid}')" />
+			 tal:attributes="onclick string:sequenceAddClicked('form.uids','${user/uid}')" />
 	</li>
 </ul>

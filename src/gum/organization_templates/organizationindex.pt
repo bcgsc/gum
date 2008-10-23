@@ -100,8 +100,7 @@
 						<li>
 						<a href="#"
 						   tal:attributes="href python:view.url(context,'deleteofficelocation') + '?id=%s' % office.__name__">
-						<img src="#"
-						   tal:attributes="src static/delete.png" alt="Delete" /></a>
+						<img src="/@@/resources/delete.png" alt="Delete" /></a>
 						Delete <span tal:replace="office/title" />
 						</li>
 					</ul>
@@ -111,7 +110,7 @@
 
 		<p tal:condition="view/is_admin">
 		<a href="#"
-		   tal:attributes="href python: view.url(context, 'addofficelocation')"><img src="#" tal:attributes="src static/add.png" alt="Add Office Location" />
+		   tal:attributes="href python: view.url(context, 'addofficelocation')"><img src="/@@/resources/add.png" alt="Add Office Location" />
 			Add Office Location</a>
 		</p>
 		
