@@ -84,8 +84,8 @@ class LDAPApp(grok.Application, grok.Container):
         self['orgs'].title = 'Organizations'
         self['smart'] = SmartSearches()
         self['smart'].title = 'Smart Searches'
-        self['plugins'] = Extensions()
-        self['plugins'].title = 'Extensions'
+        self['extensions'] = Extensions()
+        self['extensions'].title = 'Extensions'
     
     def ldap_connection(self):
         "LDAP connection"

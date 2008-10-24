@@ -36,6 +36,7 @@ class TopViewlet(grok.Viewlet):
                  (app['orgs']),
                  (app['transcripts']),
                  (app['smart']),
+                 (app['extensions']),
                 )
 
 class BottomViewletManager(grok.ViewletManager):

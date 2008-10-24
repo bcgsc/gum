@@ -44,6 +44,7 @@ class Add(grok.View):
         
         return self.redirect(self.url(ext, 'edit'))
 
+
 class Delete(grok.View):
     grok.require(u'gum.Edit')
     

@@ -12,9 +12,12 @@
         <ul tal:condition="context/installed">
             <li tal:repeat="ext context/values">
                 <p><a tal:attributes="href python:view.url(ext)"
-                      tal:content="ext/title" /></p>
-                <p><a tal:attributes="href python:view.url(context, data={'name':view.get_ext_name(ext)})">
-                    delete extension</a></p>
+                      tal:content="ext/title" />
+                [
+                <a tal:attributes="href python:view.url(ext, 'edit')">
+                    edit</a>,
+                <a tal:attributes="href python:view.url(ext, 'delete')">
+                    <img src="/@@/resources/delete.png" /> delete</a>]</p>
             </li>
         </ul>
     
