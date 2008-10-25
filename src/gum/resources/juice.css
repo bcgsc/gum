@@ -22,6 +22,11 @@ h2 {
     border-bottom: solid #1f2b65 1px;
 }
 
+h3 {
+    margin-bottom: 0.25em;
+    color: #7777aa;
+}
+
 table {
     
 }
@@ -346,6 +351,9 @@ table.listing td {
 table.listing img {
     vertical-align: middle;
 }
+
+/* data table */
+
 table.data {
     border-collapse: collapse;
     border: 2px solid #999999;
@@ -391,6 +399,9 @@ table.data td {
 }
 table.data th.vertical {
     border-left: 1px solid #666666;
+}
+table.data tr.Error {
+    background-color: #faf1fa;
 }
 
 /* Autocomplete */
