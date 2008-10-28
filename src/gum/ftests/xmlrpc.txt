@@ -30,7 +30,7 @@ We can also query for information about a user. Same oddball empty result
 bevaviour:
 
   >>> gumapi.get_user_info_by_id('bogususer')
-  {'telephoneNumber': '', 'cn': '', 'email': ''}
+  {'telephoneNumber': [], 'cn': '', 'email': ''}
  
 Let's try and test something useful. We will first create a group, with a
 single user, then get that information back using the XML-RPC API:

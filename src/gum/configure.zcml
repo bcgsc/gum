@@ -1,6 +1,9 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:grok="http://namespaces.zope.org/grok">
-  <include package="grok" />
-  <includeDependencies package="." />
-  <grok:grok package="." />
+
+    <include package="grok" />
+    <includeDependencies package="." />
+    <grok:grok package="." />
+    <includeOverrides file="overrides.zcml" />
+
 </configure>

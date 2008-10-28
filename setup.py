@@ -23,6 +23,7 @@ setup(name='gum',
         'ldapadapter',
         'hurry.query',
         'z3c.testsetup',
+        'grokui.admin',
       ],
       entry_points="""
       """,

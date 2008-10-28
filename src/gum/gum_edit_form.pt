@@ -28,18 +28,10 @@
     <tbody>
       <tal:block repeat="widget view/widgets">
         <tr>
-          <td class="label" tal:define="hint widget/hint">
-            <label tal:condition="python:hint"
-                   tal:attributes="for widget/name">
+          <td class="label">
+            <label tal:attributes="for widget/name">
               <span class="required" tal:condition="widget/required"
-              >*</span><span i18n:translate=""
-                             tal:content="widget/label">label</span>
-            </label>
-            <label tal:condition="python:not hint"
-                   tal:attributes="for widget/name">
-              <span class="required" tal:condition="widget/required"
-              >*</span><span i18n:translate=""
-                             tal:content="widget/label">label</span>
+              >*</span><span tal:content="widget/label">label</span>
             </label>
           </td>
           <td class="field">
@@ -49,6 +41,9 @@
             <div class="error" tal:condition="widget/error">
               <span tal:replace="structure widget/error">error</span>
             </div>
+          </td>
+          <td class="hint">
+              <p class="hint" tal:condition="widget/hint" tal:content="widget/hint" />
           </td>
         </tr>
       </tal:block>

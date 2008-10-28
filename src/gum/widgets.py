@@ -2,6 +2,7 @@ import grok
 from zope.component import getMultiAdapter
 from zope.app.form.interfaces import IInputWidget
 from zope.app.form.browser.widget import SimpleInputWidget
+from zope.app.form.browser.textwidgets import TextWidget
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 
 class AjaxUserChooserWidget(SimpleInputWidget):
@@ -31,3 +32,7 @@ class AjaxUserChooserWidget(SimpleInputWidget):
         return s
 
     __call__ = ViewPageTemplateFile('ajaxuserchooserwidget.pt')
+
+class LongTextWidget(TextWidget):
+    # make the default length 35 instead of 20
+    displayWidth = 35

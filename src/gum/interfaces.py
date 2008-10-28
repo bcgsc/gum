@@ -1,5 +1,5 @@
 from zope.interface import Interface, Attribute, alsoProvides
-from zope.schema import TextLine, SourceText, Password, List, Datetime, Object, Choice, Object, Int
+from zope import schema
 from zope.app.content.interfaces import IContentType
 
 
@@ -8,38 +8,38 @@ class ILDAPUserGroupLocation(Interface):
     LDAP location for a set of Users and Groups.
     """
 
-    ldap_host = TextLine(
+    ldap_host = schema.TextLine(
         title=u'LDAP Host',
         )
-    ldap_port = TextLine(
+    ldap_port = schema.TextLine(
         title=u'LDAP Port',
         )
-    ldap_login = TextLine(
+    ldap_login = schema.TextLine(
         title=u'LDAP Login',
         )
-    ldap_password = Password(
+    ldap_password = schema.Password(
         title=u'LDAP Password',
         )
-    ldap_user_search_base = TextLine(
+    ldap_user_search_base = schema.TextLine(
         title=u'LDAP User Search Base',
         )
-    ldap_group_search_base = TextLine(
+    ldap_group_search_base = schema.TextLine(
         title=u'LDAP Group Search Base',
     )
-    ldap_admin_group = TextLine(
+    ldap_admin_group = schema.TextLine(
         title=u'Group that is granted the GUM Admin role.',
     )
 
 class ILDAPEntry(Interface):
     """Represents any Entry within LDAP"""
     
-    dn = TextLine(
+    dn = schema.TextLine(
         title=u"Distinguished Name (dn)",
         )
 
 class IBaseContent(Interface):
     "Base information about a content object"
-    title = TextLine(title=u"Title")
+    title = schema.TextLine(title=u"Title")
 
 
 class IINetOrgPerson(ILDAPEntry):
@@ -57,40 +57,45 @@ class IINetOrgPerson(ILDAPEntry):
     clashing with the title attribute provided by BaseContent :(
     """
     # only a partial implementation!
-    cn = TextLine( title=u"Common Name",
+    cn = schema.TextLine( title=u"Common Name",
                    description=u"Person's full name.",
                    required=True, )
-    sn = TextLine( title=u"Last Name",
+    sn = schema.TextLine( title=u"Last Name",
                    description=u"Surname, also referred to as last name or family name.",
                    required=True, )
-    givenName = TextLine( title=u"First Name",
+    givenName = schema.TextLine( title=u"First Name",
                     description=u"Person's given name.")
-    uid =  TextLine( title=u"User Id",
+    uid =  schema.TextLine( title=u"User Id",
                      description=u"Identifies the entry's userid (usually the logon ID)." )
-    userpassword = Password(title=u"Password", required=False)
-    email = TextLine( title=u"Email Address" )
-    telephoneNumber = TextLine( title=u"Primary phone number",
-                                required=False )
-    street = TextLine( title=u"Street", required=False )
-    roomNumber = TextLine( title=u"Room Number", required=False )
-    description = SourceText(title=u"Description", required=False)
-    job_title = TextLine( title=u"Job Title", required=False)
-    o = TextLine( title=u"Organization", required=False,
+    userpassword = schema.Password(title=u"Password", required=False)
+    email = schema.TextLine( title=u"Email Address" )
+    telephoneNumber = schema.List(
+        title=u"Phone Numbers",
+        description=u"The first number listed is intended to be the primary phone number.",
+        required=False,
+        default=[],
+        value_type=schema.TextLine( title=u"Phone number",),
+    )
+    street = schema.TextLine( title=u"Street", required=False )
+    roomNumber = schema.TextLine( title=u"Room Number", required=False )
+    description = schema.SourceText(title=u"Description", required=False)
+    job_title = schema.TextLine( title=u"Job Title", required=False)
+    o = schema.TextLine( title=u"Organization", required=False,
                                  description=u"e.g. Canada's Michael Smith Genome Sciences Centre")
-    ou = TextLine( title=u"Organizational Unit Name", required=False,
+    ou = schema.TextLine( title=u"Organizational Unit Name", required=False,
                                     description=u"e.g. Bioinformatics, Admin, Systems")
-    employeeType = TextLine( title=u"Employee Type", required=False,
+    employeeType = schema.TextLine( title=u"Employee Type", required=False,
                              description=u"e.g. Full Time, Inactive, Temp")
 
 
 class IGroupOfUniqueNames(ILDAPEntry):
-    title = TextLine(title=u"Title", readonly=True)
-    cn = TextLine(title=u"Common Name")
-    description = SourceText(title=u"Description", required=False)
-    uids = List(
+    title = schema.TextLine(title=u"Title", readonly=True)
+    cn = schema.TextLine(title=u"Common Name")
+    description = schema.SourceText(title=u"Description", required=False)
+    uids = schema.List(
         title=u"Member Ids",
         unique=True,
-        value_type=TextLine(title=u"Member Id"),
+        value_type=schema.TextLine(title=u"Member Id"),
         default=[],
     )
 
@@ -99,26 +104,26 @@ class IUser(IINetOrgPerson, IBaseContent):
     """
     User entry
     """
-    title = TextLine(title=u"Title", readonly=True)
+    title = schema.TextLine(title=u"Title", readonly=True)
     
-    employeeType = Choice(
+    employeeType = schema.Choice(
                         title=u"Employee Type",
                         vocabulary="Employee Types",
                         required=False,
                         missing_value=u"Unknown"
                        )
     
-    o = Choice( title=u"Organization",
+    o = schema.Choice( title=u"Organization",
                 description=u"e.g. Canada's Michael Smith Genome Sciences Centre",
                 vocabulary="Organizations")
     
-    officeLocation = Choice(
+    officeLocation = schema.Choice(
                             title=U"Office Location",
                             vocabulary="Office Locations",
                             required=False,
                             missing_value=u"Unknown"
                             )
-    ou = Choice( title=u"Organizational Unit",
+    ou = schema.Choice( title=u"Organizational Unit",
                  description=u"e.g. Systems, Administration, Purchasing",
                  vocabulary="Organizational Units",
                  required=False
@@ -185,42 +190,42 @@ class ITranscript(Interface):
     """
     Record of a modification to an LDAP entry
     """
-    dn = TextLine( title=u"Distinguished Name (dn)")
-    before = List(
+    dn = schema.TextLine( title=u"Distinguished Name (dn)")
+    before = schema.List(
                   title=u"attributes before modifcation",
                   unique=True,
-                  value_type=TextLine(title=u"attribute=value"),
+                  value_type=schema.TextLine(title=u"attribute=value"),
                   )
-    after = List(
+    after = schema.List(
                 title=u"attributes after modifcation",
                 unique=True,
-                value_type=TextLine(title=u"attribute=value"),
+                value_type=schema.TextLine(title=u"attribute=value"),
                 )
-    observation_datetime = Datetime(title=u"Observation DateTime")
-    principal_id = TextLine(title=u"Principal Id")
+    observation_datetime = schema.Datetime(title=u"Observation DateTime")
+    principal_id = schema.TextLine(title=u"Principal Id")
     
     user = Attribute("User object who made the modification")
 
 
 class IOfficeLocation(Interface):
     "A Physical Location to which snail mail can be sent"
-    title = TextLine(
+    title = schema.TextLine(
         title=u"Office Title",
         description=u"Short, descriptive name, e.g. Echelon or BCCRC")
-    street = TextLine(title=u"Street", required=False)
-    postalAddressSuite = TextLine(
+    street = schema.TextLine(title=u"Street", required=False)
+    postalAddressSuite = schema.TextLine(
         title=u"Postal Address Suite",
         description=u"Location where mail should be delivered to within a building's street address. E.g. Suite 100",
         required=False )
-    localityName = TextLine(title=u"City", required=False)
-    st = TextLine(title=u"Provine or State", required=False)
-    postalCode = TextLine(title=u"Postal Code", required=False)
-    telephoneNumber = TextLine(title=u"Telephone Number", required=False)
-    fax = TextLine(title=u"Fax", required=False)
-    rooms = List(
+    localityName = schema.TextLine(title=u"City", required=False)
+    st = schema.TextLine(title=u"Provine or State", required=False)
+    postalCode = schema.TextLine(title=u"Postal Code", required=False)
+    telephoneNumber = schema.TextLine(title=u"Telephone Number", required=False)
+    fax = schema.TextLine(title=u"Fax", required=False)
+    rooms = schema.List(
                  title=u"Rooms",
                  unique=True,
-                 value_type=TextLine(title=u"Room"),
+                 value_type=schema.TextLine(title=u"Room"),
                  required=False,
                  default=[],
                  )
@@ -235,28 +240,28 @@ class IOrganization(IBaseContent):
     Information about an Organization, primarily useful
     for providing constraints for the User UI.
     """
-    id = TextLine(title=u"Id")
-    description = SourceText(title=u"Description", required=False)
-    employeeTypes = List(
+    id = schema.TextLine(title=u"Id")
+    description = schema.SourceText(title=u"Description", required=False)
+    employeeTypes = schema.List(
                       title=u"Employee Types",
                       unique=True,
                       required=False,
                       default=[],
-                      value_type=TextLine(title=u"Employee Type")
+                      value_type=schema.TextLine(title=u"Employee Type")
                      )
-    orgunitTypes = List(
+    orgunitTypes = schema.List(
                     title=u"Organizational Unit Types",
                     unique=True,
                     required=False,
                     default=[],
-                    value_type=TextLine(title=u"Organizational Unit Type")
+                    value_type=schema.TextLine(title=u"Organizational Unit Type")
                     )
-    member_count = Int(title=u"Member Count", readonly=True)
-    offices = List( title=u"Office Locations",
+    member_count = schema.Int(title=u"Member Count", readonly=True)
+    offices = schema.List( title=u"Office Locations",
                     unique=True,
                     readonly=True,
                     default=[],
-                    value_type=Object( title=u"Office Location",
+                    value_type=schema.Object( title=u"Office Location",
                                        schema=IOfficeLocation ),
                   )
 
@@ -278,29 +283,29 @@ class ISmartSearch(Interface, IBaseContent):
       Bioinformatics.
     
     """
-    organizations = List(
+    organizations = schema.List(
             title=u"Organizations",
             unique=True,
             required=False,
-            value_type=TextLine(title=u"Organization"),
+            value_type=schema.TextLine(title=u"Organization"),
         )
-    employeeTypes = List(
+    employeeTypes = schema.List(
             title=u"Employee Types",
             unique=True,
             required=False,
-            value_type=TextLine(title=u"Employee Type"),
+            value_type=schema.TextLine(title=u"Employee Type"),
         )
-    streets = List(
+    streets = schema.List(
             title=u"Streets",
             unique=True,
             required=False,
-            value_type=TextLine(title=u"Street"),
+            value_type=schema.TextLine(title=u"Street"),
         )
-    orgunitTypes = List(
+    orgunitTypes = schema.List(
             title=u"Organizational Unit Types",
             unique=True,
             required=False,
-            value_type=TextLine(title=u"Organizational Unit Type"),
+            value_type=schema.TextLine(title=u"Organizational Unit Type"),
     )
 
 
@@ -311,7 +316,7 @@ class IExtensionMaker(Interface):
         "Load an existing IExtension instance"
 
 class IExtension(Interface):
-    title = TextLine(title=u"Title")
+    title = schema.TextLine(title=u"Title")
 
 
 #

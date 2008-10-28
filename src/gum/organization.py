@@ -318,7 +318,7 @@ class OfficeLocationAdd(grok.AddForm):
     @grok.action('Add Office Location')
     def add(self, **data):
         officelocation = OfficeLocation(**data)
-        name = INameChooser(self.context).chooseName(None, officelocation)
+        name = INameChooser(self.context).chooseName(u'', officelocation)
         self.context[name] = officelocation
         self.redirect(self.url(self.context))
 

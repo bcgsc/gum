@@ -29,7 +29,7 @@ We can modify the User object:
   >>> caveman.sn = 'Zope'
   >>> caveman.givenName = 'GROK'
   >>> caveman.description = 'ME GROK!'
-  >>> caveman.telephoneNumber = '1-900-HOT-GROK'
+  >>> caveman.telephoneNumber = ['1-900-HOT-GROK',]
   >>> caveman.street = 'Plains of Africa'
   >>> caveman.roomNumber = 'Cave #101'
 

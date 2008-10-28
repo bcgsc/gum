@@ -8,7 +8,7 @@ from zope.app.security.settings import Allow
 from hurry.query.query import Query
 from hurry import query
 from gum.interfaces import IGroup
-from gum import getProperty
+from gum import getPropertyAsSingleValue
 from gum.widgets import AjaxUserChooserWidget
 from gum import quote
 
@@ -145,8 +145,8 @@ class Group(grok.Model):
             self.in_ldap = False
         else:
             self.in_ldap = True
-            self.cn = getProperty( data, 'cn', u'' )
-            self.description =  getProperty( data, 'description', u'' )
+            self.cn = getPropertyAsSingleValue( data, 'cn', u'' )
+            self.description =  getPropertyAsSingleValue( data, 'description', u'' )
             # 'uniqueMember' looks like this:
             # [u'uid=kteague,ou=Testusers,dc=example,dc=com', u'uid=what,ou=Testusers,dc=example,dc=com']
             if data.has_key('uniqueMember'):

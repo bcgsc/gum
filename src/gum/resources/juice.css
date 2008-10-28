@@ -188,6 +188,7 @@ pre {
 
 form {
     border: 1px dotted #e1e1e1;
+    background-color: #e1e1e1;
     margin: 0;
     margin-top: 4em;
     padding: 0.5em;
@@ -197,17 +198,18 @@ form h1 {
     font-size: 120%;
     color: #777777;
     margin: 0;
-    margin-top: -1.5em;
+    margin-top: -0.5em;
     margin-bottom: 1em;
     padding: 0.25em;
     background: #e1e1e1;
-    border: 1px dotted #a1a1a1;
+    border-bottom: 1px solid #a1a1a1;
 }
 
 label {
     font-weight: bold;
-    color: 101010;
+    color: #6D746D;
     padding-left: 1em;
+    margin: 0;
 }
 
 .required {
@@ -238,11 +240,42 @@ label {
 }
 
 input {
-    font-family: "Lucida Grande", Verdana, Lucida, Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     visibility: visible;
-    border: 1px solid #2D3B77;
-    color: Black;
+    border: 1px solid #999999;
+    color: #6D746D;
     vertical-align: middle;
+    font-size: 12pt;
+}
+
+.hint {
+    font-weight: normal;
+    color: #7777aa;
+    margin: 0;
+    padding: 0.25em 0 0.5em;
+}
+
+table.form-fields tbody tr {
+    border: 1px solid blue;
+    background: #f1f1f1;
+}
+
+td.label {
+    width: 30%;
+    padding: 0.5em;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+td.field {
+    width: 40%;
+    padding: 0.5em;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+td.hint {
+    padding: 0.5em;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    width: 30%;
 }
 
 /* diff table */

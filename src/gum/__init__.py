@@ -13,10 +13,24 @@ class EditGroup(grok.Permission):
 class Manager(grok.Permission):
     grok.name('zope.Manager')
 
-def getProperty( data, name, default ):
-    "Read a property from the raw LDAP data structure"
+def getPropertyAsSingleValue( data, name, default ):
+    """
+    Read a property from an LDAP data structure.
+    Multi-valued properties are read as single-valued,
+    with only the first value being used.
+    """
     try:
         return data[name][0]
+    except (IndexError, KeyError):
+        return default
+
+def getProperty( data, name, default ):
+    """
+    Read a property from an LDAP data structure.
+    Return a default value if name-value pair does not exist.
+    """
+    try:
+        return data[name]
     except (IndexError, KeyError):
         return default
 

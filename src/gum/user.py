@@ -7,7 +7,7 @@ from hurry.query.query import Query
 from hurry import query
 from ldap.modlist import addModlist, modifyModlist
 from gum.interfaces import IUser, IUsers
-from gum import getProperty
+from gum import getProperty, getPropertyAsSingleValue
 from gum import quote
 
 class Users(grok.Container):
@@ -157,7 +157,7 @@ class User(grok.Model):
                  givenName=u'',
                  userpassword=u'',
                  email=u'',
-                 telephoneNumber=u'',
+                 telephoneNumber=[],
                  description=u'',
                  street=u'',
                  roomNumber=u'',
@@ -175,7 +175,7 @@ class User(grok.Model):
             # if values are left blank in the AddForm, they are set to None
             # we can deduce this information from our schema, but for now we
             # will just wonk it with a bunch o' code
-            if not telephoneNumber: telephoneNumber = u''
+            if not telephoneNumber: telephoneNumber = []
             if not description: description = u''
             if not roomNumber: roomNumber = u''
             if not street: street = u''
@@ -200,19 +200,19 @@ class User(grok.Model):
         else:
             # populate User object with LDAP search results
             self.in_ldap = True
-            self.cn = getProperty( data, 'cn', u'')
-            self.sn = getProperty( data, 'sn', u'')
-            self.givenName = getProperty( data, 'givenName', u'')
-            self.email = getProperty( data, 'mail', u'')
+            self.cn = getPropertyAsSingleValue( data, 'cn', u'')
+            self.sn = getPropertyAsSingleValue( data, 'sn', u'')
+            self.givenName = getPropertyAsSingleValue( data, 'givenName', u'')
+            self.email = getPropertyAsSingleValue( data, 'mail', u'')
             self.telephoneNumber = getProperty( data, 'telephoneNumber', u'')
-            self.description = getProperty( data, 'description', u'')
-            self.roomNumber = getProperty( data, 'roomNumber', u'')
-            self.street = getProperty( data, 'street', u'')
+            self.description = getPropertyAsSingleValue( data, 'description', u'')
+            self.roomNumber = getPropertyAsSingleValue( data, 'roomNumber', u'')
+            self.street = getPropertyAsSingleValue( data, 'street', u'')
             # We call it job_title, ldap calls it just title
-            self.job_title = getProperty(data, 'title', u'')
-            self.o = getProperty(data, 'o', u'')
-            self.ou = getProperty(data, 'ou', u'')
-            self.employeeType = getProperty(data, 'employeeType', u'')
+            self.job_title = getPropertyAsSingleValue(data, 'title', u'')
+            self.o = getPropertyAsSingleValue(data, 'o', u'')
+            self.ou = getPropertyAsSingleValue(data, 'ou', u'')
+            self.employeeType = getPropertyAsSingleValue(data, 'employeeType', u'')
 
     def load(self):
         "Fetch data for the User object from LDAP"
@@ -255,9 +255,6 @@ class User(grok.Model):
     @property
     def ldap_entry(self):
         "Representation of the object as an LDAP entry"
-        if not self.telephoneNumber:
-            self.telephoneNumber = u''
-            
         # XXX Waaaa?
         if not self.ou: self.ou = u''
         if not self.job_title: self.job_title = u''
@@ -267,15 +264,17 @@ class User(grok.Model):
                   ['top', 'person', 'organizationalPerson', 'inetOrgPerson'],}
         # TO-DO clean-up
         for attrname in ['cn','sn','givenName','street','description',
-            'roomNumber','o','ou','employeeType','uid',
-            'telephoneNumber']:
+            'roomNumber','o','ou','employeeType','uid',]:
             if getattr(self, attrname, None):
                 entry[attrname] = [getattr(self, attrname, None),]
+
+        if getattr(self, 'telephoneNumber'):
+            entry['telephoneNumber'] = getattr(self, 'telephoneNumber')
         if getattr(self, 'job_title', None):
             entry['title'] = [getattr(self, 'job_title', None),]
         if getattr(self, 'email', None):
             entry['mail'] = [getattr(self, 'email', None),]
-    
+        
         return entry
     
     @property
@@ -366,8 +365,8 @@ class EditUser(grok.EditForm):
     grok.context(User)
     grok.name('edituser')
     grok.require(u'gum.Edit')
-    grok.template('user_edit_form')
     
+    template = grok.PageTemplateFile('gum_edit_form.pt')
     form_fields = grok.AutoFields(User)
     form_fields = form_fields.select(
                     'cn',
@@ -388,8 +387,7 @@ class EditUser(grok.EditForm):
     def edit(self, **data):
         # TO-DO oh the hackery!!!
         self.context.principal_id = self.request.principal.id
-        self.applyData(self.context, **data) # sends grok.ObjectModifiedEvent
-        # TO-DO save on ObjectModifiedEvent, eh
+        self.applyData(self.context, **data)
         self.context.save()
         self.redirect(self.url(self.context))
 

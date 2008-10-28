@@ -47,7 +47,8 @@ browser session:
   >>> browser.getControl(name="form.givenName").value = "Manfred"
   >>> browser.getControl(name="form.uid").value = "mmammoth"
   >>> browser.getControl(name="form.email").value = "manfred@grokmail.cave"
-  >>> browser.getControl(name="form.telephoneNumber").value = "1-800-EAT-GROK"
+  >>> browser.getControl(name="form.telephoneNumber.add").click()
+  >>> browser.getControl(name="form.telephoneNumber.0.").value = "1-800-EAT-GROK"
   >>> browser.getControl("Add User entry").click()
   >>> len(transcript_container)
   1

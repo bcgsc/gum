@@ -76,7 +76,11 @@
 			</tr>
 			<tr>
 				<th>Telephone Number</th>
-				<td><span tal:replace="context/telephoneNumber" /></td>
+				<td>
+				    <p tal:repeat="number context/telephoneNumber">
+				    <span tal:replace="number" />
+				    </p>
+			    </td>
 			</tr>
 			<tr>
 				<th>Email Address</th>

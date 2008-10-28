@@ -4,7 +4,6 @@
    package="gum"
    >
 
-  <include package="grok" />
   <include package="gum" />
 
   <!-- Typical functional testing security setup -->
