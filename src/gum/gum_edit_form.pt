@@ -30,8 +30,7 @@
         <tr>
           <td class="label">
             <label tal:attributes="for widget/name">
-              <span class="required" tal:condition="widget/required"
-              >*</span><span tal:content="widget/label">label</span>
+              <span tal:content="widget/label">label</span>
             </label>
           </td>
           <td class="field">
@@ -44,6 +43,8 @@
           </td>
           <td class="hint">
               <p class="hint" tal:condition="widget/hint" tal:content="widget/hint" />
+              <span class="required" tal:condition="widget/required"
+                >* required</span>
           </td>
         </tr>
       </tal:block>
