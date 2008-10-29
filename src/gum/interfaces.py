@@ -58,17 +58,23 @@ class IINetOrgPerson(ILDAPEntry):
     """
     # only a partial implementation!
     cn = schema.TextLine( title=u"Common Name",
-                   description=u"Person's full name.",
+                   description=u"""Person's full name. This name is
+semi-formal and intended to reflect what someone wishes to be called,
+for example non-native English person may adopt an english name which people
+refer to them as.""",
                    required=True, )
     sn = schema.TextLine( title=u"Last Name",
                    description=u"Surname, also referred to as last name or family name.",
                    required=True, )
     givenName = schema.TextLine( title=u"First Name",
-                    description=u"Person's given name.")
+                    description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.")
     uid =  schema.TextLine( title=u"User Id",
                      description=u"Identifies the entry's userid (usually the logon ID)." )
     userpassword = schema.Password(title=u"Password", required=False)
-    email = schema.TextLine( title=u"Email Address" )
+    email = schema.TextLine( title=u"Email Address",
+        description=u"""
+This e-mail address may be used to authenticate the account to recover lost passwords.""",
+    )
     telephoneNumber = schema.List(
         title=u"Phone Numbers",
         description=u"The first number listed is intended to be the primary phone number.",
@@ -78,12 +84,15 @@ class IINetOrgPerson(ILDAPEntry):
     )
     street = schema.TextLine( title=u"Street", required=False )
     roomNumber = schema.TextLine( title=u"Room Number", required=False )
-    description = schema.SourceText(title=u"Description", required=False)
+    description = schema.SourceText(
+        title=u"Description",
+        description=u"Notes about the account, such as what the account is for.",
+        required=False
+    )
     job_title = schema.TextLine( title=u"Job Title", required=False)
-    o = schema.TextLine( title=u"Organization", required=False,
-                                 description=u"e.g. Canada's Michael Smith Genome Sciences Centre")
+    o = schema.TextLine( title=u"Organization", required=False,)
     ou = schema.TextLine( title=u"Organizational Unit Name", required=False,
-                                    description=u"e.g. Bioinformatics, Admin, Systems")
+                          description=u"e.g. Bioinformatics, Admin, Systems")
     employeeType = schema.TextLine( title=u"Employee Type", required=False,
                              description=u"e.g. Full Time, Inactive, Temp")
 
@@ -108,23 +117,33 @@ class IUser(IINetOrgPerson, IBaseContent):
     
     employeeType = schema.Choice(
                         title=u"Employee Type",
+                        description=u"""
+Choices available is based on the Organizational field.
+                        """,
                         vocabulary="Employee Types",
                         required=False,
                         missing_value=u"Unknown"
                        )
     
     o = schema.Choice( title=u"Organization",
-                description=u"e.g. Canada's Michael Smith Genome Sciences Centre",
+                       description=u"""
+Identifier of an organization. After choosing this field and saving the change,
+the Employee Type, Office Location and Organizational Unit field dropdown will
+change based on the settings for that Organization.
+""",
                 vocabulary="Organizations")
     
     officeLocation = schema.Choice(
-                            title=U"Office Location",
+                            title=u"Office Location",
+                            description=u"""
+First location is the primary one. The choice of locations is based on the
+current Organization the account belongs to.""",
                             vocabulary="Office Locations",
                             required=False,
                             missing_value=u"Unknown"
                             )
     ou = schema.Choice( title=u"Organizational Unit",
-                 description=u"e.g. Systems, Administration, Purchasing",
+                 description=u"e.g. Systems, Administration, Purchasing.",
                  vocabulary="Organizational Units",
                  required=False
                 )

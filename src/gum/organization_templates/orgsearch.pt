@@ -29,7 +29,7 @@
 			<tr>
 				<th>Name</th>
 				<th>Email</th>
-				<th>Phone</th>
+				<th>Phone(s)</th>
 				<th>User Id</th>
 				<th>Office Location</th>
 				<th>Employee Type</th>
@@ -47,7 +47,10 @@
 					   tal:attributes="href string:mailto:${user/email}"
 					   tal:content="user/email" />
 				</td>
-				<td tal:content="user/telephoneNumber" />
+				<td>
+				    <span tal:repeat="phone user/telephoneNumber">
+				    <span tal:replace="phone" /><br /></span>
+				</td>
 				<td tal:content="user/uid" />
 				<td><span tal:replace="user/street" /> - <span tal:replace="user/roomNumber" /></td>
 				<td tal:content="user/employeeType" />

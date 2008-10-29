@@ -140,8 +140,12 @@ class OrgSearchCSV(grok.View):
                 location = '%s - %s' % (user.street, user.roomNumber)
             else:
                 location = user.street
+            if user.telephoneNumber:
+                phone = ', '.join(user.telephoneNumber)
+            else:
+                phone = ''
             out.write( '"%s","%s","%s","%s","%s","%s","%s"\n' % (
-                       user.cn, user.email, user.telephoneNumber, user.uid, location, user.employeeType, user.ou
+                       user.cn, user.email, phone, user.uid, location, user.employeeType, user.ou
                      ) )
         return out.getvalue()
 
