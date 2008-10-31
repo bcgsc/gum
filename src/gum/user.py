@@ -388,6 +388,7 @@ class EditUser(grok.EditForm):
     template = grok.PageTemplateFile('gum_edit_form.pt')
     form_fields = grok.AutoFields(User)
     form_fields = form_fields.select(
+                    'uid',
                     'cn',
                     'sn',
                     'givenName',
@@ -399,9 +400,14 @@ class EditUser(grok.EditForm):
                     'officeLocation',
                     'o',
                     'ou',)
-
-    label = "Edit User"
+    # uid should not be edited after an account has been created!
+    # (although sometimes a typo is made in account creation, so perhaps
+    #  a special form or UI to handle this use-case maybe? say if the 
+    #  account is less than 5 minutes old ...)
+    form_fields['uid'].for_display = True
     
+    label = "Edit User"
+        
     @grok.action('Save Changes')
     def edit(self, **data):
         # TO-DO oh the hackery!!!

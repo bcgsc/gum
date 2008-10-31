@@ -69,7 +69,7 @@ refer to them as.""",
     givenName = schema.TextLine( title=u"First Name",
                     description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.")
     uid =  schema.TextLine( title=u"User Id",
-                     description=u"Identifies the entry's userid (usually the logon ID)." )
+                     description=u"A unique identifier, typically used as a logon id." )
     userpassword = schema.Password(title=u"Password", required=False)
     email = schema.TextLine( title=u"Email Address",
         description=u"""
