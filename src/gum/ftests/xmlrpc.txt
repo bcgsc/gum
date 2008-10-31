@@ -51,7 +51,7 @@ single user, then get that information back using the XML-RPC API:
 We can also query for information about 'joe':
 
   >>> gumapi.get_user_info_by_id('joe')
-  {'telephoneNumber': '', 'cn': 'ME JOE', 'email': ''}
+  {'telephoneNumber': [], 'cn': 'ME JOE', 'email': ''}
 
 Then we gotta remember to clean-up LDAP:
 

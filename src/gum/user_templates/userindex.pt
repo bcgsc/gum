@@ -75,7 +75,11 @@
 				<td><span tal:content="context/employeeType" /></td>
 			</tr>
 			<tr>
-				<th>Telephone Number</th>
+				<th>Email Address</th>
+				<td><span tal:replace="context/email" /></td>
+			</tr>
+			<tr>
+				<th>Telephone Number(s)</th>
 				<td>
 				    <p tal:repeat="number context/telephoneNumber">
 				    <span tal:replace="number" />
@@ -83,16 +87,11 @@
 			    </td>
 			</tr>
 			<tr>
-				<th>Email Address</th>
-				<td><span tal:replace="context/email" /></td>
-			</tr>
-			<tr>
-				<th>Street</th>
-				<td><span tal:replace="context/street" /></td>
-			</tr>
-			<tr>
-				<th>Room Number</th>
-				<td><span tal:replace="context/roomNumber" /></td>
+				<th>Office Location(s)</th>
+				<td>
+				    <p tal:repeat="location context/officeLocationClean">
+				    <span tal:replace="location" />
+				    </p>
 			</tr>
 			<tr>
 				<th>Distinguished Name (dn)</th>

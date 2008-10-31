@@ -436,6 +436,11 @@ table.data tr.Error {
     background-color: #faf1fa;
 }
 
+table.data ol {
+    margin-left: 1em;
+    padding: 0;
+}
+
 /* Autocomplete */
 
 div.autocomplete {

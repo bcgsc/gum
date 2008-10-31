@@ -196,7 +196,7 @@ class User(grok.Model):
             self.o = o
             self.ou = ou
             self.employeeType = employeeType
-            self.officeLocation = u''
+            self.officeLocation = []
         else:
             # populate User object with LDAP search results
             self.in_ldap = True
@@ -204,10 +204,10 @@ class User(grok.Model):
             self.sn = getPropertyAsSingleValue( data, 'sn', u'')
             self.givenName = getPropertyAsSingleValue( data, 'givenName', u'')
             self.email = getPropertyAsSingleValue( data, 'mail', u'')
-            self.telephoneNumber = getProperty( data, 'telephoneNumber', u'')
+            self.telephoneNumber = getProperty( data, 'telephoneNumber', [])
             self.description = getPropertyAsSingleValue( data, 'description', u'')
-            self.roomNumber = getPropertyAsSingleValue( data, 'roomNumber', u'')
-            self.street = getPropertyAsSingleValue( data, 'street', u'')
+            self.roomNumber = getProperty( data, 'roomNumber', [])
+            self.street = getProperty( data, 'street', [])
             # We call it job_title, ldap calls it just title
             self.job_title = getPropertyAsSingleValue(data, 'title', u'')
             self.o = getPropertyAsSingleValue(data, 'o', u'')
@@ -232,7 +232,6 @@ class User(grok.Model):
         "Writes any changes made to the User object back into LDAP"
         app = grok.getSite()
         dbc = app.ldap_connection()
-
         # create
         if not self.in_ldap:
             dbc.add(self.dn, self.ldap_entry)
@@ -263,13 +262,17 @@ class User(grok.Model):
         entry = { 'objectClass':
                   ['top', 'person', 'organizationalPerson', 'inetOrgPerson'],}
         # TO-DO clean-up
-        for attrname in ['cn','sn','givenName','street','description',
-            'roomNumber','o','ou','employeeType','uid',]:
+        for attrname in ['cn','sn','givenName','description','o','ou',
+                         'employeeType','uid',]:
             if getattr(self, attrname, None):
                 entry[attrname] = [getattr(self, attrname, None),]
 
         if getattr(self, 'telephoneNumber'):
             entry['telephoneNumber'] = getattr(self, 'telephoneNumber')
+        if getattr(self, 'roomNumber'):
+            entry['roomNumber'] = getattr(self, 'roomNumber')
+        if getattr(self, 'street'):
+            entry['street'] = getattr(self, 'street')
         if getattr(self, 'job_title', None):
             entry['title'] = [getattr(self, 'job_title', None),]
         if getattr(self, 'email', None):
@@ -286,34 +289,50 @@ class User(grok.Model):
         if results:
             return list(results)[0]
     
-    
-    # officeLocation is a virtual property that sets the user's Street
-    # and Room Number
+    # officeLocation is a property that sets the user's Street
+    # and Room Number. It is multi-valued, so a user.officeLocation of:
+    # 
+    #   ['50 West St. - 100','60 North Ave. - 202',]
+    # 
+    # Would set user.street and user.roomNumber to:
+    # 
+    #   ['50 West St.', '60 North Ave.',]
+    #   ['100','202',]
+    #
     def _get_officeLocation(self):
-        # officeLocation is based on street and room number
         org = self.o
         if not org:
-            return u''        
+            return []
         if self.street and self.roomNumber:
-            return '%s - %s' % (self.street, self.roomNumber)
+            return ['%s - %s' % (x[0], x[1])
+                    for x in zip(self.street, self.roomNumber)]
         else:
             return self.street
-    def _set_officeLocation(self, location):
-        org = self.organization
-        if not org:
-            return u''
-        for office in org.offices:
-            if office.rooms:
-                for room in office.rooms:
-                    if '%s - %s' % (office.street, room) == location:
-                        self.street = office.street
-                        self.roomNumber = room
-                        return
+    def _set_officeLocation(self, locations):
+        streets = []
+        roomNumbers = []
+        for location in locations:
+            if location.find(' - ') != -1:
+                street, roomNumber = location.split(' - ', 1)
             else:
-                if office.street ==  location:
-                    self.street = office.street
-                    return
+                street = location
+                roomNumber = u'Not Applicable'
+            streets.append(street)
+            roomNumbers.append(roomNumber)
+        self.street = streets
+        self.roomNumber = roomNumbers
     officeLocation = property(_get_officeLocation, _set_officeLocation)
+    
+    @property
+    def officeLocationClean(self):
+        """
+        LDAP does not allow storing empty strings, and we match lists
+        of Street and Room Numbers together, so if the Room Number doesn't
+        apply, we store "Not Applicable". We don't need to show this in the
+        UI though.
+        """
+        return [ location.rstrip(u' - Not Applicable')
+                 for location in self.officeLocation ]
     
     def groups(self):
         "List of Groups that the User belongs to"

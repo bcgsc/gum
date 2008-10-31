@@ -116,37 +116,39 @@ class IUser(IINetOrgPerson, IBaseContent):
     title = schema.TextLine(title=u"Title", readonly=True)
     
     employeeType = schema.Choice(
-                        title=u"Employee Type",
-                        description=u"""
+        title=u"Employee Type",
+        description=u"""
 Choices available is based on the Organizational field.
-                        """,
-                        vocabulary="Employee Types",
-                        required=False,
-                        missing_value=u"Unknown"
-                       )
-    
+        """,
+        vocabulary="Employee Types",
+        required=False,
+        missing_value=u"Unknown"
+    )
     o = schema.Choice( title=u"Organization",
                        description=u"""
 Identifier of an organization. After choosing this field and saving the change,
 the Employee Type, Office Location and Organizational Unit field dropdown will
 change based on the settings for that Organization.
 """,
-                vocabulary="Organizations")
-    
-    officeLocation = schema.Choice(
-                            title=u"Office Location",
-                            description=u"""
-First location is the primary one. The choice of locations is based on the
-current Organization the account belongs to.""",
-                            vocabulary="Office Locations",
-                            required=False,
-                            missing_value=u"Unknown"
-                            )
-    ou = schema.Choice( title=u"Organizational Unit",
-                 description=u"e.g. Systems, Administration, Purchasing.",
-                 vocabulary="Organizational Units",
-                 required=False
-                )
+                       vocabulary="Organizations",
+    )
+    officeLocation = schema.List(
+        title=u'Office Locations',
+        description=u"""
+        First location is the primary one. The choice of locations is based on the
+        current Organization the account belongs to.""",
+        value_type=schema.Choice(
+            title=u"Office Location",
+            vocabulary="Office Locations",
+            required=True,
+        ),
+    )
+    ou = schema.Choice(
+        title=u"Organizational Unit",
+        description=u"e.g. Systems, Administration, Purchasing.",
+        vocabulary="Organizational Units",
+        required=False
+    )
     
     def changePassword(self, password, confirm):
         "Change the User Password"

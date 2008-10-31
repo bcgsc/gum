@@ -31,7 +31,7 @@
 				<th>Email</th>
 				<th>Phone(s)</th>
 				<th>User Id</th>
-				<th>Office Location</th>
+				<th>Office Location(s)</th>
 				<th>Employee Type</th>
 				<th>Organizational Unit Type</th>
 			</tr>
@@ -48,11 +48,18 @@
 					   tal:content="user/email" />
 				</td>
 				<td>
-				    <span tal:repeat="phone user/telephoneNumber">
-				    <span tal:replace="phone" /><br /></span>
+				    <ol>
+				        <li tal:repeat="phone user/telephoneNumber"
+				            tal:content="phone" />
+				    </ol>
 				</td>
 				<td tal:content="user/uid" />
-				<td><span tal:replace="user/street" /> - <span tal:replace="user/roomNumber" /></td>
+				<td>
+				    <ol>
+				      <li tal:repeat="location user/officeLocationClean"
+				          tal:content="location" />
+				    </ol>
+				</td>
 				<td tal:content="user/employeeType" />
 				<td tal:content="user/ou" />
 			</tr>
