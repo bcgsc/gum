@@ -70,7 +70,17 @@ refer to them as.""",
                     description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.")
     uid =  schema.TextLine( title=u"User Id",
                      description=u"A unique identifier, typically used as a logon id." )
-    userpassword = schema.Password(title=u"Password", required=False)
+    userPassword = schema.TextLine(
+        title=u"Password",
+        description=u"""
+Passwords are stored encyrpted and so can not be displayed. Please take care
+when changing the password of an account! Typically if you wish to de-activate
+an account, you should remove the groups from an account that grant that 
+account access. Scrambling the password does not de-activate the account,
+since it may be possible for a user to reset their password through an 
+e-mail authetenticated password reset service!
+""",
+        required=False)
     email = schema.TextLine( title=u"Email Address",
         description=u"""
 This e-mail address may be used to authenticate the account to recover lost passwords.""",

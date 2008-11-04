@@ -6,6 +6,7 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from hurry.query.query import Query
 from hurry import query
 from ldap.modlist import addModlist, modifyModlist
+import SSHA
 from gum.interfaces import IUser, IUsers
 from gum import getProperty, getPropertyAsSingleValue
 from gum import quote
@@ -155,7 +156,7 @@ class User(grok.Model):
                  cn=u'',
                  sn=u'',
                  givenName=u'',
-                 userpassword=u'',
+                 userPassword=u'********',
                  email=u'',
                  telephoneNumber=[],
                  description=u'',
@@ -166,6 +167,7 @@ class User(grok.Model):
                  ou=u'',
                  employeeType=u'', ):        
         self.uid = uid
+        self.userPassword = userPassword
         
         data = self.load()
         if not data:
@@ -342,12 +344,13 @@ class User(grok.Model):
     def changePassword(self, password, confirm):
         if password != confirm:
             return "Waaaaa!"
+        encrypted_pw = '{SSHA}' + SSHA.encrypt(password).strip()
         app = grok.getSite()
         dbc = app.ldap_connection()
-        entry = { 'objectClass':
-                  ['top', 'person', 'organizationalPerson', 'inetOrgPerson'],
-                  'userpassword': [ password ], }
-        dbc.modify("uid=%s,%s" % (self.uid, app.ldap_user_search_base), entry)
+        dbc.modify(
+            "uid=%s,%s" % (self.uid, app.ldap_user_search_base),
+            {'userPassword':[encrypted_pw]}
+        )
     
     def transcripts(self):
         "Transcript objects recording modifications made to this User"
@@ -389,6 +392,7 @@ class EditUser(grok.EditForm):
     form_fields = grok.AutoFields(User)
     form_fields = form_fields.select(
                     'uid',
+                    'userPassword',
                     'cn',
                     'sn',
                     'givenName',
@@ -407,9 +411,15 @@ class EditUser(grok.EditForm):
     form_fields['uid'].for_display = True
     
     label = "Edit User"
-        
+    
     @grok.action('Save Changes')
     def edit(self, **data):
+        # handle password changes seperately
+        if data['userPassword'] != u'********':
+            self.context.changePassword(
+                data['userPassword'], data['userPassword']
+            )
+        
         # TO-DO oh the hackery!!!
         self.context.principal_id = self.request.principal.id
         self.applyData(self.context, **data)

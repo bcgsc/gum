@@ -37,7 +37,7 @@ class OfficeLocationsVocab(object):
         try:
             offices = context.organization.offices
         except AttributeError:
-            return SimpleVocabulary.fromValues([])
+            return SimpleVocabulary.fromValues(context.officeLocation)
         officeRooms = []
         for office in offices:
             if office.rooms:

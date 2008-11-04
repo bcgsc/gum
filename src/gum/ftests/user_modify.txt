@@ -49,15 +49,15 @@ add the caveman to the employee group:
   >>> request.setPrincipal( TestPrincipal() )
   >>> grant_membership_view = getMultiAdapter((caveman, request), name='grant')
   >>> grant_membership_view.update()
-  >>> gumsite['groups']['employee'].uids
-  [u'jdoe', u'ssmith', u'caveman']
+  >>> u'caveman' in gumsite['groups']['employee'].uids
+  True
 
 And then we will remove the caveman from the employee group:
 
   >>> revoke_membership_view = getMultiAdapter((caveman, request), name='revoke')
   >>> revoke_membership_view.update()
-  >>> gumsite['groups']['employee'].uids
-  [u'jdoe', u'ssmith']
+  >>> u'caveman' in gumsite['groups']['employee'].uids
+  False
 
 We can have two User objects that refer to the same ldap entry. Normally
 we wouldn't want to do this, but it is useful for testing:

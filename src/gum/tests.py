@@ -17,6 +17,7 @@ LDAP_GROUP_SEARCH_BASE = 'ou=Webgroups,ou=Groups,dc=example,dc=com'
 def create_gum_instance(test):
     root = getRootFolder()
     root['gumsite'] = LDAPApp()
+    root['gumsite'].ldap_admin_group = u'admin'
     from zope.app.component.hooks import setSite
     setSite(root['gumsite'])
     
