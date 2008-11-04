@@ -31,8 +31,10 @@
 					   tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
 				</td>
 				<td>
-					<span tal:content="user/telephoneNumber" 
-					      tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+				    <p tal:repeat="number user/telephoneNumber"
+				       tal:on-error="string: WAAAAA! ${user/uid} has a bad schema">
+				       <span tal:replace="number" />
+				    </p>
 				</td>
 				<td tal:content="user/uid" />
 			</tr>

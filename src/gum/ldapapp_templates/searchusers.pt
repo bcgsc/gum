@@ -6,7 +6,9 @@
 	
 	<tal:results tal:define="results view/results">
 		
-	<p tal:condition="not: results">Your search term of "<span tal:replace="request/search_term" />" returned no results.</p>
+	<p tal:condition="not: results">Your search term of
+	"<span tal:replace="request/search_term" />" returned no results.
+    </p>
 	
 	<table class="listing" tal:condition="results">
 	
@@ -28,7 +30,11 @@
 				   tal:attributes="href string:mailto:${user/email}"
 				   tal:content="user/email" />
 			</td>
-			<td tal:content="user/telephoneNumber" />
+			<td>
+			    <p tal:repeat="number user/telephoneNumber">
+			    <span tal:replace="number" />
+			    </p>
+			</td>
 			<td tal:content="user/uid" />
 		</tr>
 	

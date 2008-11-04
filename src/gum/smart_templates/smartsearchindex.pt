@@ -60,7 +60,10 @@
 					   tal:attributes="href string:mailto:${user/email}"
 					   tal:content="user/email" />
 				</td>
-				<td tal:content="user/telephoneNumber" />
+				<td>
+				    <p tal:repeat="number user/telephoneNumber">
+				    <span tal:replace="number" />
+				    </p>
 				<td tal:content="user/uid" />
 				<td><span tal:replace="user/street" /> - <span tal:replace="user/roomNumber" /></td>
 				<td tal:content="user/employeeType" />
