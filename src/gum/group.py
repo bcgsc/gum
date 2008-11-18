@@ -220,13 +220,13 @@ class GroupsIndex(grok.View):
     "Default view for Groups"
     grok.context(Groups)
     grok.name('index')
-
+    grok.require(u'gum.View')
 
 class GroupIndex(grok.View):
     "View for a single Group"
     grok.context(Group)
     grok.name('index')
-
+    grok.require(u'gum.View')
 
 class GroupEdit(grok.EditForm):
     grok.context(Group)

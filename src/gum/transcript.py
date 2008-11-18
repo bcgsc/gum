@@ -104,6 +104,7 @@ class Transcript(grok.Model):
 class Index(grok.View):
     grok.context(Transcripts)
     grok.name('index')
+    grok.require(u'gum.View')
 
     def site(self):
         return grok.getSite()
@@ -112,6 +113,7 @@ class Index(grok.View):
 class TranscriptsByDN(grok.View):
     grok.context(Transcripts)
     grok.name('by-dn')
+    grok.require(u'gum.View')
 
     def transcripts(self):        
         transcripts = Query().searchResults(
@@ -123,6 +125,7 @@ class TranscriptsByDN(grok.View):
 class TranscriptView(grok.View):
     grok.context(Transcript)
     grok.name('index')
+    grok.require(u'gum.View')
 
 
 @grok.subscribe(ILDAPEntry, grok.IObjectCreatedEvent)

@@ -363,11 +363,12 @@ class User(grok.Model):
 class UsersIndex(grok.View):
     grok.context(Users)
     grok.name('index')
-
+    grok.require(u'gum.View')
 
 class UserIndex(grok.View):
     grok.context(User)
     grok.name('index')
+    grok.require(u'gum.View')
 
     @property
     def transcripts_by_dn(self):
@@ -494,6 +495,7 @@ class GroupMemberlist(grok.Viewlet):
 class AutoCompleteSearchGidAddable(grok.View):
     grok.context(User)
     grok.name('autocompletesearchgidaddable')
+    grok.require(u'gum.View')
 
     def groups(self):
         search_term = self.request.form.get('search_term', None)

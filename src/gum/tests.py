@@ -18,6 +18,7 @@ def create_gum_instance(test):
     root = getRootFolder()
     root['gumsite'] = LDAPApp()
     root['gumsite'].ldap_admin_group = u'admin'
+    root['gumsite'].ldap_view_group = u'viewer'
     from zope.app.component.hooks import setSite
     setSite(root['gumsite'])
     

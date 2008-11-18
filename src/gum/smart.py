@@ -36,6 +36,7 @@ class SmartSearch(grok.Model):
 class SmartSearchesIndex(grok.View):
     grok.context(SmartSearches)
     grok.name('index')
+    grok.require(u'gum.View')
 
     def smartsearches(self):
         return self.context.values()
@@ -97,6 +98,7 @@ class DeleteSmartSearch(grok.View):
 class SmartSearchIndex(grok.View):
     grok.context(SmartSearch)
     grok.name('index')
+    grok.require(u'gum.View')
     
     def users(self):
         app = grok.getSite()

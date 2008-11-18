@@ -59,6 +59,7 @@ class OfficeLocation(grok.Model):
 class OrganizationsIndex(grok.View):
     grok.context(Organizations)
     grok.name('index')
+    grok.require(u'gum.View')
 
 
 class AddOrganization(grok.AddForm):
@@ -88,6 +89,7 @@ class AddOrganization(grok.AddForm):
 class OrgSearch(grok.View):
     grok.context(Organizations)
     grok.name('orgsearch')
+    grok.require(u'gum.View')
 
     def update(self):
         self.usersearch = SmartSearch(
@@ -121,6 +123,7 @@ class OrgSearch(grok.View):
 class OrgSearchCSV(grok.View):
     grok.context(interface.Interface) # applies to all objects
     grok.name('orgsearch-csv')
+    grok.require(u'gum.View')
 
     def update(self):
         self.usersearch = SmartSearch(
@@ -153,7 +156,8 @@ class OrgSearchCSV(grok.View):
 class OrgSearchPDF(grok.View):
     grok.context(interface.Interface) # applies to all objects
     grok.name('orgsearch-pdf')
-    
+    grok.require(u'gum.View')
+
     def update(self):
         self.usersearch = SmartSearch(
             'temp',
@@ -263,6 +267,7 @@ class OrganizationIndex(grok.View):
     "Display an Organization"
     grok.context(Organization)
     grok.name('index')
+    grok.require(u'gum.View')
 
     def is_admin(self):
         # TO-DO: supporting Organization editing, could be removed in a

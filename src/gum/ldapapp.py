@@ -15,6 +15,7 @@ from zope.app.security.interfaces import IAuthentication
 from zope.app.authentication.interfaces import IPrincipalCreated
 from zope.securitypolicy.interfaces import IPrincipalRoleManager
 from zope.securitypolicy.interfaces import IRolePermissionManager
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from ldapadapter.utility import ManageableLDAPAdapter
 from ldapadapter.interfaces import IManageableLDAPAdapter
 import ldappas.authentication
@@ -41,6 +42,7 @@ class LDAPApp(grok.Application, grok.Container):
     "Root application object for the gum app"
     implements(ILDAPUserGroupLocation)
     ldap_admin_group = u''
+    ldap_view_group = u''
     
     # GUM does it's Authentication againast LDAP
     # using the Pluggable Authentication Utility (PAU)
@@ -97,7 +99,7 @@ class LDAPApp(grok.Application, grok.Container):
     @property
     def ldap_host(self):
         return zapi.queryUtility(IManageableLDAPAdapter,'gumldapda').host
-
+    
     @property
     def ldap_port(self):
         return zapi.queryUtility(IManageableLDAPAdapter,'gumldapda').port
@@ -126,7 +128,7 @@ class Index(grok.View):
     "Default view for the gum app"
     grok.context(LDAPApp)
     grok.name('index')
-
+    grok.require(u'gum.View')
 
 class Edit(grok.EditForm):
     "Form to edit GUM global configuration"
@@ -168,6 +170,7 @@ class Edit(grok.EditForm):
         
         # update the app
         self.context.ldap_admin_group = data['ldap_admin_group']
+        self.context.ldap_view_group = data['ldap_view_group']
         
         self.redirect(self.url(self.context))
 
@@ -175,6 +178,9 @@ class Edit(grok.EditForm):
 @grok.subscribe(IPrincipalCreated)
 def update_principal_info_from_ldap(event):
     "Update the principal with information from LDAP"
+    # To-Do: we aren't using permission distinctions between Add and Edit
+    # so this can be simplified down to a single permission ...
+    
     principal = event.principal
     app = grok.getSite()
     uid = principal.id.split('.')[-1]
@@ -188,12 +194,19 @@ def update_principal_info_from_ldap(event):
     rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
     rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
     
+    # grant the View role to members of the ldap_view_group
+    view_group = app['groups'][app.ldap_view_group]
+    if uid in view_group.uids:
+        ppm = IPrincipalPermissionManager(app)
+        ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
+    
     # grant the Admin role to members of the ldap_admin_group
     admin_group = app['groups'][app.ldap_admin_group]
     if uid in admin_group.uids:
         prm = IPrincipalRoleManager(app)
         prm.assignRoleToPrincipal(u'gum.Admin', u'gum.ldap.%s' % uid)
-
+        ppm = IPrincipalPermissionManager(app)
+        ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
 
 #
 # User related Views
@@ -231,6 +244,7 @@ class SearchUsers(grok.View):
     "Search Results"
     grok.context(LDAPApp)
     grok.name('searchusers')
+    grok.require(u'gum.View')
 
     def results(self):
         search_param = self.request.form.get('search_param')
@@ -253,6 +267,7 @@ class SimpleUserSearch(grok.View):
     grok.context(LDAPApp)
     grok.name('simpleusersearch')
     grok.template('searchusers')
+    grok.require(u'gum.View')
 
     def results(self):
         search_term = self.request.form.get('search_term')
@@ -280,6 +295,7 @@ class AutoCompleteSearch(grok.View):
     "It's AJAXy!"
     grok.context(LDAPApp)
     grok.name('autocompletesearch')
+    grok.require(u'gum.View')
 
     def render(self):
         search_term = self.request.form.get('search_term', None)
@@ -321,7 +337,8 @@ class AutoCompleteSearchUidAddable(grok.View):
     # - move search into a single LDAP query
     grok.context(LDAPApp)
     grok.name('autocompletesearchuidaddable')
-    
+    grok.require(u'gum.View')
+
     def users(self):
         search_term = self.request.form.get('search_term', None)
         if not search_term or len(search_term) < 3:

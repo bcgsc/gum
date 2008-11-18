@@ -17,6 +17,7 @@ class Layout(grok.View):
     "Shared layout for the application"
     grok.context(Interface)
     grok.name('layout')
+    grok.require(u'gum.View')
 
 class TopViewletManager(grok.ViewletManager):
     "Provide application logo and tabs for the top of the page"

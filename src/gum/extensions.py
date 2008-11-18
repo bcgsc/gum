@@ -28,6 +28,7 @@ class Extensions(grok.Container):
 class ExtensionsIndex(grok.View):
     grok.context(Extensions)
     grok.name('index')
+    grok.require(u'gum.View')
 
     def get_ext_name(self, ext):
         # TODO: this could be fragile, a better way?

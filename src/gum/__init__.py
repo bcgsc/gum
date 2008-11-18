@@ -1,5 +1,9 @@
 import re
 import grok
+import martian
+
+class View(grok.Permission):
+    grok.name(u'gum.View')
 
 class Add(grok.Permission):
     grok.name(u'gum.Add')
@@ -45,3 +49,19 @@ def quote( value ):
 def edit_form_template():
     """Return a Page Template suitable for usage in GUM Form Views"""
     return grok.PageTemplateFile('gum_edit_form.pt')
+
+class CheckRequireGrokker(martian.ClassGrokker):
+    """
+    Require that all Views be protected, excpet the "loginpage" View.
+    """
+    martian.component(grok.View)
+    martian.directive(grok.require, name='permission')
+
+    def execute(self, class_, permission, **data):
+        if not permission and \
+        str(class_) != "<class 'gum.login.LoginPage'>":
+            raise grok.GrokError(
+                'This application requires %r to use the grok.require '
+                'directive!' % class_, class_)
+        return True
+

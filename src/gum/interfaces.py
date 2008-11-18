@@ -29,6 +29,9 @@ class ILDAPUserGroupLocation(Interface):
     ldap_admin_group = schema.TextLine(
         title=u'Group that is granted the GUM Admin role.',
     )
+    ldap_view_group = schema.TextLine(
+        title=u'Group that is allowed to view GUM.',
+    )
 
 class ILDAPEntry(Interface):
     """Represents any Entry within LDAP"""

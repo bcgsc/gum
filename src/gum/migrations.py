@@ -62,6 +62,7 @@ class upgradeApplication(grok.View):
     """
     grok.context(LDAPApp)
     grok.name('upgrade')
+    grok.require(u'gum.View')
     
     def update(self):
         if not hasattr(self.context, 'version'):

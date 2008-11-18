@@ -6,7 +6,7 @@ from zope.app.security.interfaces import IUnauthenticatedPrincipal
 
 class LoginPage(grok.View):
     grok.context(interface.Interface)
-    grok.name('loginpage')
+    grok.name('loginForm.html')
     
     def __call__(self):
         request = self.request
