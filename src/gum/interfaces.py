@@ -165,10 +165,7 @@ change based on the settings for that Organization.
     
     def changePassword(self, password, confirm):
         "Change the User Password"
-    
-    def load(self):
-        "Fetch the User data from LDAP"
-    
+
     def save(self):
         "Saves the User object into LDAP"
         

@@ -231,13 +231,14 @@ class AddUser(grok.AddForm):
     
     @grok.action('Add User entry')
     def add(self, **data):
+        users = self.context['users']
         uid = data['uid']
         del data['uid']
-        user = User(uid, **data)
+        user = User(uid, users, **data)
         user.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify( ObjectCreatedEvent(user) )
         user.save()
-        self.redirect(self.url(self.context['users'][uid]))
+        self.redirect(self.url(users[uid]))
 
 
 class SearchUsers(grok.View):
@@ -404,7 +405,10 @@ class GUMRPC(grok.XMLRPC):
     
     def get_user_info_by_id( self, user_id ):
         "Return dictionary of user info given a valid user id"
-        user = self.context['users'][user_id]
+        try:
+            user = self.context['users'][user_id]
+        except KeyError:
+            return {'telephoneNumber': [], 'cn': '', 'email': ''}
         user_info = {}
         user_info['cn'] = user.cn
         user_info['email'] = user.email

@@ -59,15 +59,6 @@ And then we will remove the caveman from the employee group:
   >>> u'caveman' in gumsite['groups']['employee'].uids
   False
 
-We can have two User objects that refer to the same ldap entry. Normally
-we wouldn't want to do this, but it is useful for testing:
-
-  >>> groktwin = User('caveman')
-  >>> (groktwin.cn, groktwin.givenName) == (caveman.cn, caveman.givenName)
-  True
-  >>> (groktwin.street, groktwin.roomNumber) == (caveman.street, caveman.roomNumber)
-  True
-
 We can delete an entry. In Zope 3 style, delete is the responsibility of
 the Users container:
 

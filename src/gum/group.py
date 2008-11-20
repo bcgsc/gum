@@ -205,7 +205,10 @@ class Group(grok.Model):
         app = grok.getSite()
         users = []
         for uid in self.uids:
-            users.append( app['users'][uid] )
+            try:
+                users.append( app['users'][uid] )
+            except KeyError:
+                pass
         return users
 
     def transcripts(self):
@@ -247,7 +250,8 @@ class GroupEdit(grok.EditForm):
             for uid in data['uids']:
                 app['users'][uid]
         except KeyError:
-            return "Uid %s does not exist.\nYou supplied the User Ids %s." % (uid, data['uids'])
+            pass
+            # return "Uid %s does not exist.\nYou supplied the User Ids %s." % (uid, data['uids'])
         
         self.context.principal_id = self.request.principal.id # XXX oh the hackery!!!
         self.applyData(self.context, **data) # sends grok.ObjectModifedEvent

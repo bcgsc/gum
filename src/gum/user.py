@@ -11,9 +11,30 @@ from gum.interfaces import IUser, IUsers
 from gum import getProperty, getPropertyAsSingleValue
 from gum import quote
 
+
 class Users(grok.Container):
     "Collection of Users"
     interface.implements(IUsers)
+    
+    def create_user_from_ldap_results(self, data):
+        return User(
+            uid=getPropertyAsSingleValue(data, 'uid', None),
+            container=self,
+            cn = getPropertyAsSingleValue( data, 'cn', u''),
+            sn = getPropertyAsSingleValue( data, 'sn', u''),
+            givenName = getPropertyAsSingleValue( data, 'givenName', u''),
+            email = getPropertyAsSingleValue( data, 'mail', u''),
+            telephoneNumber = getProperty( data, 'telephoneNumber', []),
+            description = getPropertyAsSingleValue( data, 'description', u''),
+            roomNumber = getProperty( data, 'roomNumber', []),
+            street = getProperty( data, 'street', []),
+            # We call it job_title, ldap calls it just title
+            job_title = getPropertyAsSingleValue(data, 'title', u''),
+            o = getPropertyAsSingleValue(data, 'o', u''),
+            ou = getPropertyAsSingleValue(data, 'ou', u''),
+            employeeType = getPropertyAsSingleValue(data, 'employeeType', u''),
+            exists_in_ldap=True,
+        )
     
     def search(self, param, term, exact_match=True):
         "Search through users and return matches as User objects in a list"
@@ -32,9 +53,9 @@ class Users(grok.Container):
                             )
         users = []
         for x in results:
-            users.append( self.get( x[1]['uid'][0] ) )
+            users.append( self.create_user_from_ldap_results(x[1]) )
         return users
-        
+    
     def search_count(self, param, term):
         "Search through users, but only return a count of matches"
         app = grok.getSite()
@@ -93,7 +114,7 @@ class Users(grok.Container):
                               filter=filter_str )
         users = []
         for x in results:
-            users.append( self.get( x[1]['uid'][0] ) )
+            users.append( self.create_user_from_ldap_results(x[1]) )
         return users
     
     def values(self):
@@ -105,17 +126,23 @@ class Users(grok.Container):
         
         users = []
         for x in results:
-            uid = x[1]['uid'][0]
-            users.append( User(uid) )
+            users.append( self.create_user_from_ldap_results(x[1]) )
         
         return users
     
     def __getitem__(self, key):
         "Mapping of keys (uid) to LDAP-backed User objects"
-        user = User(key)
-        user.__parent__ = self
-        user.__name__ = key
-        return user
+        app = grok.getSite()
+        dbc = app.ldap_connection()
+        results = dbc.search( app.ldap_user_search_base,
+                              scope='one',
+                              filter="(&(objectclass=inetOrgPerson)(uid=%s))"
+                              % key
+                            )
+        if not results:
+            raise KeyError, "User id %s does not exist." % key
+        else:
+            return self.create_user_from_ldap_results(results[0][1])
     
     def __contains__(self, key):
         "Tell if a user exists"
@@ -126,7 +153,6 @@ class Users(grok.Container):
             return self[key]   
     
     def get(self, key, default=None):
-        # XXX this is clean, but I am not 100% sure why traversal needs this?
         attr = getattr(self, key, None)
         if attr:
             return attr
@@ -153,6 +179,7 @@ class User(grok.Model):
     
     def __init__(self,
                  uid,
+                 container=None,
                  cn=u'',
                  sn=u'',
                  givenName=u'',
@@ -165,79 +192,35 @@ class User(grok.Model):
                  job_title=u'',
                  o=u'',
                  ou=u'',
-                 employeeType=u'', ):        
+                 employeeType=u'',
+                 exists_in_ldap=False, ):
+        self.__name__ = uid
+        self.__parent__ = container
         self.uid = uid
         self.userPassword = userPassword
-        
-        data = self.load()
-        if not data:
-            # take note that this user does not yet exist in LDAP
-            self.in_ldap = False
-            
-            # if values are left blank in the AddForm, they are set to None
-            # we can deduce this information from our schema, but for now we
-            # will just wonk it with a bunch o' code
-            if not telephoneNumber: telephoneNumber = []
-            if not description: description = u''
-            if not roomNumber: roomNumber = u''
-            if not street: street = u''
-            if not job_title: job_title = u''
-            if not o: o = u''
-            if not ou: ou = u''
-            if not employeeType: employeeType = u''
-            
-            self.cn = cn
-            self.sn = sn
-            self.givenName = givenName
-            self.email = email
-            self.telephoneNumber = telephoneNumber
-            self.roomNumber = roomNumber
-            self.street = street
-            self.description = description
-            self.job_title = job_title
-            self.o = o
-            self.ou = ou
-            self.employeeType = employeeType
-            self.officeLocation = []
-        else:
-            # populate User object with LDAP search results
-            self.in_ldap = True
-            self.cn = getPropertyAsSingleValue( data, 'cn', u'')
-            self.sn = getPropertyAsSingleValue( data, 'sn', u'')
-            self.givenName = getPropertyAsSingleValue( data, 'givenName', u'')
-            self.email = getPropertyAsSingleValue( data, 'mail', u'')
-            self.telephoneNumber = getProperty( data, 'telephoneNumber', [])
-            self.description = getPropertyAsSingleValue( data, 'description', u'')
-            self.roomNumber = getProperty( data, 'roomNumber', [])
-            self.street = getProperty( data, 'street', [])
-            # We call it job_title, ldap calls it just title
-            self.job_title = getPropertyAsSingleValue(data, 'title', u'')
-            self.o = getPropertyAsSingleValue(data, 'o', u'')
-            self.ou = getPropertyAsSingleValue(data, 'ou', u'')
-            self.employeeType = getPropertyAsSingleValue(data, 'employeeType', u'')
+        self.cn = cn
+        self.sn = sn
+        self.givenName = givenName
+        self.email = email
+        self.telephoneNumber = telephoneNumber
+        self.roomNumber = roomNumber
+        self.street = street
+        self.description = description
+        self.job_title = job_title
+        self.o = o
+        self.ou = ou
+        self.employeeType = employeeType
+        self.officeLocation = []
+        self.exists_in_ldap = exists_in_ldap
 
-    def load(self):
-        "Fetch data for the User object from LDAP"
-        app = grok.getSite()
-        dbc = app.ldap_connection()
-        results = dbc.search( app.ldap_user_search_base,
-                              scope='one',
-                              filter="(&(objectclass=inetOrgPerson)(uid=%s))"
-                              % self.uid
-                            )
-        if not results:
-            return None
-        else:
-            return results[0][1]
-    
     def save(self):
         "Writes any changes made to the User object back into LDAP"
         app = grok.getSite()
         dbc = app.ldap_connection()
         # create
-        if not self.in_ldap:
+        if not self.exists_in_ldap:
             dbc.add(self.dn, self.ldap_entry)
-            self.in_ldap = True
+            self.exists_in_ldap = True
         # edit
         else:
             dbc.modify(self.dn, self.ldap_entry)

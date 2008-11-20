@@ -43,8 +43,13 @@ class Transcript(grok.Model):
         try:
             uid = self.principal_id.split('.')[-1:][0]
             user = app['users'][ uid ]
-        except ValueError:
-            user = None
+        except KeyError:
+            # non-ldap user, or user account was deleted
+            class UnknownUser(object):
+                def __init__(self, name):
+                    self.uid = name
+                    self.cn = name
+            user = UnknownUser(uid)
         return user
 
     def diffs(self):
@@ -152,11 +157,13 @@ def ldap_modified_subscriber(obj, event):
     app = grok.getSite()
     dbc = app.ldap_connection()
     trst.dn = obj.dn
-    trst.before = unicode(obj.load())
+    try:
+        trst.before = unicode(app['users'][obj.__name__].ldap_entry)
+    except KeyError:
+        trst.before = u''
     trst.after = unicode(obj.ldap_entry)
     trst.observation_datetime = datetime.now()
     trst.principal_id = obj.principal_id
     namechooser = INameChooser( app['transcripts'] )
     name = namechooser.chooseName('ldap_mod', trst)
     app['transcripts'][name] = trst
-
