@@ -275,19 +275,19 @@ class SimpleUserSearch(grok.View):
         
         users = self.context['users']
         results = {}
+        
         # search the Canonical Name (cn)
-        search_term = '*' + search_term + '*'
-        for user in users.search('cn', search_term):
+        for user in users.search('cn', search_term, False):
             results[user.uid] = user
-
+        
         # search the User Id (uid)
-        for user in users.search('uid', search_term):
+        for user in users.search('uid', search_term, False):
             results[user.uid] = user
-
+        
         # search the Email (email)
-        for user in users.search('mail', search_term):
+        for user in users.search('mail', search_term, False):
             results[user.uid] = user
-
+        
         return results.values()
 
 

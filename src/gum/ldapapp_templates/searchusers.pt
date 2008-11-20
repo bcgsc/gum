@@ -17,6 +17,7 @@
 			<th>Email</th>
 			<th>Phone</th>
 			<th>User Id</th>
+			<th>Groups</th>
 		</tr>
 		
 		<tr tal:repeat="user view/results">
@@ -36,6 +37,19 @@
 			    </p>
 			</td>
 			<td tal:content="user/uid" />
+			<td>
+			    <ul id="groupmembers">
+                	<li tal:condition="not: user/groups">
+                		No groups memberships.
+                	</li>
+                	<li tal:repeat="group user/groups">
+                		<a href="#"
+                			tal:attributes="href python:view.url(group)"
+                			tal:content="group/cn" />
+                		<br clear="both" />
+                	</li>
+                </ul>
+			</td>
 		</tr>
 	
 	</table>
