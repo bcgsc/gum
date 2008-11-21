@@ -5,12 +5,11 @@ from zope import event
 from zope.lifecycleevent import ObjectModifiedEvent
 from hurry.query.query import Query
 from hurry import query
+import ldap
 from ldap.modlist import addModlist, modifyModlist
 import SSHA
 from gum.interfaces import IUser, IUsers
 from gum import getProperty, getPropertyAsSingleValue
-from gum import quote
-
 
 class Users(grok.Container):
     "Collection of Users"
@@ -40,16 +39,21 @@ class Users(grok.Container):
         "Search through users and return matches as User objects in a list"
         app = grok.getSite()
         dbc = app.ldap_connection()
-        param = quote(param)
-        term = quote(term)
         
         if not exact_match:
             term = '*' + term + '*'
         
+        if type(term) == type([]) or type(term) == type((),):
+            filter_ext = "(|"
+            for item in term:
+                filter_ext += "(%s=%s)" % (param, item)
+            filter_ext += ")"
+        else:
+            filter_ext = "(%s=%s)" % (param, term)
         results = dbc.search( app.ldap_user_search_base,
                               scope='one',
-                              filter="(&(objectclass=inetOrgPerson)(%s=%s))"
-                              % (param, term)
+                              filter="(&(objectclass=inetOrgPerson)%s)"
+                              % filter_ext
                             )
         users = []
         for x in results:
@@ -481,7 +485,9 @@ class AutoCompleteSearchGidAddable(grok.View):
     grok.require(u'gum.View')
 
     def groups(self):
-        search_term = self.request.form.get('search_term', None)
+        search_term = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_term', None)
+        )
         if not search_term or len(search_term) < 3:
             return {}
 

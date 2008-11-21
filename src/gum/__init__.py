@@ -38,14 +38,6 @@ def getProperty( data, name, default ):
     except (IndexError, KeyError):
         return default
 
-def quote( value ):
-    "Escape a string so it is safe for use in an LDAP Query"
-    special_chars = '*()'
-    value = value.replace('\\','\\\\') # ME NOT GROK BACKSLASHES
-    for char in special_chars:
-        value = value.replace(char, '\\%s' % char)
-    return value
-
 def edit_form_template():
     """Return a Page Template suitable for usage in GUM Form Views"""
     return grok.PageTemplateFile('gum_edit_form.pt')

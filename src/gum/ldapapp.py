@@ -19,6 +19,7 @@ from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from ldapadapter.utility import ManageableLDAPAdapter
 from ldapadapter.interfaces import IManageableLDAPAdapter
 import ldappas.authentication
+import ldap
 from gum.group import Groups, Group
 from gum.user import Users, User
 from gum.organization import Organizations
@@ -248,8 +249,12 @@ class SearchUsers(grok.View):
     grok.require(u'gum.View')
 
     def results(self):
-        search_param = self.request.form.get('search_param')
-        search_term = self.request.form.get('search_term')
+        search_param = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_param')
+        )
+        search_term = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_term')
+        )
         exact_match = self.request.form.get('exact_match', False)
         if not search_term: return []
         
@@ -271,7 +276,9 @@ class SimpleUserSearch(grok.View):
     grok.require(u'gum.View')
 
     def results(self):
-        search_term = self.request.form.get('search_term')
+        search_term = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_term')
+        )
         if not search_term: return []
         
         users = self.context['users']
@@ -299,7 +306,9 @@ class AutoCompleteSearch(grok.View):
     grok.require(u'gum.View')
 
     def render(self):
-        search_term = self.request.form.get('search_term', None)
+        search_term = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_term', None)
+        )
         if not search_term or len(search_term) < 3:
             return ""
 
@@ -341,7 +350,9 @@ class AutoCompleteSearchUidAddable(grok.View):
     grok.require(u'gum.View')
 
     def users(self):
-        search_term = self.request.form.get('search_term', None)
+        search_term = ldap.filter.escape_filter_chars(
+            self.request.form.get('search_term', None)
+        )
         if not search_term or len(search_term) < 3:
             return {}
 

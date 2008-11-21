@@ -10,7 +10,7 @@ from hurry import query
 from gum.interfaces import IGroup
 from gum import getPropertyAsSingleValue
 from gum.widgets import AjaxUserChooserWidget
-from gum import quote
+
 
 class Groups(grok.Container):
     "Collection of Groups"
@@ -32,8 +32,6 @@ class Groups(grok.Container):
         "Search through groups and return matches as Group objects in a list"
         app = grok.getSite()
         dbc = app.ldap_connection()
-        param = quote(param)
-        term = quote(term)
         
         if not exact_match:
             term = '*' + term + '*'
@@ -132,7 +130,6 @@ class GroupsTraverser(grok.Traverser):
         
         return group
 
-
 class Group(grok.Model):
     "A single group of users"
     interface.implements(IGroup)
@@ -195,12 +192,7 @@ class Group(grok.Model):
         "Users who belong to the Group"
         app = grok.getSite()
         users = []
-        for uid in self.uids:
-            try:
-                users.append( app['users'][uid] )
-            except KeyError:
-                pass
-        return users
+        return app['users'].search('uid', self.uids)
 
     def transcripts(self):
         "Transcript objects recording modifications made to this Group"
