@@ -100,10 +100,10 @@ class OrgSearch(grok.View):
             orgunitTypes = self.request.form.get('orgunitTypes',[]),
         )
 
-    def results(self):
+    def users(self):
         app = grok.getSite()
         return app['users'].orgsearch(self.usersearch)
-
+        
     def export_url(self):
         url = self.url(self.context, 'orgsearch-csv')
         url += '?'

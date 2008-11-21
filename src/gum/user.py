@@ -191,8 +191,8 @@ class User(grok.Model):
                  email=u'',
                  telephoneNumber=[],
                  description=u'',
-                 street=u'',
-                 roomNumber=u'',
+                 street=[],
+                 roomNumber=[],
                  job_title=u'',
                  o=u'',
                  ou=u'',
@@ -214,7 +214,6 @@ class User(grok.Model):
         self.o = o
         self.ou = ou
         self.employeeType = employeeType
-        self.officeLocation = []
         self.exists_in_ldap = exists_in_ldap
 
     def save(self):

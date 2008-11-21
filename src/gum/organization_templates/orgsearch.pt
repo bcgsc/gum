@@ -36,7 +36,7 @@
 				<th>Organizational Unit Type</th>
 			</tr>
 			
-			<tr tal:repeat="user view/results">
+			<tr tal:repeat="user view/users">
 				<td>
 					<a href="#"
 						tal:attributes="href python:view.url(user)"
