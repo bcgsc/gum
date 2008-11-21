@@ -19,12 +19,13 @@ We can set-up an XML-RPC client connection:
   >>> from gum.ftests.xmlrpc_helper import ServerProxy
   >>> gumapi = ServerProxy("http://localhost:8080/gumsite")
  
-We can query for information about a group. Note that if the group doesn't
-exist, we still get back an empty result set. This is kinda wrong behaviour,
-and when we fix it, this test suite will also need to be adjusted ...
+We can query for information about a group. If the group does not exist
+then we get a Fault exception:
 
   >>> gumapi.get_group_info_by_id('bogusgroup')
-  {'description': '', 'uids': [], 'title': 'bogusgroup'}
+  Traceback (most recent call last):
+  ...
+  Fault: <Fault -1: "Unexpected Zope exception: KeyError: 'Group id bogusgroup does not exist.'">
 
 We can also query for information about a user. Same oddball empty result
 bevaviour:

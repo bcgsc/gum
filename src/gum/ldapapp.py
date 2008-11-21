@@ -378,13 +378,17 @@ class AddGroup(grok.AddForm):
     @grok.action('Add Group entry')
     def add(self, **data):
         gid = data['cn']
-        group = Group(gid)
-        group.description = data['description']
-        group.uids = data['uids']
+        groups = self.context['groups']
+        group = Group(
+            gid,
+            groups,
+            description=data['description'],
+            uids=data['uids'],
+            exists_in_ldap=False,)
         group.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify(ObjectCreatedEvent(group))
         group.save()
-        self.redirect(self.url(self.context['groups'][gid]))
+        self.redirect(self.url(group))
 
 #
 # XML-RPC Web Service API

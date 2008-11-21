@@ -434,7 +434,7 @@ class GrantMembership(grok.View):
         gid = self.request.form.get('gid', None)
         group = grok.getSite()['groups'][gid]
         if self.context.uid not in group.uids:
-            group.uids.append(self.context.uid)
+            group.uids = group.uids + (self.context.uid,)
             group.save()
             # TO-DO oh the hackery!!!
             group.principal_id = self.request.principal.id

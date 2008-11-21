@@ -14,7 +14,7 @@ instance of a GUM site. It connects to an LDAP testing environment:
 We can create a new Group by supplying a unique name:
 
   >>> from gum.group import Group
-  >>> tribe = Group('mammoth hunters')
+  >>> tribe = Group('mammoth hunters', None)
 
 The Group object implements the IGroup interface, this is a schema that
 describes all data about a Group:
@@ -35,15 +35,8 @@ We can modify the Group object. LDAP is not updated until we call an explicit sa
   >>> tribe.uids = ['grok',]
   >>> tribe.save()
 
-We can have two Group objects that refer to the same ldap entry. Normally
-we wouldn't want to do this, but it is useful for testing:
-
-  >>> tribetwin = Group('mammoth hunters')
-  >>> (tribetwin.cn, tribetwin.description) == (tribe.cn, tribe.description)
-  True
-
-Finally, we can delete an entry. In Zope 3 style, delete is the responsibility of
-the Groups container:
+Finally, we can delete an entry. In Zope 3 style, delete is the responsibility
+of the Groups container:
 
   >>> del gumsite['groups']['mammoth hunters']
   >>> del gumsite['users']['grok']

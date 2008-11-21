@@ -15,6 +15,19 @@ from gum import quote
 class Groups(grok.Container):
     "Collection of Groups"
 
+    def create_group_from_ldap_results(self, data):
+        cn = getPropertyAsSingleValue( data, 'cn', u'' )
+        description =  getPropertyAsSingleValue( data, 'description', u'' )
+        # 'uniqueMember' looks like this:
+        # [u'uid=kteague,ou=Testusers,dc=example,dc=com', u'uid=what,ou=Testusers,dc=example,dc=com']
+        uids = []
+        if data.has_key('uniqueMember'):
+            for member in data['uniqueMember']:
+                member = member.split(',')
+                uids.append( member[0].split('=')[1] )
+        uids = tuple(uids)
+        return Group(cn, self, description, uids, exists_in_ldap=True) 
+    
     def search(self, param, term, exact_match=True):
         "Search through groups and return matches as Group objects in a list"
         app = grok.getSite()
@@ -32,7 +45,7 @@ class Groups(grok.Container):
                             )
         groups = []
         for x in results:
-            groups.append( self.get( x[1]['cn'][0] ) )
+            groups.append( self.create_group_from_ldap_results( x[1] ) )
         return groups
 
     def values(self):
@@ -43,20 +56,7 @@ class Groups(grok.Container):
                              filter="(&(objectclass=groupOfUniqueNames))" )
         groups = []
         for x in results:
-            cn = x[1]['cn'][0]
-            description =  u''
-            if x[1].has_key('description'):
-                description = x[1]['description'][0]
-            uids = []
-            if x[1].has_key('uniqueMember'):
-                for member in x[1]['uniqueMember']:
-                    member = member.split(',')
-                    uids.append( member[0].split('=')[1] )
-            uids = tuple(uids)
-            group = Group(cn, description, uids, nofetch=True) 
-            group.__parent__ = self # ensure that groups have context, otherwise we can't call view.url(group)
-            group.__name__ = cn
-            groups.append( group )
+            groups.append( self.create_group_from_ldap_results( x[1] ) )
         
         return groups
     
@@ -69,10 +69,17 @@ class Groups(grok.Container):
     
     def __getitem__(self, key):
         "Mapping between key (group cn) and LDAP-backed Group objects"
-        group = Group(key)
-        group.__parent__ = self
-        group.__name__ = key
-        return group
+        app = grok.getSite()
+        dbc = app.ldap_connection()
+        results = dbc.search( app.ldap_group_search_base,
+                              scope='one',
+                              filter="(&(objectclass=groupOfUniqueNames)(cn=%s))"
+                              % key
+                            )
+        if not results:
+            raise KeyError, "Group id %s does not exist." % key
+        else:
+            return self.create_group_from_ldap_results(results[0][1])
 
     def __delitem__(self, key):
         "delete group"
@@ -130,38 +137,22 @@ class Group(grok.Model):
     "A single group of users"
     interface.implements(IGroup)
     
-    def __init__(self, cn, description=u'', uids=None, nofetch=False):
-        if not uids: uids = []
+    def __init__(self, cn, container=None, description=u'', uids=[], exists_in_ldap=False):
+        self.__name__ = cn
+        self.__parent__ = container
         self.cn = cn
         self.description = description
         self.uids = uids
-        
-        # If nofetch is True we already have all the group data
-        # and do not need to go query LDAP for data
-        if nofetch: return
-        
-        data = self.load()
-        if not data:
-            self.in_ldap = False
-        else:
-            self.in_ldap = True
-            self.cn = getPropertyAsSingleValue( data, 'cn', u'' )
-            self.description =  getPropertyAsSingleValue( data, 'description', u'' )
-            # 'uniqueMember' looks like this:
-            # [u'uid=kteague,ou=Testusers,dc=example,dc=com', u'uid=what,ou=Testusers,dc=example,dc=com']
-            if data.has_key('uniqueMember'):
-                for member in data['uniqueMember']:
-                    member = member.split(',')
-                    self.uids.append( member[0].split('=')[1] )
-
+        self.exists_in_ldap = exists_in_ldap
+    
     def save(self):
         "Store information in LDAP"
         app = grok.getSite()
         dbc = app.ldap_connection()
         
-        if not self.in_ldap:
+        if not self.exists_in_ldap:
             dbc.add(self.dn, self.ldap_entry)
-            self.in_ldap = True
+            self.exists_in_ldap = True
         else:
             dbc.modify(self.dn, self.ldap_entry)
     
