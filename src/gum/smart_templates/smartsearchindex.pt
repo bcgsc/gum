@@ -65,7 +65,12 @@
 				    <span tal:replace="number" />
 				    </p>
 				<td tal:content="user/uid" />
-				<td><span tal:replace="user/street" /> - <span tal:replace="user/roomNumber" /></td>
+				<td>
+				    <ol>
+				      <li tal:repeat="location user/officeLocationClean"
+				          tal:content="location" />
+				    </ol>
+				</td>
 				<td tal:content="user/employeeType" />
 				<td tal:content="user/ou" />
 			</tr>
