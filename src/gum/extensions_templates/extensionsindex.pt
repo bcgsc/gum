@@ -16,7 +16,7 @@
                 [
                 <a tal:attributes="href python:view.url(ext, 'edit')">
                     edit</a>,
-                <a tal:attributes="href python:view.url(ext, 'delete')">
+                <a tal:attributes="href python:view.url(context, 'delete', {'name':ext.__name__} )">
                     <img src="/@@/resources/delete.png" /> delete</a>]</p>
             </li>
         </ul>

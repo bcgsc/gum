@@ -200,7 +200,7 @@ def update_principal_info_from_ldap(event):
     if uid in view_group.uids:
         ppm = IPrincipalPermissionManager(app)
         ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
-    
+
     # grant the Admin role to members of the ldap_admin_group
     admin_group = app['groups'][app.ldap_admin_group]
     if uid in admin_group.uids:
@@ -235,7 +235,7 @@ class AddUser(grok.AddForm):
         users = self.context['users']
         uid = data['uid']
         del data['uid']
-        user = User(uid, users, **data)
+        user = User(uid, container=users, **data)
         user.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify( ObjectCreatedEvent(user) )
         user.save()

@@ -6,10 +6,10 @@ Security Group
 First, we create some test fixtures:
 
   >>> from gum.user import User
-  >>> lwheel = User('lwheel',None,'cn','sn')
+  >>> lwheel = User('lwheel')
   >>> lwheel.save()
   >>> lwheel.changePassword('lwheel','lwheel')
-  >>> jwheel = User('jwheel',None,'cn','sn')
+  >>> jwheel = User('jwheel')
   >>> jwheel.sn = 'Zope'
   >>> jwheel.save()
   >>> jwheel.changePassword('jwheel','jwheel')

@@ -26,7 +26,7 @@ describes all data about a Group:
 Since Groups are about Users, we'll create a User to test:
 
   >>> from gum.user import User
-  >>> grokuser = User('grok',None,'ME GROK','ZOPE')
+  >>> grokuser = User('grok',**{'cn':'ME GROK','sn':'ZOPE'})
   >>> grokuser.save()
 
 We can modify the Group object. LDAP is not updated until we call an explicit save:

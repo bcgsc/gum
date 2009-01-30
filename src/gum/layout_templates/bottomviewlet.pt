@@ -18,7 +18,7 @@
 	<div tal:condition="viewlet/is_admin">
 
 	<table class="actions"><tr><td>
-	<h3>Global Actions</h3>
+	<h3>Add New</h3>
 
 	<ul>
 		<li>
@@ -40,10 +40,15 @@
 	<tal:contextual tal:define="typeinfo viewlet/get_type_info"
 					tal:condition="typeinfo">
 
-	<h3>Actions for the <span tal:replace="typeinfo/typename" />
-		named <span tal:replace="python: context.__name__" /></h3>
+	<h3>Additional Actions</h3>
 
 	<ul>
+	    <li>
+	        <a href="#"
+        	   tal:attributes="href python: view.url(viewlet.app()['users'][principal.uid], 'edituser')"
+        	   tal:on-error="string:(external admin account)">
+        	    Edit: Your account profile</a>
+	    </li>
 		<li>
 			<a href="#"
 			   tal:attributes="href python: view.url( typeinfo['actions']['edit']['name'] )"

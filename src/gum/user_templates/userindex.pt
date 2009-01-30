@@ -97,8 +97,11 @@
 				<th>Distinguished Name (dn)</th>
 				<td tal:content="context/dn" />
 			</tr>
+			<tr tal:repeat="field context/extended_fields">
+				<th tal:content="field/field/title">Field Title</th>
+				<td tal:content="python: getattr(context, field.__name__)" />
+			</tr>
 		</table>
-		
 
 		<tal:mod tal:condition="python: len(context.transcripts()) > 0">
 		<h3>Modifications made to this Entry</h3>

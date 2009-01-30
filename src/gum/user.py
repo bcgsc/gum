@@ -1,38 +1,66 @@
 import grok
 from urllib import urlencode
 from zope import schema, interface
+from zope import component
 from zope import event
-from zope.lifecycleevent import ObjectModifiedEvent
+from zope.formlib.form import FormFields
 from hurry.query.query import Query
 from hurry import query
 import ldap
 from ldap.modlist import addModlist, modifyModlist
 import SSHA
-from gum.interfaces import IUser, IUsers
+from gum.interfaces import IUser, IUsers, IUserSchemaExtension
 from gum import getProperty, getPropertyAsSingleValue
+
+def additional_user_fields():
+    "List of fields that the User schema has been extended with"
+    fields = []
+    for ext in component.getUtilitiesFor(IUserSchemaExtension):
+        for field in ext[1].fields:
+            if not field.__name__ == 'objectClass':
+                fields.append(field)
+    return fields
+
+def cast_field_from_ldap_string(field, value):
+    # XXX we only handle Booleans right now ...
+    if schema.interfaces.IBool.providedBy(field):
+        if value == 'True': return True
+        elif value == 'False': return False
+    else:
+        return value
 
 class Users(grok.Container):
     "Collection of Users"
     interface.implements(IUsers)
     
     def create_user_from_ldap_results(self, data):
-        return User(
-            uid=getPropertyAsSingleValue(data, 'uid', None),
-            container=self,
-            cn = getPropertyAsSingleValue( data, 'cn', u''),
-            sn = getPropertyAsSingleValue( data, 'sn', u''),
-            givenName = getPropertyAsSingleValue( data, 'givenName', u''),
-            email = getPropertyAsSingleValue( data, 'mail', u''),
-            telephoneNumber = getProperty( data, 'telephoneNumber', []),
-            description = getPropertyAsSingleValue( data, 'description', u''),
-            roomNumber = getProperty( data, 'roomNumber', []),
-            street = getProperty( data, 'street', []),
+        userdata = {
+            'container' : self,
+            'cn' : getPropertyAsSingleValue( data, 'cn', u''),
+            'sn' : getPropertyAsSingleValue( data, 'sn', u''),
+            'givenName' : getPropertyAsSingleValue( data, 'givenName', u''),
+            'email' : getPropertyAsSingleValue( data, 'mail', u''),
+            'telephoneNumber' : getProperty( data, 'telephoneNumber', []),
+            'description' : getPropertyAsSingleValue( data, 'description', u''),
+            'roomNumber' : getProperty( data, 'roomNumber', []),
+            'street' : getProperty( data, 'street', []),
             # We call it job_title, ldap calls it just title
-            job_title = getPropertyAsSingleValue(data, 'title', u''),
-            o = getPropertyAsSingleValue(data, 'o', u''),
-            ou = getPropertyAsSingleValue(data, 'ou', u''),
-            employeeType = getPropertyAsSingleValue(data, 'employeeType', u''),
-            exists_in_ldap=True,
+            'job_title' : getPropertyAsSingleValue(data, 'title', u''),
+            'o' : getPropertyAsSingleValue(data, 'o', u''),
+            'ou' : getPropertyAsSingleValue(data, 'ou', u''),
+            'employeeType' : getPropertyAsSingleValue(data, 'employeeType', u''),
+            'exists_in_ldap' : True,
+        }
+        for field in additional_user_fields():
+            if data.has_key(field.field.ldap_name):
+                value = getPropertyAsSingleValue(
+                    data, field.field.ldap_name, field.field.default)
+                value = cast_field_from_ldap_string(field.field, value)
+                userdata[field.__name__] = value
+        
+        return User(
+            getPropertyAsSingleValue(data, 'uid', None),
+            **userdata
         )
     
     def search(self, param, term, exact_match=True):
@@ -183,38 +211,35 @@ class User(grok.Model):
     
     def __init__(self,
                  uid,
-                 container=None,
-                 cn=u'',
-                 sn=u'',
-                 givenName=u'',
-                 userPassword=u'********',
-                 email=u'',
-                 telephoneNumber=[],
-                 description=u'',
-                 street=[],
-                 roomNumber=[],
-                 job_title=u'',
-                 o=u'',
-                 ou=u'',
-                 employeeType=u'',
-                 exists_in_ldap=False, ):
+                 **keywords
+                 ):
+        defaults = {
+            'cn':u'default',
+            'sn':u'default',
+            'givenName':u'',
+            'userPassword':u'********',
+            'email':u'',
+            'telephoneNumber':[],
+            'description':u'',
+            'street':[],
+            'roomNumber':[],
+            'job_title':u'',
+            'o':u'',
+            'ou':u'',
+            'employeeType':u'',
+            'exists_in_ldap':False,
+        }
         self.__name__ = uid
-        self.__parent__ = container
+        self.__parent__ = keywords.get('container', None)
         self.uid = uid
-        self.userPassword = userPassword
-        self.cn = cn
-        self.sn = sn
-        self.givenName = givenName
-        self.email = email
-        self.telephoneNumber = telephoneNumber
-        self.roomNumber = roomNumber
-        self.street = street
-        self.description = description
-        self.job_title = job_title
-        self.o = o
-        self.ou = ou
-        self.employeeType = employeeType
-        self.exists_in_ldap = exists_in_ldap
+        
+        for name, value in defaults.items():
+            if not keywords.has_key(name):
+                keywords[name] = value
+        for field in additional_user_fields():
+            setattr(self, field.__name__, field.field.default)
+        for name, value in keywords.items():
+            setattr(self, name, value)
 
     def save(self):
         "Writes any changes made to the User object back into LDAP"
@@ -240,16 +265,22 @@ class User(grok.Model):
         return u"uid=%s,%s" % (self.uid, app.ldap_user_search_base)
     
     @property
+    def objectClasses(self):
+        l = ['top', 'person', 'organizationalPerson', 'inetOrgPerson']
+        for ext in component.getUtilitiesFor(IUserSchemaExtension):
+            l.append(ext[1].objectClass)
+        return l
+    
+    @property
     def ldap_entry(self):
         "Representation of the object as an LDAP entry"
-        # XXX Waaaa?
+        entry = { 'objectClass': self.objectClasses, }
+        
+        # TO-DO clean-up
         if not self.ou: self.ou = u''
         if not self.job_title: self.job_title = u''
         if not self.description: self.description = u''
-        
-        entry = { 'objectClass':
-                  ['top', 'person', 'organizationalPerson', 'inetOrgPerson'],}
-        # TO-DO clean-up
+
         for attrname in ['cn','sn','givenName','description','o','ou',
                          'employeeType','uid',]:
             if getattr(self, attrname, None):
@@ -266,6 +297,10 @@ class User(grok.Model):
         if getattr(self, 'email', None):
             entry['mail'] = [getattr(self, 'email', None),]
         
+        for field in additional_user_fields():
+            entry[field.field.ldap_name] = [unicode(
+                getattr(self, field.__name__)
+            )]
         return entry
     
     @property
@@ -345,6 +380,9 @@ class User(grok.Model):
             )
         return transcripts
 
+    @property
+    def extended_fields(self):
+        return additional_user_fields()
 
 class UsersIndex(grok.View):
     grok.context(Users)
@@ -376,26 +414,40 @@ class EditUser(grok.EditForm):
     grok.require(u'gum.Edit')
     
     template = grok.PageTemplateFile('gum_edit_form.pt')
-    form_fields = grok.AutoFields(User)
-    form_fields = form_fields.select(
-                    'uid',
-                    'userPassword',
-                    'cn',
-                    'sn',
-                    'givenName',
-                    'email',
-                    'telephoneNumber',
-                    'description',
-                    'job_title',
-                    'employeeType',
-                    'officeLocation',
-                    'o',
-                    'ou',)
-    # uid should not be edited after an account has been created!
-    # (although sometimes a typo is made in account creation, so perhaps
-    #  a special form or UI to handle this use-case maybe? say if the 
-    #  account is less than 5 minutes old ...)
-    form_fields['uid'].for_display = True
+    
+    @property
+    def form_fields(self):
+        # this is a property because class attributes are computed
+        # before components which provide schema extensions are registered
+        form_fields = grok.AutoFields(User)
+        form_fields = form_fields.select(
+                        'uid',
+                        'userPassword',
+                        'cn',
+                        'sn',
+                        'givenName',
+                        'email',
+                        'telephoneNumber',
+                        'description',
+                        'job_title',
+                        'employeeType',
+                        'officeLocation',
+                        'o',
+                        'ou',)
+        # uid should not be edited after an account has been created!
+        # (although sometimes a typo is made in account creation, so perhaps
+        #  a special form or UI to handle this use-case maybe? say if the 
+        #  account is less than 5 minutes old ...)
+        form_fields['uid'].for_display = True
+        
+        extra_fields = FormFields(*additional_user_fields())
+        # XXX we lie about IUserSchemaExtensions being IUser objects to
+        # get around FormFields behaviour of adapter = interface(context)
+        # a better fix might be refacter the IUser interfaces in some
+        # manner ...
+        for f in extra_fields: f.interface = IUser
+        form_fields += extra_fields
+        return form_fields
     
     label = "Edit User"
     
@@ -424,7 +476,7 @@ class DeleteUser(grok.View):
         user = self.context[ id ]
         # TO-DO oh the hackery!!!
         user.principal_id = self.request.principal.id
-        event.notify( ObjectModifiedEvent(user) )
+        event.notify( grok.ObjectModifiedEvent(user) )
         del self.context[ id ]
         self.redirect(self.url(self.context))
 
@@ -438,10 +490,14 @@ class GrantMembership(grok.View):
         group = grok.getSite()['groups'][gid]
         if self.context.uid not in group.uids:
             group.uids = group.uids + (self.context.uid,)
-            group.save()
+            
             # TO-DO oh the hackery!!!
             group.principal_id = self.request.principal.id
-            event.notify( ObjectModifiedEvent(group) )
+            event.notify( grok.ObjectModifiedEvent(group) )
+            
+            # save must be called after event notification, otherwise it
+            # can't diff between the before and after states!
+            group.save()
 
 
 class RevokeMembership(grok.View):
@@ -458,10 +514,14 @@ class RevokeMembership(grok.View):
             if uid != self.context.uid:
                 new_group.append(uid)
         group.uids = new_group
-        group.save()
+        
         # TO-DO oh the hackery!!!
         group.principal_id = self.request.principal.id
-        event.notify( ObjectModifiedEvent(group) )
+        event.notify( grok.ObjectModifiedEvent(group) )
+        
+        # save must be called after event notification, otherwise it
+        # can't diff between the before and after states!
+        group.save()
     
     def render(self):
         # TO-DO: pass a status message to the UI

@@ -121,7 +121,6 @@ class IGroupOfUniqueNames(ILDAPEntry):
         default=[],
     )
 
-
 class IUser(IINetOrgPerson, IBaseContent):
     """
     User entry
@@ -175,6 +174,10 @@ change based on the settings for that Organization.
     def transcripts(self):
         "List of Transcipt objects"
 
+class IUserSchemaExtension(Interface):
+    objectClass = schema.TextLine(title=u"LDAP objectClass")
+
+    fields = Attribute(u"Fields")
 
 class IUsers(Interface):
     """

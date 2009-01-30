@@ -39,7 +39,7 @@ single user, then get that information back using the XML-RPC API:
   >>> gumsite = getRootFolder()['gumsite']
   >>> from gum.group import Group
   >>> from gum.user import User
-  >>> joe = User('joe',None,'cn','sn',)
+  >>> joe = User('joe')
   >>> joe.cn = 'ME JOE'
   >>> joe.save()
   >>> tribe = Group('mammoth hunters')
