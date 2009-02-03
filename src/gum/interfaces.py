@@ -47,6 +47,8 @@ class IBaseContent(Interface):
 
 class IINetOrgPerson(ILDAPEntry):
     """
+    Selected mapping of INetOrgPerson objectClass.
+    
     This schema is define din RFC 2798:
     
     http://www.faqs.org/rfcs/rfc2798.html
@@ -59,23 +61,34 @@ class IINetOrgPerson(ILDAPEntry):
     Note that 'title' attribute has been renamed to 'job_title' to avoid
     clashing with the title attribute provided by BaseContent :(
     """
-    # only a partial implementation!
-    cn = schema.TextLine( title=u"Common Name",
-                   description=u"""Person's full name. This name is
+    
+    cn = schema.TextLine(
+        title=u"Common Name",
+        description=u"""Person's full name. This name is
 semi-formal and intended to reflect what someone wishes to be called,
 for example non-native English person may adopt an english name which people
 refer to them as.""",
-                   required=True, )
+        required=True,
+        default=u'-',
+    )
     
-    sn = schema.TextLine( title=u"Last Name",
-                   description=u"Surname, also referred to as last name or family name.",
-                   required=True, )
+    sn = schema.TextLine(
+        title=u"Last Name",
+        description=u"Surname, also referred to as last name or family name.",
+        required=True,
+        default=u'-',
+    )
     
-    givenName = schema.TextLine( title=u"First Name",
-                    description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.")
+    givenName = schema.TextLine(
+        title=u"First Name",
+        description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.",
+        default=u'-',
+    )
     
-    uid =  schema.TextLine( title=u"User Id",
-                     description=u"A unique identifier, typically used as a logon id." )
+    uid =  schema.TextLine(
+        title=u"User Id",
+        description=u"A unique identifier, typically used as a logon id."
+    )
     
     userPassword = schema.Password(
         title=u"Password",
@@ -87,7 +100,8 @@ account access. Scrambling the password does not de-activate the account,
 since it may be possible for a user to reset their password through an 
 e-mail authetenticated password reset service!
 """,
-        required=False)
+        required=False,
+    )
     
     email = schema.TextLine(
         title=u"Email Address",
@@ -139,13 +153,14 @@ This e-mail address may be used to authenticate the account to recover lost pass
          missing_value=u"Unknown"
     )
     
-    o = schema.Choice( title=u"Organization",
-                        description=u"""
+    o = schema.Choice(
+        title=u"Organization",
+        description=u"""
  Identifier of an organization. After choosing this field and saving the change,
  the Employee Type, Office Location and Organizational Unit field dropdown will
  change based on the settings for that Organization.
  """,
-                        vocabulary="Organizations",
+        vocabulary="Organizations",
     )
 
 class IGroupOfUniqueNames(ILDAPEntry):

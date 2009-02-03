@@ -193,31 +193,11 @@ class User(grok.Model):
                  uid,
                  **keywords
                  ):
-        defaults = {
-            'cn':u'default',
-            'sn':u'default',
-            'givenName':u'',
-            'userPassword':u'',
-            'email':u'',
-            'telephoneNumber':[],
-            'description':u'',
-            'street':[],
-            'roomNumber':[],
-            'job_title':u'',
-            'o':u'',
-            'ou':u'',
-            'employeeType':u'',
-            'exists_in_ldap':False,
-        }
         self.__name__ = uid
-        self.__parent__ = keywords.get('container', None)
         self.uid = uid
+        self.__parent__ = keywords.get('container', None)
+        self.exists_in_ldap = keywords.get('exists_in_ldap', False)
         
-        for name, value in defaults.items():
-            if not keywords.has_key(name):
-                keywords[name] = value
-        for field in additional_user_fields():
-            setattr(self, field.__name__, field.field.default)
         for name, value in keywords.items():
             setattr(self, name, value)
     
@@ -268,7 +248,7 @@ class User(grok.Model):
             key = getattr(field.field, 'ldap_name', field.__name__)
             # the userPassword field is a special case
             if key != 'userPassword':
-                value = getattr(self, field.__name__)
+                value = getattr(self, field.__name__, field.field.default)
                 # MOD_DELETE is represented by an empty list
                 # in the ldapadapter modify() method
                 if value == None: value = []
