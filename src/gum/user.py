@@ -9,8 +9,12 @@ from hurry import query
 import ldap
 from ldap.modlist import addModlist, modifyModlist
 import SSHA
-from gum.interfaces import IUser, IUsers, IUserSchemaExtension
-from gum import getProperty, getPropertyAsSingleValue
+from gum.interfaces import IUser, IUsers, IUserSchemaExtension, IINetOrgPerson
+from gum import decombobulate
+
+def core_user_fields():
+    "List of built-in User schema fields"
+    return grok.Fields(IINetOrgPerson)
 
 def additional_user_fields():
     "List of fields that the User schema has been extended with"
@@ -19,15 +23,7 @@ def additional_user_fields():
         for field in ext[1].fields:
             if not field.__name__ == 'objectClass':
                 fields.append(field)
-    return fields
-
-def cast_field_from_ldap_string(field, value):
-    # XXX we only handle Booleans right now ...
-    if schema.interfaces.IBool.providedBy(field):
-        if value == 'True': return True
-        elif value == 'False': return False
-    else:
-        return value
+    return FormFields(*fields)
 
 class Users(grok.Container):
     "Collection of Users"
@@ -36,30 +32,14 @@ class Users(grok.Container):
     def create_user_from_ldap_results(self, data):
         userdata = {
             'container' : self,
-            'cn' : getPropertyAsSingleValue( data, 'cn', u''),
-            'sn' : getPropertyAsSingleValue( data, 'sn', u''),
-            'givenName' : getPropertyAsSingleValue( data, 'givenName', u''),
-            'email' : getPropertyAsSingleValue( data, 'mail', u''),
-            'telephoneNumber' : getProperty( data, 'telephoneNumber', []),
-            'description' : getPropertyAsSingleValue( data, 'description', u''),
-            'roomNumber' : getProperty( data, 'roomNumber', []),
-            'street' : getProperty( data, 'street', []),
-            # We call it job_title, ldap calls it just title
-            'job_title' : getPropertyAsSingleValue(data, 'title', u''),
-            'o' : getPropertyAsSingleValue(data, 'o', u''),
-            'ou' : getPropertyAsSingleValue(data, 'ou', u''),
-            'employeeType' : getPropertyAsSingleValue(data, 'employeeType', u''),
             'exists_in_ldap' : True,
         }
-        for field in additional_user_fields():
-            if data.has_key(field.field.ldap_name):
-                value = getPropertyAsSingleValue(
-                    data, field.field.ldap_name, field.field.default)
-                value = cast_field_from_ldap_string(field.field, value)
-                userdata[field.__name__] = value
-        
+        fields = core_user_fields() + additional_user_fields()
+        fields = fields.omit('dn','uid')
+        for field in fields:
+            userdata[field.__name__] = decombobulate(field.field, data)
         return User(
-            getPropertyAsSingleValue(data, 'uid', None),
+            data['uid'][0],
             **userdata
         )
     
@@ -217,7 +197,7 @@ class User(grok.Model):
             'cn':u'default',
             'sn':u'default',
             'givenName':u'',
-            'userPassword':u'********',
+            'userPassword':u'',
             'email':u'',
             'telephoneNumber':[],
             'description':u'',
@@ -240,14 +220,22 @@ class User(grok.Model):
             setattr(self, field.__name__, field.field.default)
         for name, value in keywords.items():
             setattr(self, name, value)
-
+    
     def save(self):
         "Writes any changes made to the User object back into LDAP"
         app = grok.getSite()
         dbc = app.ldap_connection()
         # create
         if not self.exists_in_ldap:
-            dbc.add(self.dn, self.ldap_entry)
+            # Ug. Need to scrub empty attributes from add, but keep them
+            # preserved in modify so that attributes can be deleted
+            entry = self.ldap_entry
+            for k,v in entry.items():
+                if v == []:
+                    del entry[k]
+                if len(v) == 1 and v[0] == u'':
+                    del entry[k]
+            dbc.add(self.dn, entry)
             self.exists_in_ldap = True
         # edit
         else:
@@ -276,33 +264,30 @@ class User(grok.Model):
         "Representation of the object as an LDAP entry"
         entry = { 'objectClass': self.objectClasses, }
         
-        # TO-DO clean-up
-        if not self.ou: self.ou = u''
-        if not self.job_title: self.job_title = u''
-        if not self.description: self.description = u''
-
-        for attrname in ['cn','sn','givenName','description','o','ou',
-                         'employeeType','uid',]:
-            if getattr(self, attrname, None):
-                entry[attrname] = [getattr(self, attrname, None),]
-
-        if getattr(self, 'telephoneNumber'):
-            entry['telephoneNumber'] = getattr(self, 'telephoneNumber')
-        if getattr(self, 'roomNumber'):
-            entry['roomNumber'] = getattr(self, 'roomNumber')
-        if getattr(self, 'street'):
-            entry['street'] = getattr(self, 'street')
-        if getattr(self, 'job_title', None):
-            entry['title'] = [getattr(self, 'job_title', None),]
-        if getattr(self, 'email', None):
-            entry['mail'] = [getattr(self, 'email', None),]
+        for field in core_user_fields():
+            key = getattr(field.field, 'ldap_name', field.__name__)
+            # the userPassword field is a special case
+            if key != 'userPassword':
+                value = getattr(self, field.__name__)
+                # MOD_DELETE is represented by an empty list
+                # in the ldapadapter modify() method
+                if value == None: value = []
+                # distinguish between SINGLE-VALUE and MULTI-VALUE fields
+                if type(value) == type([]):
+                    entry[key] = value
+                else:
+                    entry[key] = [value]
         
         for field in additional_user_fields():
             entry[field.field.ldap_name] = [unicode(
                 getattr(self, field.__name__)
             )]
+            
+        # dn is not represented in the entry
+        del entry['dn']
+        
         return entry
-    
+        
     @property
     def organization(self):
         "Look-up the Organization object based on the organization attribute"
@@ -323,14 +308,13 @@ class User(grok.Model):
     #   ['100','202',]
     #
     def _get_officeLocation(self):
-        org = self.o
-        if not org:
-            return []
         if self.street and self.roomNumber:
             return ['%s - %s' % (x[0], x[1])
                     for x in zip(self.street, self.roomNumber)]
-        else:
+        elif self.street:
             return self.street
+        else:
+            return []
     def _set_officeLocation(self, locations):
         streets = []
         roomNumbers = []
@@ -454,7 +438,7 @@ class EditUser(grok.EditForm):
     @grok.action('Save Changes')
     def edit(self, **data):
         # handle password changes seperately
-        if data['userPassword'] != u'********':
+        if data['userPassword']:
             self.context.changePassword(
                 data['userPassword'], data['userPassword']
             )

@@ -1,6 +1,7 @@
 import re
 import grok
 import martian
+from zope import schema
 
 class View(grok.Permission):
     grok.name(u'gum.View')
@@ -56,4 +57,34 @@ class CheckRequireGrokker(martian.ClassGrokker):
                 'This application requires %r to use the grok.require '
                 'directive!' % class_, class_)
         return True
+
+def decombobulate(field, data):
+    """
+    Translate values from LDAP fields to zope.schema fields.
+    
+    The 'ldap_as_multivalued' attribute on a zope.schema field
+    specifies if a LDAP MULTI-VALUED field should be treated
+    as single-valued in the context of GUM.
+    
+    The 'ldap_name' attribute on a zope.schema field specifies
+    the name that field is mapped to in LDAP.
+    """
+    as_multi = getattr(field, 'ldap_as_multivalued', False)
+    ldap_name = getattr(field, 'ldap_name', field.__name__)
+    
+    try:
+        value = data[ldap_name]
+    except (IndexError, KeyError):
+        return field.default
+    
+    if schema.interfaces.IBool.providedBy(field):
+        if value == 'True': return True
+        elif value == 'False': return False
+    if schema.interfaces.IPassword.providedBy(field):
+        # passwords are never displayed
+        return u''
+    else:
+        if not as_multi:
+            return value[0]
+        return value
 

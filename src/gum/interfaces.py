@@ -66,14 +66,18 @@ semi-formal and intended to reflect what someone wishes to be called,
 for example non-native English person may adopt an english name which people
 refer to them as.""",
                    required=True, )
+    
     sn = schema.TextLine( title=u"Last Name",
                    description=u"Surname, also referred to as last name or family name.",
                    required=True, )
+    
     givenName = schema.TextLine( title=u"First Name",
                     description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.")
+    
     uid =  schema.TextLine( title=u"User Id",
                      description=u"A unique identifier, typically used as a logon id." )
-    userPassword = schema.TextLine(
+    
+    userPassword = schema.Password(
         title=u"Password",
         description=u"""
 Passwords are stored encyrpted and so can not be displayed. Please take care
@@ -84,10 +88,15 @@ since it may be possible for a user to reset their password through an
 e-mail authetenticated password reset service!
 """,
         required=False)
-    email = schema.TextLine( title=u"Email Address",
+    
+    email = schema.TextLine(
+        title=u"Email Address",
         description=u"""
 This e-mail address may be used to authenticate the account to recover lost passwords.""",
+        default=u'',
     )
+    email.ldap_name = 'mail'
+    
     telephoneNumber = schema.List(
         title=u"Phone Numbers",
         description=u"The first number listed is intended to be the primary phone number.",
@@ -95,20 +104,49 @@ This e-mail address may be used to authenticate the account to recover lost pass
         default=[],
         value_type=schema.TextLine( title=u"Phone number",),
     )
+    telephoneNumber.ldap_as_multivalued = True
+    
     street = schema.TextLine( title=u"Street", required=False )
+    street.ldap_as_multivalued = True
+    
     roomNumber = schema.TextLine( title=u"Room Number", required=False )
+    roomNumber.ldap_as_multivalued = True
+    
     description = schema.SourceText(
         title=u"Description",
         description=u"Notes about the account, such as what the account is for.",
-        required=False
+        required=False,
+        default=u'',
     )
+    
     job_title = schema.TextLine( title=u"Job Title", required=False)
-    o = schema.TextLine( title=u"Organization", required=False,)
-    ou = schema.TextLine( title=u"Organizational Unit Name", required=False,
-                          description=u"e.g. Bioinformatics, Admin, Systems")
-    employeeType = schema.TextLine( title=u"Employee Type", required=False,
-                             description=u"e.g. Full Time, Inactive, Temp")
-
+    job_title.ldap_name = 'title'
+    
+    ou = schema.Choice(
+         title=u"Organizational Unit",
+         description=u"e.g. Systems, Administration, Purchasing.",
+         vocabulary="Organizational Units",
+         required=False
+    )
+    
+    employeeType = schema.Choice(
+         title=u"Employee Type",
+         description=u"""
+ Choices available is based on the Organizational field.
+         """,
+         vocabulary="Employee Types",
+         required=False,
+         missing_value=u"Unknown"
+    )
+    
+    o = schema.Choice( title=u"Organization",
+                        description=u"""
+ Identifier of an organization. After choosing this field and saving the change,
+ the Employee Type, Office Location and Organizational Unit field dropdown will
+ change based on the settings for that Organization.
+ """,
+                        vocabulary="Organizations",
+    )
 
 class IGroupOfUniqueNames(ILDAPEntry):
     title = schema.TextLine(title=u"Title", readonly=True)
@@ -121,29 +159,12 @@ class IGroupOfUniqueNames(ILDAPEntry):
         default=[],
     )
 
-class IUser(IINetOrgPerson, IBaseContent):
+class IUser(IINetOrgPerson):
     """
     User entry
     """
     title = schema.TextLine(title=u"Title", readonly=True)
     
-    employeeType = schema.Choice(
-        title=u"Employee Type",
-        description=u"""
-Choices available is based on the Organizational field.
-        """,
-        vocabulary="Employee Types",
-        required=False,
-        missing_value=u"Unknown"
-    )
-    o = schema.Choice( title=u"Organization",
-                       description=u"""
-Identifier of an organization. After choosing this field and saving the change,
-the Employee Type, Office Location and Organizational Unit field dropdown will
-change based on the settings for that Organization.
-""",
-                       vocabulary="Organizations",
-    )
     officeLocation = schema.List(
         title=u'Office Locations',
         description=u"""
@@ -155,13 +176,7 @@ change based on the settings for that Organization.
             required=True,
         ),
     )
-    ou = schema.Choice(
-        title=u"Organizational Unit",
-        description=u"e.g. Systems, Administration, Purchasing.",
-        vocabulary="Organizational Units",
-        required=False
-    )
-    
+
     def changePassword(self, password, confirm):
         "Change the User Password"
 

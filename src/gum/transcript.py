@@ -92,10 +92,10 @@ class Transcript(grok.Model):
                                    'removed' : removed,
                                   }
                                 )
-                elif v[0] != after[k][0]:
+                elif str(v) != str(after[k]):
                     diffs.append( { 'attribute' : k,
-                                    'before' : before[k][0],
-                                    'after' : after[k][0] }
+                                    'before' : before[k],
+                                    'after' : after[k] }
                                  )
             except KeyError:
                 pass
