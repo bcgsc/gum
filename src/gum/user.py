@@ -342,7 +342,7 @@ class User(grok.Model):
         transcripts = Query().searchResults(
             query.Eq( ('gum_catalog', 'dn'), self.dn )
             )
-        return transcripts
+        return sorted(transcripts)
 
     @property
     def extended_fields(self):
@@ -369,7 +369,7 @@ class UserIndex(grok.View):
         transcripts = self.context.transcripts()
         # Catalog ResultSet is lazy, and does not support slicing
         transcripts = [x for x in transcripts]
-        return transcripts[:3]
+        return transcripts[:5]
 
 
 class EditUser(grok.EditForm):

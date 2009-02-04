@@ -1,167 +1,168 @@
 <html metal:use-macro="context/@@layout/macros/page">
+<div metal:fill-slot="content">
 
-    <div metal:fill-slot="content">
-
-		<h2>User Account: <span tal:replace="context/cn" /> (<span tal:replace="context/uid" />)</h2>
-		
-		<div id="groups">
-			
-			<h3>Group Memberships for <span tal:replace="context/cn" /></h3>
-			
-			<tal:block replace="structure provider:groups.memberlist" />
-			
-			<form action="./grant" 
-				  method="get"
-				  style="margin-top: 0em; margin-bottom: 0.5em;">
-			
-			<h3>Grant additional group membership</h3>
-			
-			<div style="padding: 4px;">
-			Search <input type="text" id="autocomplete" name="search_term"/>
-			<div id="autocomplete_choices" class="autocomplete"></div>
-			</div>
-			
-			<script type="text/javascript">
-			//<![CDATA[
-			var group_name_auto_completer = new Ajax.Autocompleter(
-					"autocomplete",
-					"autocomplete_choices",
-					"./autocompletesearchgidaddable",
-					{ paramName: "search_term",
-					  minChars: 3,
-					  updateElement: function (){}, }
-			);
-			//]]>
-			</script>
-			
-			</form>
-					</div>
-		
-		<table class="listing">
-			<tr>
-				<th>Full Name</th>
-				<td><span tal:replace="context/cn" /></td>
-			</tr>
-			<tr>
-				<th>First Name</th>
-				<td><span tal:replace="context/givenName" /></td>
-			</tr>
-			<tr>
-				<th>Last Name</th>
-				<td><span tal:replace="context/sn" /></td>
-			</tr>
-			<tr>
-				<th>Job Title</th>
-				<td><span tal:content="context/job_title" /></td>
-			</tr>
-			<tr>
-				<th>Description</th>
-				<td><pre tal:content="context/description" /></td>
-			</tr>
-			<tr>
-				<th>User Id</th>
-				<td><span tal:replace="context/uid" /></td>
-			</tr>
-			<tr>
-				<th>Organization Name</th>
-				<td><span tal:content="context/o" /></td>
-			</tr>
-			<tr>
-				<th>Organization Unit Name</th>
-				<td><span tal:content="context/ou" /></td>
-			</tr>
-			<tr>
-				<th>Employee Type</th>
-				<td><span tal:content="context/employeeType" /></td>
-			</tr>
-			<tr>
-				<th>Email Address</th>
-				<td><span tal:replace="context/email" /></td>
-			</tr>
-			<tr>
-				<th>Telephone Number(s)</th>
-				<td>
-				    <p tal:repeat="number context/telephoneNumber">
-				    <span tal:replace="number" />
-				    </p>
-			    </td>
-			</tr>
-			<tr>
-				<th>Office Location(s)</th>
-				<td>
-				    <p tal:repeat="location context/officeLocationClean">
-				    <span tal:replace="location" />
-				    </p>
-			</tr>
-			<tr>
-				<th>Distinguished Name (dn)</th>
-				<td tal:content="context/dn" />
-			</tr>
-			<tr tal:repeat="field context/extended_fields">
-				<th tal:content="field/field/title">Field Title</th>
-				<td tal:content="python: getattr(context, field.__name__)" />
-			</tr>
-		</table>
-
-		<tal:mod tal:condition="python: len(context.transcripts()) > 0">
-		<h3>Modifications made to this Entry</h3>
-		
-		<table class="listing">
-			<tr>
-				<th>Modified By</th>
-				<th>Modification Datetime</th>
-				<th>Differences</th>
-			</tr>
-			
-			<tr tal:repeat="trst view/recent_transcripts">
-				<td tal:define="user trst/user"><span tal:replace="user/cn" /></td>
-				<td tal:content="python: str(trst.observation_datetime)[:len('2007-02-21 14:56')]" />
-				<td>
-					<table class="diff">
-						<tr>
-							<th>Attribute</th>
-							<th>Before</th>
-							<th>After</th>
-						</tr>
-						<tr tal:repeat="diff trst/diffs">
-							
-							<tal:single tal:condition="python: diff.has_key('before')">
-							<td tal:content="diff/attribute" />
-							<td tal:content="diff/before" />
-							<td tal:content="diff/after" />
-							</tal:single>
-							
-							<tal:multi tal:condition="python: diff.has_key('removed')">
-							<td tal:content="diff/attribute" />
-							<td>
-								Removed: <span tal:repeat="entry diff/removed">
-								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
-								</span>
-							</td>
-							<td>
-								Added: <span tal:repeat="entry diff/added">
-								<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
-								</span>
-							</td>
-							</tal:multi>
-							
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-		
-		<tal:more tal:condition="python: len(context.transcripts()) > 3">
-		<p>
-			View all <a href="#" tal:attributes="href view/transcripts_by_dn">
-			<span tal:replace="python: len(context.transcripts())" /> transcripts</a> for this entry.
-		</p>
-		</tal:more>
-		
-		</tal:mod>
+	<h2>User Account: <span tal:replace="context/cn" /> (<span tal:replace="context/uid" />)</h2>
 	
-		<br clear="both" />
+	<div id="groups">
 		
-    </div>
+		<h3>Group Memberships for <span tal:replace="context/cn" /></h3>
+		
+		<tal:block replace="structure provider:groups.memberlist" />
+		
+		<form action="./grant" 
+			  method="get"
+			  style="margin-top: 0em; margin-bottom: 0.5em;">
+		
+		<h3>Grant additional group membership</h3>
+		
+		<div style="padding: 4px;">
+		Search <input type="text" id="autocomplete" name="search_term"/>
+		<div id="autocomplete_choices" class="autocomplete"></div>
+		</div>
+		
+		<script type="text/javascript">
+		//<![CDATA[
+		var group_name_auto_completer = new Ajax.Autocompleter(
+				"autocomplete",
+				"autocomplete_choices",
+				"./autocompletesearchgidaddable",
+				{ paramName: "search_term",
+				  minChars: 3,
+				  updateElement: function (){}, }
+		);
+		//]]>
+		</script>
+		
+		</form>
+				</div>
+	
+	<table class="listing">
+		<tr>
+			<th>Full Name</th>
+			<td><span tal:replace="context/cn" /></td>
+		</tr>
+		<tr>
+			<th>First Name</th>
+			<td><span tal:replace="context/givenName" /></td>
+		</tr>
+		<tr>
+			<th>Last Name</th>
+			<td><span tal:replace="context/sn" /></td>
+		</tr>
+		<tr>
+			<th>Job Title</th>
+			<td><span tal:content="context/job_title" /></td>
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td><pre tal:content="context/description" /></td>
+		</tr>
+		<tr>
+			<th>User Id</th>
+			<td><span tal:replace="context/uid" /></td>
+		</tr>
+		<tr>
+			<th>Organization Name</th>
+			<td><span tal:content="context/o" /></td>
+		</tr>
+		<tr>
+			<th>Organization Unit Name</th>
+			<td><span tal:content="context/ou" /></td>
+		</tr>
+		<tr>
+			<th>Employee Type</th>
+			<td><span tal:content="context/employeeType" /></td>
+		</tr>
+		<tr>
+			<th>Email Address</th>
+			<td><span tal:replace="context/email" /></td>
+		</tr>
+		<tr>
+			<th>Telephone Number(s)</th>
+			<td>
+			    <p tal:repeat="number context/telephoneNumber">
+			    <span tal:replace="number" />
+			    </p>
+		    </td>
+		</tr>
+		<tr>
+			<th>Office Location(s)</th>
+			<td>
+			    <p tal:repeat="location context/officeLocationClean">
+			    <span tal:replace="location" />
+			    </p>
+		</tr>
+		<tr>
+			<th>Distinguished Name (dn)</th>
+			<td tal:content="context/dn" />
+		</tr>
+		<tr tal:repeat="field context/extended_fields">
+			<th tal:content="field/field/title">Field Title</th>
+			<td tal:content="python: getattr(context, field.__name__)" />
+		</tr>
+	</table>
 
+	<tal:mod tal:condition="python: len(context.transcripts()) > 0">
+	<h3>Modifications made to this Entry</h3>
+	
+	<table class="listing">
+		<tr>
+			<th>Modified By</th>
+			<th>Modification Datetime</th>
+			<th>Differences</th>
+		</tr>
+		
+		<tr tal:repeat="trst view/recent_transcripts">
+			<td tal:define="user trst/user"><span tal:replace="user/cn" /></td>
+			<td tal:content="python: str(trst.observation_datetime)[:len('2007-02-21 14:56')]" />
+			<td>
+
+			<table class="diff" tal:condition="trst/diffs">
+				<tr>
+					<th>Attribute</th>
+					<th>Before</th>
+					<th>After</th>
+				</tr>
+				<tr tal:repeat="diff trst/diffs">
+					
+					<tal:single tal:condition="python: diff.has_key('before')">
+					<td tal:content="diff/attribute" />
+					<td tal:content="diff/before" />
+					<td tal:content="diff/after" />
+					</tal:single>
+					
+					<tal:multi tal:condition="python: diff.has_key('removed')">
+					<td tal:content="diff/attribute" />
+					<td>
+						Removed: <span tal:repeat="entry diff/removed">
+						<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+						</span>
+					</td>
+					<td>
+						Added: <span tal:repeat="entry diff/added">
+						<span tal:replace="entry"><tal:comma tal:condition="not: repeat/entry/last">,</tal:comma></span>
+						</span>
+					</td>
+					</tal:multi>
+					
+				</tr>
+			</table>
+			<p tal:condition="not:trst/diffs">Newly created account.</p>
+			
+			</td>
+		</tr>
+	</table>
+	
+	<tal:more tal:condition="python: len(context.transcripts()) > 5">
+	<p>
+		View all <a href="#" tal:attributes="href view/transcripts_by_dn">
+		<span tal:replace="python: len(context.transcripts())" /> transcripts</a> for this entry.
+	</p>
+	</tal:more>
+	
+	</tal:mod>
+
+	<br clear="both" />
+	
+</div>
 </html>
