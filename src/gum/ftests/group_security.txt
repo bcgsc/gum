@@ -23,7 +23,7 @@ simplistic, so we may revisit group security in the future.
   >>> mgrbrowser.open("http://localhost:8080/gumsite/@@addgroup")
   Traceback (most recent call last):
     ...
-  Unauthorized: (<gum.ldapapp.AddGroup object at ...>, '__call__', u'gum.Add')
+  Unauthorized: (<gum.ldapapp.AddGroup object at ... u'gum.Add')
 
 When we log in, we can access the view just fine. While we are at it we will
 set-up browsing sessions for our two users:
@@ -59,7 +59,7 @@ allowed to modify the Group:
   >>> lwheel_browser.open("http://localhost:8080/gumsite/groups/WheelInventors/@@editgroup")
   Traceback (most recent call last):
   ...
-  Unauthorized: (<gum.group.GroupEdit object at ...>, '__call__', u'gum.EditGroup')
+  Unauthorized: (<gum.group.GroupEdit object at ... u'gum.EditGroup')
 
 Waaaaaa! How to test the AJAX widget? Maybe we need this widget to degrade to 
 non-JS browsers?

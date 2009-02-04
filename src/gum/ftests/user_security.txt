@@ -13,7 +13,7 @@ up an Unauthorized error:
   >>> browser.open("http://localhost:8080/gumsite/adduser")
   Traceback (most recent call last):
     ...
-  Unauthorized: (<gum.ldapapp.AddUser object at ...>, '__call__', u'gum.Add')
+  Unauthorized: (<gum.ldapapp.AddUser object at ... u'gum.Add')
 
 When we log in, we can access the view just fine:
 
