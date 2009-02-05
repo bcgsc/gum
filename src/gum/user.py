@@ -1,4 +1,5 @@
 import grok
+import copy
 from urllib import urlencode
 from zope import schema, interface
 from zope import component
@@ -298,12 +299,14 @@ class User(grok.Model):
     def _set_officeLocation(self, locations):
         streets = []
         roomNumbers = []
+        na_number = 1
         for location in locations:
             if location.find(' - ') != -1:
                 street, roomNumber = location.split(' - ', 1)
             else:
                 street = location
-                roomNumber = u'Not Applicable'
+                roomNumber = u'Not Applicable %s' % na_number
+                na_number += 1
             streets.append(street)
             roomNumbers.append(roomNumber)
         self.street = streets
@@ -315,10 +318,10 @@ class User(grok.Model):
         """
         LDAP does not allow storing empty strings, and we match lists
         of Street and Room Numbers together, so if the Room Number doesn't
-        apply, we store "Not Applicable". We don't need to show this in the
-        UI though.
+        apply, we store "Not Applicable (digit)". We don't need to show this
+        in the UI though.
         """
-        return [ location.rstrip(u' - Not Applicable')
+        return [ location[:location.find(u' - Not Applicable')]
                  for location in self.officeLocation ]
     
     def groups(self):
@@ -343,7 +346,7 @@ class User(grok.Model):
             query.Eq( ('gum_catalog', 'dn'), self.dn )
             )
         return sorted(transcripts)
-
+    
     @property
     def extended_fields(self):
         return additional_user_fields()
@@ -365,12 +368,24 @@ class UserIndex(grok.View):
         url += urlencode( [ ('dn', self.context.dn) ] )
         return url
     
+    def adjusted_core_fields(self):
+        "List of core fields adjusted for a more user friendly display"
+        # adjusted means 'officeLocation' ...
+        fields = core_user_fields()
+        fields = fields.omit('roomNumber','street')
+        ol_field = copy.copy(IUser['officeLocation'])
+        ol_field.__name__ = 'officeLocationClean'
+        fields += FormFields(ol_field)
+        return fields
+    
     def recent_transcripts(self):
         transcripts = self.context.transcripts()
         # Catalog ResultSet is lazy, and does not support slicing
         transcripts = [x for x in transcripts]
         return transcripts[:5]
 
+    def is_list(self, field):
+        return schema.interfaces.IList.providedBy(field)
 
 class EditUser(grok.EditForm):
     grok.context(User)
@@ -383,21 +398,10 @@ class EditUser(grok.EditForm):
     def form_fields(self):
         # this is a property because class attributes are computed
         # before components which provide schema extensions are registered
-        form_fields = grok.AutoFields(User)
-        form_fields = form_fields.select(
-                        'uid',
-                        'userPassword',
-                        'cn',
-                        'sn',
-                        'givenName',
-                        'email',
-                        'telephoneNumber',
-                        'description',
-                        'job_title',
-                        'employeeType',
-                        'officeLocation',
-                        'o',
-                        'ou',)
+        form_fields = core_user_fields()
+        # munge roomNumber and street into officeLocation
+        form_fields = form_fields.omit('roomNumber','street')
+        form_fields += FormFields(IUser['officeLocation'])
         # uid should not be edited after an account has been created!
         # (although sometimes a typo is made in account creation, so perhaps
         #  a special form or UI to handle this use-case maybe? say if the 

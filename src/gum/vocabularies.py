@@ -38,21 +38,22 @@ class OfficeLocationsVocab(object):
             offices = context.organization.offices
         except AttributeError:
             return SimpleVocabulary.fromValues(context.officeLocation)
-        officeRooms = []
+        officeRooms = {}
         for office in offices:
             if office.rooms:
                 for room in office.rooms:
-                    officeRooms.append('%s - %s' % (office.street, room))
+                    loc = '%s - %s' % (office.street, room)
+                    officeRooms[loc] = loc
             else:
-                officeRooms.append(office.street)
+                officeRooms[office.street] = office.street
         
         # account for locations which are not part of vocab
         # (which are allowed to stay the same)
         for current_location in context.officeLocation:
-            if current_location not in officeRooms:
-                officeRooms.append(current_location)
+            hr_loc = current_location[:current_location.find(' - Not Applicable')]
+            officeRooms[hr_loc] = current_location
         
-        return SimpleVocabulary.fromValues(officeRooms)
+        return SimpleVocabulary.fromItems(officeRooms.items())
 
 grok.global_utility(factory=OfficeLocationsVocab, name="Office Locations")
 

@@ -37,65 +37,16 @@
 				</div>
 	
 	<table class="listing">
-		<tr>
-			<th>Full Name</th>
-			<td><span tal:replace="context/cn" /></td>
-		</tr>
-		<tr>
-			<th>First Name</th>
-			<td><span tal:replace="context/givenName" /></td>
-		</tr>
-		<tr>
-			<th>Last Name</th>
-			<td><span tal:replace="context/sn" /></td>
-		</tr>
-		<tr>
-			<th>Job Title</th>
-			<td><span tal:content="context/job_title" /></td>
-		</tr>
-		<tr>
-			<th>Description</th>
-			<td><pre tal:content="context/description" /></td>
-		</tr>
-		<tr>
-			<th>User Id</th>
-			<td><span tal:replace="context/uid" /></td>
-		</tr>
-		<tr>
-			<th>Organization Name</th>
-			<td><span tal:content="context/o" /></td>
-		</tr>
-		<tr>
-			<th>Organization Unit Name</th>
-			<td><span tal:content="context/ou" /></td>
-		</tr>
-		<tr>
-			<th>Employee Type</th>
-			<td><span tal:content="context/employeeType" /></td>
-		</tr>
-		<tr>
-			<th>Email Address</th>
-			<td><span tal:replace="context/email" /></td>
-		</tr>
-		<tr>
-			<th>Telephone Number(s)</th>
-			<td>
-			    <p tal:repeat="number context/telephoneNumber">
-			    <span tal:replace="number" />
-			    </p>
-		    </td>
-		</tr>
-		<tr>
-			<th>Office Location(s)</th>
-			<td>
-			    <p tal:repeat="location context/officeLocationClean">
-			    <span tal:replace="location" />
-			    </p>
-		</tr>
-		<tr>
-			<th>Distinguished Name (dn)</th>
-			<td tal:content="context/dn" />
-		</tr>
+        <tr tal:repeat="field view/adjusted_core_fields">
+            <th tal:content="field/field/title">Field Title</th>
+            <td tal:condition="not: python: view.is_list(field.field)"
+                tal:content="python: getattr(context, field.__name__)" />
+            <td tal:condition="python: view.is_list(field.field)">
+            <p tal:repeat="item python: getattr(context, field.__name__)">
+            <span tal:replace="item" />
+            </p>
+            </td>
+        </tr>
 		<tr tal:repeat="field context/extended_fields">
 			<th tal:content="field/field/title">Field Title</th>
 			<td tal:content="python: getattr(context, field.__name__)" />
