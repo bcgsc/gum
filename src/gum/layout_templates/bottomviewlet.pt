@@ -15,9 +15,7 @@
 	(<span tal:on-error="string:zope.Manager" tal:replace="principal/uid" />).
     </p>
 
-	<div tal:condition="viewlet/is_admin">
-
-	<table class="actions"><tr><td>
+	<table class="actions"><tr><td tal:condition="viewlet/is_admin">
 	<h3>Add New</h3>
 
 	<ul>
@@ -49,12 +47,12 @@
         	   tal:on-error="string:(external admin account)">
         	    Edit: Your account profile</a>
 	    </li>
-		<li>
+		<li tal:condition="viewlet/is_admin">
 			<a href="#"
 			   tal:attributes="href python: view.url( typeinfo['actions']['edit']['name'] )"
 			   tal:content="string:Edit: ${context/title}">Edit: Foo</a>
 		</li>
-		<li>
+		<li tal:condition="viewlet/is_admin">
 			<a href="#"
 			   tal:attributes="href python:'../@@%s?id=%s' % ( typeinfo['actions']['delete']['name'], context.__name__ )">
 			<img src="/@@/resources/delete.png" alt="Delete" /></a>
@@ -66,9 +64,7 @@
 
 	</td></tr>
 	</table>
-
-	</div>
-
+	
 </div>
 
 </div>

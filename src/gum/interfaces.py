@@ -135,6 +135,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
     
     job_title = schema.TextLine( title=u"Job Title", required=False)
     job_title.ldap_name = 'title'
+    job_title.ldap_admin_only = True
     
     ou = schema.Choice(
          title=u"Organizational Unit",
@@ -142,6 +143,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
          vocabulary="Organizational Units",
          required=False
     )
+    ou.ldap_admin_only = True
     
     employeeType = schema.Choice(
          title=u"Employee Type",
@@ -152,6 +154,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
          required=False,
          missing_value=u"Unknown"
     )
+    employeeType.ldap_admin_only = True
     
     o = schema.Choice(
         title=u"Organization",
@@ -162,6 +165,8 @@ This e-mail address may be used to authenticate the account to recover lost pass
  """,
         vocabulary="Organizations",
     )
+    o.ldap_admin_only = True
+    
     labeledUri = schema.URI(
         title=u"Home Page",
         description=u"URL of personal web site.",

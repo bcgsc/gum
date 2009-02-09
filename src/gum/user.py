@@ -5,6 +5,7 @@ from zope import schema, interface
 from zope import component
 from zope import event
 from zope.formlib.form import FormFields
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from hurry.query.query import Query
 from hurry import query
 import ldap
@@ -351,6 +352,21 @@ class User(grok.Model):
     def extended_fields(self):
         return additional_user_fields()
 
+
+class UserTraverser(grok.Traverser):
+    """
+    Grant the gum.Edit permission to a user for their own account
+    """
+    grok.context(User)
+
+    def traverse(self, name):
+        principal_id = self.request.principal.id
+        uid = principal_id.split('.')[-1]
+        if uid == self.context.uid:
+            ppm = IPrincipalPermissionManager(grok.getSite())
+            ppm.grantPermissionToPrincipal(u'gum.Edit', principal_id)
+
+        
 class UsersIndex(grok.View):
     grok.context(Users)
     grok.name('index')
@@ -415,6 +431,15 @@ class EditUser(grok.EditForm):
         # manner ...
         for f in extra_fields: f.interface = IUser
         form_fields += extra_fields
+        
+        # limit fields which users without the Admin role can edit
+        is_admin = False
+        if [u'gum.Admin' in self.request.principal.groups]: is_admin = True
+        for f in form_fields:
+            admin_only = getattr(f.field, 'ldap_admin_only', False)
+            if not is_admin and admin_only:
+                f.for_display = True
+        
         return form_fields
     
     label = "Edit User"
