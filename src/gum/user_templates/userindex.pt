@@ -78,8 +78,8 @@
 					
 					<tal:single tal:condition="python: diff.has_key('before')">
 					<td tal:content="diff/attribute" />
-					<td tal:content="diff/before" />
-					<td tal:content="diff/after" />
+					<td tal:content="python: ', '.join(diff['before'])" />
+					<td tal:content="python: ', '.join(diff['after'])" />
 					</tal:single>
 					
 					<tal:multi tal:condition="python: diff.has_key('removed')">
@@ -98,6 +98,7 @@
 					
 				</tr>
 			</table>
+			
 			<p tal:condition="not:trst/diffs">Newly created account.</p>
 			
 			</td>
