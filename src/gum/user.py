@@ -370,9 +370,9 @@ class UserIndex(grok.View):
     
     def adjusted_core_fields(self):
         "List of core fields adjusted for a more user friendly display"
-        # adjusted means 'officeLocation' ...
+        # adjusted means 'officeLocation' and 'userPassword'
         fields = core_user_fields()
-        fields = fields.omit('roomNumber','street')
+        fields = fields.omit('roomNumber','street','userPassword',)
         ol_field = copy.copy(IUser['officeLocation'])
         ol_field.__name__ = 'officeLocationClean'
         fields += FormFields(ol_field)
