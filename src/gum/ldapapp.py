@@ -175,6 +175,12 @@ class Edit(grok.EditForm):
         
         self.redirect(self.url(self.context))
 
+@grok.subscribe(grok.interfaces.IApplication, grok.IObjectCreatedEvent)
+def grant_roles_to_permissions(event):
+    # grant roles to permissions
+    rpm = IRolePermissionManager(app)
+    rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
+    rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
 
 @grok.subscribe(IPrincipalCreated)
 def update_principal_info_from_ldap(event):
@@ -189,11 +195,6 @@ def update_principal_info_from_ldap(event):
     principal.title = user.cn
     principal.uid = uid
     principal.groups.extend([u'gum.Admin'])
-    
-    # grant roles to permissions
-    rpm = IRolePermissionManager(app)
-    rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
-    rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
     
     # grant the View role to members of the ldap_view_group
     view_group = app['groups'][app.ldap_view_group]
