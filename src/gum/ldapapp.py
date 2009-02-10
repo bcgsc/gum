@@ -1,4 +1,5 @@
 import grok
+from zope import component
 from zope.interface import implements
 from zope.app import zapi
 from zope.event import notify
@@ -29,6 +30,7 @@ from gum.extensions import Extensions
 from gum.cookiecredentials import CookieCredentialsPlugin
 from gum.interfaces import ILDAPUserGroupLocation
 from gum.interfaces import ITranscript, IOrganization
+from gum.interfaces import IGroup
 
 def setup_catalog(catalog):
     "Configure Indexes upon catalog creation"
@@ -172,43 +174,90 @@ class Edit(grok.EditForm):
         # update the app
         self.context.ldap_admin_group = data['ldap_admin_group']
         self.context.ldap_view_group = data['ldap_view_group']
+        sync_ldap_perms(self.context)
         
         self.redirect(self.url(self.context))
-
-@grok.subscribe(grok.interfaces.IApplication, grok.IObjectCreatedEvent)
-def grant_roles_to_permissions(event):
-    # grant roles to permissions
-    rpm = IRolePermissionManager(app)
-    rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
-    rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
 
 @grok.subscribe(IPrincipalCreated)
 def update_principal_info_from_ldap(event):
     "Update the principal with information from LDAP"
-    # To-Do: we aren't using permission distinctions between Add and Edit
-    # so this can be simplified down to a single permission ...
-    
     principal = event.principal
     app = grok.getSite()
     uid = principal.id.split('.')[-1]
     user = app['users'][uid]
     principal.title = user.cn
     principal.uid = uid
-    principal.groups.extend([u'gum.Admin'])
-    
-    # grant the View role to members of the ldap_view_group
-    view_group = app['groups'][app.ldap_view_group]
-    if uid in view_group.uids:
-        ppm = IPrincipalPermissionManager(app)
-        ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
 
-    # grant the Admin role to members of the ldap_admin_group
+@grok.subscribe(grok.interfaces.IApplication, grok.IObjectAddedEvent)
+def grant_roles_to_permissions(obj, event):
+    # grant roles to permissions
+    rpm = IRolePermissionManager(obj)
+    rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
+    rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
+
+@grok.subscribe(IGroup, grok.IObjectModifiedEvent)
+def view_group_subscriber(group, event):
+    app = grok.getSite()
+    if group.__name__ == app.ldap_view_group:
+        sync_ldap_perms(app)
+
+@grok.subscribe(IGroup, grok.IObjectModifiedEvent)
+def view_group_subscriber(group, event):
+    app = grok.getSite()
+    if group.__name__ == app.ldap_admin_group:
+        sync_ldap_perms(app)
+
+def sync_ldap_perms(app):
+    # a heavy hammer to sync the LDAP View and Admin groups into the
+    # ZODB as security Annotations
+    prm = IPrincipalRoleManager(app)
+    ppm = IPrincipalPermissionManager(app)
+    view_group = app['groups'][app.ldap_view_group]
     admin_group = app['groups'][app.ldap_admin_group]
-    if uid in admin_group.uids:
-        prm = IPrincipalRoleManager(app)
-        prm.assignRoleToPrincipal(u'gum.Admin', u'gum.ldap.%s' % uid)
-        ppm = IPrincipalPermissionManager(app)
+    
+    view_uids = []
+    if view_group:
+        view_uids = list(view_group.uids)
+    admin_uids = []
+    if admin_group:
+        admin_uids = list(admin_group.uids)
+    all_uids = view_uids
+    for uid in admin_uids:
+        if uid not in view_uids:
+            all_uids.append(uid)
+    
+    # remove stale view permissions
+    for p in ppm.getPrincipalsAndPermissions():
+        if p[1].split('.')[-1] not in all_uids:
+            ppm.unsetPermissionForPrincipal(u'gum.View', p[1])
+    
+    # grant active view permissions
+    for uid in all_uids:
         ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
+    
+    # remove stale admin roles
+    for p in prm.getPrincipalsAndRoles():
+        if p[1].split('.')[-1] not in admin_uids:
+            prm.unsetRoleForPrincipal(u'gum.Admin', p[1])
+    
+    # grant active admin roles
+    for uid in admin_uids:
+        prm.assignRoleToPrincipal(u'gum.Admin', u'gum.ldap.%s' % uid)
+
+    
+class SyncLDAPPermissions(grok.View):
+    """
+    Update the principal with information from LDAP. It's necessary to
+    invoke this view if LDAP data already exists before GUM creation, or
+    is modified by an externally by another application.
+    """
+    grok.require(u'zope.Manager')
+    grok.context(LDAPApp)
+    grok.name('syncperms')
+    
+    def render(self):
+        sync_ldap_perms(self.context)
+        return '<html><h1>All Done</h1></html>'
 
 #
 # User related Views

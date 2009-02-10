@@ -434,7 +434,7 @@ class EditUser(grok.EditForm):
         
         # limit fields which users without the Admin role can edit
         is_admin = False
-        if [u'gum.Admin' in self.request.principal.groups]: is_admin = True
+        if u'gum.Admin' in self.request.principal.groups: is_admin = True
         for f in form_fields:
             admin_only = getattr(f.field, 'ldap_admin_only', False)
             if not is_admin and admin_only:
