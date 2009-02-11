@@ -6,7 +6,6 @@ src/*.egg-info
 src/gum/*.pyc
 src/gum/interfaces/*.pyc
 src/gum-gsc-systems/
-gsc-dev.cfg
 parts
 develop-eggs
 .installed.cfg
