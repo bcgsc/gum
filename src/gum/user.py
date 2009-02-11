@@ -203,6 +203,13 @@ class User(grok.Model):
         for name, value in keywords.items():
             setattr(self, name, value)
     
+    def __cmp__(self, other):
+        "Sorted by sn then givenName"
+        if cmp(other.sn, self.sn) == 0:
+            return cmp(self.givenName, other.givenName)
+        else:
+            return cmp(self.sn, other.sn)
+
     def save(self):
         "Writes any changes made to the User object back into LDAP"
         app = grok.getSite()
