@@ -66,6 +66,11 @@ class OrganizationalUnitsVocab(object):
             ouTypes = context.organization.orgunitTypes
         except AttributeError:
             ouTypes = []
+            
+        # account for values not part of the vocab
+        if context.ou not in ouTypes:
+            ouTypes.append(context.ou)
+        
         return SimpleVocabulary.fromValues(ouTypes)
 
 grok.global_utility(factory=OrganizationalUnitsVocab, name='Organizational Units')
