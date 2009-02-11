@@ -423,7 +423,7 @@ class EditUser(grok.EditForm):
         # before components which provide schema extensions are registered
         form_fields = core_user_fields()
         # munge roomNumber and street into officeLocation
-        form_fields = form_fields.omit('roomNumber','street')
+        form_fields = form_fields.omit('roomNumber','street','dn')
         form_fields += FormFields(IUser['officeLocation'])
         # uid should not be edited after an account has been created!
         # (although sometimes a typo is made in account creation, so perhaps
