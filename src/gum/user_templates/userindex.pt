@@ -1,7 +1,7 @@
 <html metal:use-macro="context/@@layout/macros/page">
 <div metal:fill-slot="content">
 
-	<h2>User Account: <span tal:replace="context/cn" /> (<span tal:replace="context/uid" />)</h2>
+	<h2>User Account: <span tal:replace="context/cn" /> (<span tal:replace="context/__name__" />)</h2>
 	
 	<div id="groups">
 		

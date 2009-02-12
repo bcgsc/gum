@@ -35,7 +35,7 @@ We can modify the User object:
 
 Setting the object in our Users container saves the data into LDAP:
 
-  >>> gumsite['users'][caveman.uid] = caveman
+  >>> gumsite['users'][caveman.__name__] = caveman
 
 Group memberships can be managed with Views on the User object. We will
 add the caveman to the employee group:

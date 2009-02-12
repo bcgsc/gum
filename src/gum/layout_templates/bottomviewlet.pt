@@ -12,7 +12,7 @@
 <div tal:condition="viewlet/is_logged_in">
 
 	<p>You are logged in as <span tal:replace="principal/title" />
-	(<span tal:on-error="string:zope.Manager" tal:replace="principal/uid" />).
+	(<span tal:on-error="string:zope.Manager" tal:replace="principal/__name__" />).
     </p>
 
 	<table class="actions"><tr><td tal:condition="viewlet/is_admin">
@@ -43,7 +43,7 @@
 	<ul>
 	    <li>
 	        <a href="#"
-        	   tal:attributes="href python: view.url(viewlet.app()['users'][principal.uid], 'edituser')"
+        	   tal:attributes="href python: view.url(viewlet.app()['users'][principal.__name__], 'edituser')"
         	   tal:on-error="string:(external admin account)">
         	    Edit: Your account profile</a>
 	    </li>

@@ -64,7 +64,7 @@
 				    <p tal:repeat="number user/telephoneNumber">
 				    <span tal:replace="number" />
 				    </p>
-				<td tal:content="user/uid" />
+				<td tal:content="user/__name__" />
 				<td>
 				    <ol>
 				      <li tal:repeat="location user/officeLocationClean"

@@ -4,6 +4,6 @@
 		<img src="/@@/resources/add.png"
 			 alt="Add" 
 			 onclick="#"
-			 tal:attributes="onclick string:sequenceAddClicked('form.uids','${user/uid}')" />
+			 tal:attributes="onclick string:sequenceAddClicked('form.uids','${user/__name__}')" />
 	</li>
 </ul>

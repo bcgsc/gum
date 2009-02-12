@@ -53,7 +53,7 @@
 				            tal:content="phone" />
 				    </ol>
 				</td>
-				<td tal:content="user/uid" />
+				<td tal:content="user/__name__" />
 				<td>
 				    <ol>
 				      <li tal:repeat="location user/officeLocationClean"

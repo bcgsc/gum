@@ -57,10 +57,13 @@ class IINetOrgPerson(ILDAPEntry):
     holds attributes about people.The attributes it holds were chosen
     to accommodate information requirements found in typical Internet and
     Intranet directory service deployments.
-    
-    Note that 'title' attribute has been renamed to 'job_title' to avoid
-    clashing with the title attribute provided by BaseContent :(
     """
+    
+    __name__ =  schema.TextLine(
+        title=u"Username",
+        description=u"A unique identifier, used as a logon id."
+    )
+    __name__.ldap_name = 'uid'
     
     cn = schema.TextLine(
         title=u"Common Name",
@@ -84,12 +87,7 @@ refer to them as.""",
         description=u"Person's given name. This name should be official, e.g. matching the name used on a passport.",
         default=u'-',
     )
-    
-    uid =  schema.TextLine(
-        title=u"User Id",
-        description=u"A unique identifier, typically used as a logon id."
-    )
-    
+        
     userPassword = schema.Password(
         title=u"Password",
         description=u"""

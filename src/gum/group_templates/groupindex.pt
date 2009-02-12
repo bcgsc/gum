@@ -22,21 +22,21 @@
 					<a href="#"
 						tal:attributes="href python:view.url(user)"
 					 	tal:content="user/cn"
-					 	tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+					 	tal:on-error="string: WAAAAA! ${user/__name__} has a bad schema" />
 				</td>
 				<td>
 					<a href="#"
 					   tal:attributes="href string:mailto:${user/email}"
 					   tal:content="user/email"
-					   tal:on-error="string: WAAAAA! ${user/uid} has a bad schema" />
+					   tal:on-error="string: WAAAAA! ${user/__name__} has a bad schema" />
 				</td>
 				<td>
 				    <p tal:repeat="number user/telephoneNumber"
-				       tal:on-error="string: WAAAAA! ${user/uid} has a bad schema">
+				       tal:on-error="string: WAAAAA! ${user/__name__} has a bad schema">
 				       <span tal:replace="number" />
 				    </p>
 				</td>
-				<td tal:content="user/uid" />
+				<td tal:content="user/__name__" />
 			</tr>
 
 		</table>

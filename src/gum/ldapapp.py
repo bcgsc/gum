@@ -23,6 +23,7 @@ import ldappas.authentication
 import ldap
 from gum.group import Groups, Group
 from gum.user import Users, User
+from gum.user import core_user_fields
 from gum.organization import Organizations
 from gum.transcript import Transcripts
 from gum.smart import SmartSearches
@@ -183,10 +184,10 @@ def update_principal_info_from_ldap(event):
     "Update the principal with information from LDAP"
     principal = event.principal
     app = grok.getSite()
-    uid = principal.id.split('.')[-1]
-    user = app['users'][uid]
+    __name__ = principal.id.split('.')[-1]
+    user = app['users'][__name__]
     principal.title = user.cn
-    principal.uid = uid
+    principal.__name__ = __name__
 
 @grok.subscribe(grok.interfaces.IApplication, grok.IObjectAddedEvent)
 def grant_roles_to_permissions(obj, event):
@@ -268,11 +269,11 @@ class AddUser(grok.AddForm):
     grok.require(u'gum.Add')
     template = grok.PageTemplateFile('gum_edit_form.pt')
     
-    form_fields = grok.AutoFields(User)
+    form_fields = core_user_fields()
     form_fields = form_fields.select( 'cn',
                                       'sn',
                                       'givenName',
-                                      'uid',
+                                      '__name__',
                                       'email',
                                       'telephoneNumber',
                                       'description',
@@ -283,13 +284,13 @@ class AddUser(grok.AddForm):
     @grok.action('Add User entry')
     def add(self, **data):
         users = self.context['users']
-        uid = data['uid']
-        del data['uid']
-        user = User(uid, container=users, **data)
+        __name__ = data['__name__']
+        del data['__name__']
+        user = User(__name__, container=users, **data)
         user.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify( ObjectCreatedEvent(user) )
         user.save()
-        self.redirect(self.url(users[uid]))
+        self.redirect(self.url(users[__name__]))
 
 
 class SearchUsers(grok.View):
@@ -336,15 +337,15 @@ class SimpleUserSearch(grok.View):
         
         # search the Canonical Name (cn)
         for user in users.search('cn', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
         
         # search the User Id (uid)
         for user in users.search('uid', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
         
         # search the Email (email)
         for user in users.search('mail', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
         
         return results.values()
 
@@ -366,15 +367,15 @@ class AutoCompleteSearch(grok.View):
         results = {}
         # search the Canonical Name (cn)
         for user in users.search('cn', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         # search the User Id (uid)
         for user in users.search('uid', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         # search the Email (email)
         for user in users.search('mail', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         if not results:
             return ""
@@ -411,15 +412,15 @@ class AutoCompleteSearchUidAddable(grok.View):
         
         # search the Canonical Name (cn)
         for user in users.search('cn', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         # search the User Id (uid)
         for user in users.search('uid', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         # search the Email (email)
         for user in users.search('mail', search_term, False):
-            results[user.uid] = user
+            results[user.__name__] = user
 
         return results.values()[:15]
 

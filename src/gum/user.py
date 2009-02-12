@@ -37,11 +37,11 @@ class Users(grok.Container):
             'exists_in_ldap' : True,
         }
         fields = core_user_fields() + additional_user_fields()
-        fields = fields.omit('dn','uid')
+        fields = fields.omit('dn','__name__')
         for field in fields:
             userdata[field.__name__] = decombobulate(field.field, data)
         return User(
-            data['uid'][0],
+            data[IUser['__name__'].ldap_name][0],
             **userdata
         )
     
@@ -145,16 +145,16 @@ class Users(grok.Container):
         return users
     
     def __getitem__(self, key):
-        "Mapping of keys (uid) to LDAP-backed User objects"
+        "Mapping of keys to LDAP-backed User objects"
         app = grok.getSite()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_user_search_base,
                               scope='one',
-                              filter="(&(objectclass=inetOrgPerson)(uid=%s))"
-                              % key
+                              filter="(&(objectclass=inetOrgPerson)(%s=%s))"
+                              % (IUser['__name__'].ldap_name, key,)
                             )
         if not results:
-            raise KeyError, "User id %s does not exist." % key
+            raise KeyError, "Username %s does not exist." % key
         else:
             return self.create_user_from_ldap_results(results[0][1])
     
@@ -177,7 +177,9 @@ class Users(grok.Container):
         "delete user"
         app = grok.getSite()
         dbc = app.ldap_connection()
-        dbc.delete( u"uid=%s,%s" % (key, app.ldap_user_search_base) )
+        dbc.delete( u"%s=%s,%s" % (
+            IUser['__name__'].ldap_name, key, app.ldap_user_search_base)
+        )
 
     def __setitem__(self, key, value):
         "add new user"
@@ -192,11 +194,10 @@ class User(grok.Model):
     interface.implements(IUser)
     
     def __init__(self,
-                 uid,
+                 __name__,
                  **keywords
                  ):
-        self.__name__ = uid
-        self.uid = uid
+        self.__name__ = __name__
         self.__parent__ = keywords.get('container', None)
         self.exists_in_ldap = keywords.get('exists_in_ldap', False)
         
@@ -234,12 +235,14 @@ class User(grok.Model):
     def title(self):
         """Content Title, not to be confused with the LDAP Attribute 'title'
         which is the Job Title"""
-        return "%s (%s)" % (self.cn, self.uid)
+        return "%s (%s)" % (self.cn, self.__name__)
     
     @property
     def dn(self):
         app = grok.getSite()
-        return u"uid=%s,%s" % (self.uid, app.ldap_user_search_base)
+        return u"%s=%s,%s" % (
+            IUser['__name__'].ldap_name, self.__name__, app.ldap_user_search_base
+        )
     
     @property
     def objectClasses(self):
@@ -335,7 +338,7 @@ class User(grok.Model):
     def groups(self):
         "List of Groups that the User belongs to"
         app = grok.getSite()
-        return app['groups'].searchGroupsByUser(self.uid)
+        return app['groups'].searchGroupsByUser(self.__name__)
 
     def changePassword(self, password, confirm):
         if password != confirm:
@@ -344,7 +347,11 @@ class User(grok.Model):
         app = grok.getSite()
         dbc = app.ldap_connection()
         dbc.modify(
-            "uid=%s,%s" % (self.uid, app.ldap_user_search_base),
+            "%s=%s,%s" % (
+                IUser['__name__'].ldap_name,
+                self.__name__,
+                app.ldap_user_search_base,
+            ),
             {'userPassword':[encrypted_pw]}
         )
     
@@ -368,12 +375,12 @@ class UserTraverser(grok.Traverser):
 
     def traverse(self, name):
         principal_id = self.request.principal.id
-        uid = principal_id.split('.')[-1]
-        if uid == self.context.uid:
+        __name__ = principal_id.split('.')[-1]
+        if __name__ == self.context.__name__:
             ppm = IPrincipalPermissionManager(grok.getSite())
             ppm.grantPermissionToPrincipal(u'gum.Edit', principal_id)
 
-        
+
 class UsersIndex(grok.View):
     grok.context(Users)
     grok.name('index')
@@ -425,11 +432,11 @@ class EditUser(grok.EditForm):
         # munge roomNumber and street into officeLocation
         form_fields = form_fields.omit('roomNumber','street','dn')
         form_fields += FormFields(IUser['officeLocation'])
-        # uid should not be edited after an account has been created!
+        # __name__ should not be edited after an account has been created!
         # (although sometimes a typo is made in account creation, so perhaps
         #  a special form or UI to handle this use-case maybe? say if the 
         #  account is less than 5 minutes old ...)
-        form_fields['uid'].for_display = True
+        form_fields['__name__'].for_display = True
         
         extra_fields = FormFields(*additional_user_fields())
         # XXX we lie about IUserSchemaExtensions being IUser objects to
@@ -488,8 +495,8 @@ class GrantMembership(grok.View):
     def update(self):
         gid = self.request.form.get('gid', None)
         group = grok.getSite()['groups'][gid]
-        if self.context.uid not in group.uids:
-            group.uids = group.uids + (self.context.uid,)
+        if self.context.__name__ not in group.uids:
+            group.uids = group.uids + (self.context.__name__,)
             
             # TO-DO oh the hackery!!!
             group.principal_id = self.request.principal.id
@@ -511,7 +518,7 @@ class RevokeMembership(grok.View):
         group = grok.getSite()['groups'][gid]
         new_group = []
         for uid in group.uids:
-            if uid != self.context.uid:
+            if uid != self.context.__name__:
                 new_group.append(uid)
         group.uids = new_group
         

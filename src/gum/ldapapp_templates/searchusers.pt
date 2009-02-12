@@ -36,7 +36,7 @@
 			    <span tal:replace="number" />
 			    </p>
 			</td>
-			<td tal:content="user/uid" />
+			<td tal:content="user/__name__" />
 			<td>
 			    <ul id="groupmembers">
                 	<li tal:condition="not: user/groups">
