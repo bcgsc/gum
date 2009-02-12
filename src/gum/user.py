@@ -269,9 +269,9 @@ class User(grok.Model):
         
         for field in additional_user_fields():
             entry[field.field.ldap_name] = [unicode(
-                getattr(self, field.__name__)
+                getattr(self, field.__name__, field.field.default)
             )]
-            
+        
         # dn is not represented in the entry
         del entry['dn']
         
