@@ -56,6 +56,13 @@ pre {
     width: 100%;
 }
 
+.message {
+    border: 1px solid #808000;
+    padding: 0.5em;
+    color: #4F4F2F;
+    background: #FAFAD2;
+}
+
 #break {
     background-color: #2D3B77;
     border-top-width: 0px;
