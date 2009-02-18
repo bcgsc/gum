@@ -28,12 +28,12 @@ class Organization(grok.Container):
 
     @property
     def member_count(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return app['users'].search_count('o', self.id)
 
     @property
     def users(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return app['users'].search('o', self.title)
 
 
@@ -101,7 +101,7 @@ class OrgSearch(grok.View):
         )
 
     def users(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return app['users'].orgsearch(self.usersearch)
         
     def export_url(self):
@@ -135,7 +135,7 @@ class OrgSearchCSV(grok.View):
         )
 
     def render(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         out = StringIO()
         out.write('"Name","Email","Phone","User Id","Office Location","Employee Type","Organizational Unit Type"\n')
         for user in app['users'].orgsearch(self.usersearch):
@@ -189,7 +189,7 @@ class OrgSearchPDF(grok.View):
         stylesheet['Normal'].fontSize=8
         
         # get the data for the table
-        app = grok.getSite()
+        app = grok.getApplication()
         data = {}
 
         for user in app['users'].orgsearch(self.usersearch):
@@ -273,7 +273,7 @@ class OrganizationIndex(grok.View):
         # TO-DO: supporting Organization editing, could be removed in a
         # future UI clean-up
         from zope.securitypolicy.interfaces import IGrantInfo
-        grant_info = IGrantInfo( grok.getSite() )
+        grant_info = IGrantInfo( grok.getApplication() )
         for role in grant_info.getRolesForPrincipal(self.request.principal.id):
             if role[0] == u'gum.Admin':
                 return True

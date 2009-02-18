@@ -7,7 +7,7 @@ class OrganizationsVocab(object):
     grok.implements(IVocabularyFactory)
     
     def __call__(self, context):
-        app = grok.getSite()
+        app = grok.getApplication()
         orgs = [org.id for org in app['orgs'].values()]
         orgs.append('Unknown')
         return SimpleVocabulary.fromValues(orgs)

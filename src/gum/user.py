@@ -47,7 +47,7 @@ class Users(grok.Container):
     
     def search(self, param, term, exact_match=True):
         "Search through users and return matches as User objects in a list"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         
         if not exact_match:
@@ -72,7 +72,7 @@ class Users(grok.Container):
     
     def search_count(self, param, term):
         "Search through users, but only return a count of matches"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_user_search_base,
                               scope='one',
@@ -86,7 +86,7 @@ class Users(grok.Container):
         "Search through users by organizational criteria"
         # the normal user.search() could be generalized to handle this search
         # but constructing LDAP searches can get rather hairy ...
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         
         org_sub_filter = ''
@@ -132,7 +132,7 @@ class Users(grok.Container):
         return users
     
     def values(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_user_search_base,
                              scope='one',
@@ -146,7 +146,7 @@ class Users(grok.Container):
     
     def __getitem__(self, key):
         "Mapping of keys to LDAP-backed User objects"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_user_search_base,
                               scope='one',
@@ -175,7 +175,7 @@ class Users(grok.Container):
 
     def __delitem__(self, key):
         "delete user"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         dbc.delete( u"%s=%s,%s" % (
             IUser['__name__'].ldap_name, key, app.ldap_user_search_base)
@@ -213,7 +213,7 @@ class User(grok.Model):
 
     def save(self):
         "Writes any changes made to the User object back into LDAP"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         # create
         if not self.exists_in_ldap:
@@ -239,7 +239,7 @@ class User(grok.Model):
     
     @property
     def dn(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return u"%s=%s,%s" % (
             IUser['__name__'].ldap_name, self.__name__, app.ldap_user_search_base
         )
@@ -337,14 +337,14 @@ class User(grok.Model):
     
     def groups(self):
         "List of Groups that the User belongs to"
-        app = grok.getSite()
+        app = grok.getApplication()
         return app['groups'].searchGroupsByUser(self.__name__)
 
     def changePassword(self, password, confirm):
         if password != confirm:
             return "Waaaaa!"
         encrypted_pw = '{SSHA}' + SSHA.encrypt(password).strip()
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         dbc.modify(
             "%s=%s,%s" % (
@@ -377,7 +377,7 @@ class UserTraverser(grok.Traverser):
         principal_id = self.request.principal.id
         __name__ = principal_id.split('.')[-1]
         if __name__ == self.context.__name__:
-            ppm = IPrincipalPermissionManager(grok.getSite())
+            ppm = IPrincipalPermissionManager(grok.getApplication())
             ppm.grantPermissionToPrincipal(u'gum.Edit', principal_id)
 
 
@@ -393,7 +393,7 @@ class UserIndex(grok.View):
 
     @property
     def transcripts_by_dn(self):
-        url = self.url(grok.getSite()['transcripts'],'by-dn')
+        url = self.url(grok.getApplication()['transcripts'],'by-dn')
         url += '?'
         url += urlencode( [ ('dn', self.context.dn) ] )
         return url
@@ -494,7 +494,7 @@ class GrantMembership(grok.View):
     
     def update(self):
         gid = self.request.form.get('gid', None)
-        group = grok.getSite()['groups'][gid]
+        group = grok.getApplication()['groups'][gid]
         if self.context.__name__ not in group.uids:
             group.uids = group.uids + (self.context.__name__,)
             
@@ -515,7 +515,7 @@ class RevokeMembership(grok.View):
     def update(self):
         gid = self.request.form.get('gid', None)
         if not gid: return
-        group = grok.getSite()['groups'][gid]
+        group = grok.getApplication()['groups'][gid]
         new_group = []
         for uid in group.uids:
             if uid != self.context.__name__:
@@ -557,7 +557,7 @@ class AutoCompleteSearchGidAddable(grok.View):
         if not search_term or len(search_term) < 3:
             return {}
 
-        groups = grok.getSite()['groups']
+        groups = grok.getApplication()['groups']
         results = []
         
         for group in groups.search('cn', search_term, False):

@@ -30,7 +30,7 @@ class Groups(grok.Container):
     
     def search(self, param, term, exact_match=True):
         "Search through groups and return matches as Group objects in a list"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         
         if not exact_match:
@@ -47,7 +47,7 @@ class Groups(grok.Container):
         return groups
 
     def values(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_group_search_base,
                              scope='one',
@@ -67,7 +67,7 @@ class Groups(grok.Container):
     
     def __getitem__(self, key):
         "Mapping between key (group cn) and LDAP-backed Group objects"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_group_search_base,
                               scope='one',
@@ -81,7 +81,7 @@ class Groups(grok.Container):
 
     def __delitem__(self, key):
         "delete group"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         dbc.delete( u"cn=%s,%s" % (key, app.ldap_group_search_base) )
 
@@ -118,12 +118,12 @@ class GroupsTraverser(grok.Traverser):
         uid = principal_id.split('.')[-1]
         
         # grant permissions if user belongs to group
-        ppm = IPrincipalPermissionManager(grok.getSite())     
+        ppm = IPrincipalPermissionManager(grok.getApplication())     
         if uid in group.uids:
             ppm.grantPermissionToPrincipal(u'gum.EditGroup', principal_id)
         
         # grant permissions if the user is Admin
-        grant_info = IGrantInfo(grok.getSite())
+        grant_info = IGrantInfo(grok.getApplication())
         for role, perm in grant_info.getRolesForPrincipal(principal_id):
             if role == u'gum.Admin' and perm == Allow:
                 ppm.grantPermissionToPrincipal(u'gum.EditGroup', principal_id)
@@ -144,7 +144,7 @@ class Group(grok.Model):
     
     def save(self):
         "Store information in LDAP"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         
         if not self.exists_in_ldap:
@@ -155,7 +155,7 @@ class Group(grok.Model):
     
     def load(self):
         "Fetch Group data from LDAP"
-        app = grok.getSite()
+        app = grok.getApplication()
         dbc = app.ldap_connection()
         results = dbc.search( app.ldap_group_search_base,
                               scope='one',
@@ -171,13 +171,13 @@ class Group(grok.Model):
         
     @property
     def dn(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return u"cn=%s,%s" % (self.cn, app.ldap_group_search_base)
 
     @property
     def ldap_entry(self):
         "Representation of the object as an LDAP Entry"
-        app = grok.getSite()
+        app = grok.getApplication()
         uniqueMembers = []
         for uid in self.uids:
             uniqueMembers.append( u'uid=%s,%s' % (uid, app.ldap_user_search_base))
@@ -190,7 +190,7 @@ class Group(grok.Model):
     
     def users(self):
         "Users who belong to the Group"
-        app = grok.getSite()
+        app = grok.getApplication()
         users = []
         return app['users'].search('uid', self.uids)
 
@@ -228,7 +228,7 @@ class GroupEdit(grok.EditForm):
     def edit(self, **data):
         # XXX validation hack
         # need to improve the validation and the UI experience
-        app = grok.getSite()
+        app = grok.getApplication()
         try:
             for uid in data['uids']:
                 app['users'][uid]

@@ -29,8 +29,7 @@ class TopViewlet(grok.Viewlet):
     grok.context(Interface)
 
     def nav(self):
-        app = grok.getSite()
-        
+        app = grok.getApplication()
         return ( (app),
                  (app['users']),
                  (app['groups']),
@@ -50,7 +49,7 @@ class BottomViewlet(grok.Viewlet):
     grok.context(Interface)
     
     def app(self):
-        return grok.getSite()
+        return grok.getApplication()
     
     def is_logged_in(self):
         if IUnauthenticatedPrincipal.providedBy(self.request.principal):
@@ -59,7 +58,7 @@ class BottomViewlet(grok.Viewlet):
             return True
     
     def is_admin(self):
-        grant_info = IGrantInfo( grok.getSite() )
+        grant_info = IGrantInfo(grok.getApplication())
         for role in grant_info.getRolesForPrincipal(self.request.principal.id):
             if role[0] == u'gum.Admin':
                 return True

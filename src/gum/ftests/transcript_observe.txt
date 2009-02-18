@@ -20,7 +20,7 @@ happens to LDAP, we record a transcript. These are stored in the
 
   >>> import grok
   >>> from gum.interfaces import ITranscripts
-  >>> app = grok.getSite()
+  >>> app = grok.getApplication()
   >>> transcript_container = app['transcripts']
   >>> ITranscripts.providedBy(transcript_container)
   True

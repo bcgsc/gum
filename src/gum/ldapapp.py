@@ -183,7 +183,7 @@ class Edit(grok.EditForm):
 def update_principal_info_from_ldap(event):
     "Update the principal with information from LDAP"
     principal = event.principal
-    app = grok.getSite()
+    app = grok.getApplication()
     __name__ = principal.id.split('.')[-1]
     user = app['users'][__name__]
     principal.title = user.cn
@@ -198,13 +198,13 @@ def grant_roles_to_permissions(obj, event):
 
 @grok.subscribe(IGroup, grok.IObjectModifiedEvent)
 def view_group_subscriber(group, event):
-    app = grok.getSite()
+    app = grok.getApplication()
     if group.__name__ == app.ldap_view_group:
         sync_ldap_perms(app)
 
 @grok.subscribe(IGroup, grok.IObjectModifiedEvent)
 def view_group_subscriber(group, event):
-    app = grok.getSite()
+    app = grok.getApplication()
     if group.__name__ == app.ldap_admin_group:
         sync_ldap_perms(app)
 

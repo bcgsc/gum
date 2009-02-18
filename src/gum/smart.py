@@ -101,7 +101,7 @@ class SmartSearchIndex(grok.View):
     grok.require(u'gum.View')
     
     def users(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         return app['users'].orgsearch(self.context)
 
     def export_url_csv(self):

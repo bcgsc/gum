@@ -12,6 +12,6 @@ class LoginPage(grok.View):
         request = self.request
         if (not IUnauthenticatedPrincipal.providedBy(request.principal)
             and 'gum.Login' in request):
-            request.response.redirect( self.url(grok.getSite()) )
+            request.response.redirect( self.url(grok.getApplication()) )
         else:
             return self.template.render(self)

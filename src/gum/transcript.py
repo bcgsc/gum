@@ -39,7 +39,7 @@ class Transcript(grok.Model):
 
     @property
     def user(self):
-        app = grok.getSite()
+        app = grok.getApplication()
         try:
             uid = self.principal_id.split('.')[-1:][0]
             user = app['users'][ uid ]
@@ -112,7 +112,7 @@ class Index(grok.View):
     grok.require(u'gum.View')
 
     def site(self):
-        return grok.getSite()
+        return grok.getApplication()
 
 
 class TranscriptsByDN(grok.View):
@@ -136,7 +136,7 @@ class TranscriptView(grok.View):
 @grok.subscribe(ILDAPEntry, grok.IObjectCreatedEvent)
 def ldap_added_subscriber(obj, event):
     trst = Transcript()
-    app = grok.getSite()
+    app = grok.getApplication()
     dbc = app.ldap_connection()
     trst.dn = obj.dn
     trst.before = u''
@@ -154,7 +154,7 @@ def ldap_modified_subscriber(obj, event):
     # works, but it don't feel right at all. Is there a way to look-up
     # the request from an event?!?
     trst = Transcript()
-    app = grok.getSite()
+    app = grok.getApplication()
     dbc = app.ldap_connection()
     trst.dn = obj.dn
     try:
