@@ -1,13 +1,13 @@
-import grok
-from zope import interface
-from zope.app import zapi
-from zope.app.catalog.interfaces import ICatalog
-from zope.app.catalog.field import FieldIndex
-from gum.ldapapp import LDAPApp
-from gum.organization import Organizations
-from gum.interfaces import IOrganization
-from gum.smart import SmartSearches
-from gum.extensions import Extensions
+from gum.extensions import Extensions 
+from gum.interfaces import IOrganization 
+from gum.ldapapp import LDAPApp 
+from gum.organization import Organizations 
+from gum.smart import SmartSearches 
+from zope import interface 
+from zope.app import zapi 
+from zope.app.catalog.field import FieldIndex 
+from zope.app.catalog.interfaces import ICatalog 
+import grok 
 
 class migrate04to05(object):
     def __init__(self, app):

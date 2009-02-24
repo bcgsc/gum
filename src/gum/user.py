@@ -1,18 +1,18 @@
-import grok
-import copy
-from urllib import urlencode
-from zope import schema, interface
-from zope import component
-from zope import event
-from zope.formlib.form import FormFields
-from zope.securitypolicy.interfaces import IPrincipalPermissionManager
-from hurry.query.query import Query
-from hurry import query
-import ldap
-from ldap.modlist import addModlist, modifyModlist
-import SSHA
-from gum.interfaces import IUser, IUsers, IUserSchemaExtension, IINetOrgPerson
-from gum import decombobulate
+from gum import decombobulate 
+from gum.interfaces import IUser, IUsers, IUserSchemaExtension, IINetOrgPerson 
+from hurry import query 
+from hurry.query.query import Query 
+from ldap.modlist import addModlist, modifyModlist 
+from urllib import urlencode 
+from zope import component 
+from zope import event 
+from zope import schema, interface 
+from zope.formlib.form import FormFields 
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager 
+import SSHA 
+import copy 
+import grok 
+import ldap 
 
 def core_user_fields():
     "List of built-in User schema fields"

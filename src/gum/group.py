@@ -1,16 +1,15 @@
-import grok
-from zope import interface, schema
-from zope import event
-from zope.lifecycleevent import ObjectModifiedEvent
-from zope.securitypolicy.interfaces import IPrincipalPermissionManager
-from zope.securitypolicy.interfaces import IGrantInfo
-from zope.app.security.settings import Allow
-from hurry.query.query import Query
-from hurry import query
-from gum.interfaces import IGroup
-from gum import getPropertyAsSingleValue
-from gum.widgets import AjaxUserChooserWidget
-
+from gum import getPropertyAsSingleValue 
+from gum.interfaces import IGroup 
+from gum.widgets import AjaxUserChooserWidget 
+from hurry import query 
+from hurry.query.query import Query 
+from zope import event 
+from zope import interface, schema 
+from zope.app.security.settings import Allow 
+from zope.lifecycleevent import ObjectModifiedEvent 
+from zope.securitypolicy.interfaces import IGrantInfo 
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager 
+import grok 
 
 class Groups(grok.Container):
     "Collection of Groups"

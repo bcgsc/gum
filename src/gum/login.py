@@ -1,8 +1,8 @@
-import grok
-from zope import interface
-from zope.publisher.browser import BrowserPage
-from zope.app.pagetemplate import ViewPageTemplateFile
-from zope.app.security.interfaces import IUnauthenticatedPrincipal
+from zope import interface 
+from zope.app.pagetemplate import ViewPageTemplateFile 
+from zope.app.security.interfaces import IUnauthenticatedPrincipal 
+from zope.publisher.browser import BrowserPage 
+import grok 
 
 class LoginPage(grok.View):
     grok.context(interface.Interface)

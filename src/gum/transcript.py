@@ -1,13 +1,11 @@
-import grok
-from datetime import datetime
-from zope import interface
-from zope.app.container.interfaces import INameChooser
-from hurry.query.query import Query
-from hurry import query
-
-from gum.interfaces import ITranscript, ITranscripts
-from gum.interfaces import ILDAPEntry, IINetOrgPerson, IGroupOfUniqueNames
-
+from datetime import datetime 
+from gum.interfaces import ILDAPEntry, IINetOrgPerson, IGroupOfUniqueNames 
+from gum.interfaces import ITranscript, ITranscripts 
+from hurry import query 
+from hurry.query.query import Query 
+from zope import interface 
+from zope.app.container.interfaces import INameChooser 
+import grok 
 
 def uniqueMemberDiff(before, after):
     """

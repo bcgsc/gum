@@ -1,7 +1,7 @@
-import grok
-from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleVocabulary
-from zope.interface import alsoProvides, Interface
+from zope.interface import alsoProvides, Interface 
+from zope.schema.interfaces import IVocabularyFactory 
+from zope.schema.vocabulary import SimpleVocabulary 
+import grok 
 
 class OrganizationsVocab(object):
     grok.implements(IVocabularyFactory)

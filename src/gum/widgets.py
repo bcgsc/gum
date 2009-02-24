@@ -1,9 +1,9 @@
-import grok
-from zope.component import getMultiAdapter
-from zope.app.form.interfaces import IInputWidget
-from zope.app.form.browser.widget import SimpleInputWidget
-from zope.app.form.browser.textwidgets import TextWidget
-from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
+from zope.app.form.browser.textwidgets import TextWidget 
+from zope.app.form.browser.widget import SimpleInputWidget 
+from zope.app.form.interfaces import IInputWidget 
+from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile 
+from zope.component import getMultiAdapter 
+import grok 
 
 class AjaxUserChooserWidget(SimpleInputWidget):
     

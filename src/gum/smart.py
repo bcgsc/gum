@@ -1,12 +1,9 @@
-from urllib import urlencode
-
-from zope import schema, interface
-from zope import event
-from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
-
-import grok
-from gum.interfaces import ISmartSearches, ISmartSearch
-
+from gum.interfaces import ISmartSearches, ISmartSearch 
+from urllib import urlencode 
+from zope import event 
+from zope import schema, interface 
+from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent 
+import grok 
 
 class SmartSearches(grok.Container):
     "Contains Smart Searches"

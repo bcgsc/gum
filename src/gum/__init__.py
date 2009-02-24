@@ -1,10 +1,10 @@
-import re
-import grok
-import martian
-from zope import schema
+from zope import schema 
+import grok 
+import martian 
+import re 
+import zope.app.component 
 
 # monkey pizatchel charges!
-import zope.app.component
 def getApplication():
     site = zope.app.component.hooks.getSite()
     if grok.interfaces.IApplication.providedBy(site):

@@ -1,8 +1,8 @@
-import base64, urllib
-from zope.interface import Interface, implements
-from zope.schema import ASCIILine
-from zope.publisher.interfaces.http import IHTTPRequest
-from zope.app.authentication.session import SessionCredentialsPlugin
+from zope.app.authentication.session import SessionCredentialsPlugin 
+from zope.interface import Interface, implements 
+from zope.publisher.interfaces.http import IHTTPRequest 
+from zope.schema import ASCIILine 
+import base64, urllib 
 
 class ICookieCredentials(Interface):
 

@@ -1,7 +1,6 @@
-import grok
-from zope import component
-from gum.interfaces import IExtensionMaker
-
+from gum.interfaces import IExtensionMaker 
+from zope import component 
+import grok 
 
 class Extensions(grok.Container):
     

@@ -1,7 +1,6 @@
-from zope.interface import Interface, Attribute, alsoProvides
-from zope import schema
-from zope.app.content.interfaces import IContentType
-
+from zope import schema 
+from zope.app.content.interfaces import IContentType 
+from zope.interface import Interface, Attribute, alsoProvides 
 
 class ILDAPUserGroupLocation(Interface):
     """

@@ -1,11 +1,12 @@
-import z3c.testsetup
-from zope.app.testing.functional import getRootFolder
-from gum.ldapapp import LDAPApp
-from gum.ldapapp import Edit
-from zope.app import zapi
-from ldapadapter.interfaces import IManageableLDAPAdapter
-from zope.app.authentication.interfaces import IAuthenticatorPlugin
-from zope.app.security.interfaces import IAuthentication
+from gum.ldapapp import Edit 
+from gum.ldapapp import LDAPApp 
+from ldapadapter.interfaces import IManageableLDAPAdapter 
+from zope.app import zapi 
+from zope.app.authentication.interfaces import IAuthenticatorPlugin 
+from zope.app.component.hooks import setSite 
+from zope.app.security.interfaces import IAuthentication 
+from zope.app.testing.functional import getRootFolder 
+import z3c.testsetup 
 
 LDAP_HOST = '127.0.0.1'
 LDAP_PORT = '1700'
@@ -19,7 +20,6 @@ def create_gum_instance(test):
     root['gumsite'] = LDAPApp()
     root['gumsite'].ldap_admin_group = u'admin'
     root['gumsite'].ldap_view_group = u'admin'
-    from zope.app.component.hooks import setSite
     setSite(root['gumsite'])
     
     gumldapda = zapi.queryUtility(IManageableLDAPAdapter, 'gumldapda')

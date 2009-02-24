@@ -1,11 +1,16 @@
-import grok
-from StringIO import StringIO
-from urllib import urlencode
-from zope import interface
-from zope.app.container.interfaces import INameChooser
-
-from gum.interfaces import IOrganizations, IOrganization, IOfficeLocation
-from gum.smart import SmartSearch
+from StringIO import StringIO 
+from gum.interfaces import IOrganizations, IOrganization, IOfficeLocation 
+from gum.smart import SmartSearch 
+from reportlab.lib import styles, units, pagesizes, colors 
+from reportlab.lib.styles import ParagraphStyle 
+from reportlab.lib.units import inch 
+from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, Table 
+from tempfile import TemporaryFile 
+from urllib import urlencode 
+from zope import interface 
+from zope.app.container.interfaces import INameChooser 
+from zope.securitypolicy.interfaces import IGrantInfo 
+import grok 
 
 class Organizations(grok.Container):
     interface.implements(IOrganizations)
@@ -170,11 +175,6 @@ class OrgSearchPDF(grok.View):
         self.filename = self.request.form.get('fname','gum-export.pdf')
  
     def render(self):
-        from tempfile import TemporaryFile
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, Table
-        from reportlab.lib import styles, units, pagesizes, colors
-        from reportlab.lib.styles import ParagraphStyle
-        from reportlab.lib.units import inch
         
         # Style for the PDF
         stylesheet = styles.getSampleStyleSheet()
@@ -272,7 +272,6 @@ class OrganizationIndex(grok.View):
     def is_admin(self):
         # TO-DO: supporting Organization editing, could be removed in a
         # future UI clean-up
-        from zope.securitypolicy.interfaces import IGrantInfo
         grant_info = IGrantInfo( grok.getApplication() )
         for role in grant_info.getRolesForPrincipal(self.request.principal.id):
             if role[0] == u'gum.Admin':
