@@ -1,16 +1,17 @@
 from StringIO import StringIO 
 from gum.interfaces import IOrganizations, IOrganization, IOfficeLocation 
 from gum.smart import SmartSearch 
-from reportlab.lib import styles, units, pagesizes, colors 
-from reportlab.lib.styles import ParagraphStyle 
-from reportlab.lib.units import inch 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, Table 
+# reportlab install is borked
+#from reportlab.lib import styles, units, pagesizes, colors 
+#from reportlab.lib.styles import ParagraphStyle 
+#from reportlab.lib.units import inch 
+#from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, Table 
 from tempfile import TemporaryFile 
 from urllib import urlencode 
 from zope import interface 
 from zope.app.container.interfaces import INameChooser 
-from zope.securitypolicy.interfaces import IGrantInfo 
-import grok 
+from zope.securitypolicy.interfaces import IGrantInfo
+import grok
 
 class Organizations(grok.Container):
     interface.implements(IOrganizations)

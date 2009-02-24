@@ -24,6 +24,8 @@ setup(name='gum',
         'hurry.query',
         'z3c.testsetup',
         'grokui.admin',
+        'bud.nospam',
+        #'reportlab', grr! this is not installing ATM!
       ],
       entry_points="""
       """,
