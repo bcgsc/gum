@@ -1,37 +1,37 @@
-from gum.cookiecredentials import CookieCredentialsPlugin 
-from gum.extensions import Extensions 
-from gum.group import Groups, Group 
-from gum.interfaces import IGroup 
-from gum.interfaces import ILDAPUserGroupLocation 
-from gum.interfaces import ITranscript, IOrganization 
-from gum.organization import Organizations 
-from gum.smart import SmartSearches 
-from gum.transcript import Transcripts 
-from gum.user import Users, User 
-from gum.user import core_user_fields 
-from ldapadapter.interfaces import IManageableLDAPAdapter 
-from ldapadapter.utility import ManageableLDAPAdapter 
-from zope import component 
-from zope.app import authentication 
-from zope.app import zapi 
-from zope.app.authentication.interfaces import IAuthenticatorPlugin 
-from zope.app.authentication.interfaces import ICredentialsPlugin 
-from zope.app.authentication.interfaces import IPrincipalCreated 
-from zope.app.catalog.catalog import Catalog 
-from zope.app.catalog.field import FieldIndex 
-from zope.app.catalog.interfaces import ICatalog 
-from zope.app.intid import IntIds 
-from zope.app.intid.interfaces import IIntIds 
-from zope.app.security.interfaces import IAuthentication 
-from zope.event import notify 
-from zope.interface import implements 
-from zope.lifecycleevent import ObjectCreatedEvent 
-from zope.securitypolicy.interfaces import IPrincipalPermissionManager 
-from zope.securitypolicy.interfaces import IPrincipalRoleManager 
-from zope.securitypolicy.interfaces import IRolePermissionManager 
-import grok 
-import ldap 
-import ldappas.authentication 
+from gum.cookiecredentials import CookieCredentialsPlugin
+from gum.extensions import Extensions
+from gum.group import Groups, Group
+from gum.interfaces import IGroup
+from gum.interfaces import ILDAPUserGroupLocation
+from gum.interfaces import ITranscript, IOrganization
+from gum.organization import Organizations
+from gum.smart import SmartSearches
+from gum.transcript import Transcripts
+from gum.user import Users, User
+from gum.user import core_user_fields
+from ldapadapter.interfaces import IManageableLDAPAdapter
+from ldapadapter.utility import ManageableLDAPAdapter
+from zope import component
+from zope.app import authentication
+from zope.app import zapi
+from zope.app.authentication.interfaces import IAuthenticatorPlugin
+from zope.app.authentication.interfaces import ICredentialsPlugin
+from zope.app.authentication.interfaces import IPrincipalCreated
+from zope.app.catalog.catalog import Catalog
+from zope.app.catalog.field import FieldIndex
+from zope.app.catalog.interfaces import ICatalog
+from zope.app.intid import IntIds
+from zope.app.intid.interfaces import IIntIds
+from zope.app.security.interfaces import IAuthentication
+from zope.event import notify
+from zope.interface import implements
+from zope.lifecycleevent import ObjectCreatedEvent
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager
+from zope.securitypolicy.interfaces import IPrincipalRoleManager
+from zope.securitypolicy.interfaces import IRolePermissionManager
+import grok
+import ldap
+import ldappas.authentication
 
 def setup_catalog(catalog):
     "Configure Indexes upon catalog creation"
