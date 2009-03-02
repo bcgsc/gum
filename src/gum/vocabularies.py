@@ -50,7 +50,10 @@ class OfficeLocationsVocab(object):
         # account for locations which are not part of vocab
         # (which are allowed to stay the same)
         for current_location in context.officeLocation:
-            hr_loc = current_location[:current_location.find(' - Not Applicable')]
+            if current_location.find(' - Not Applicable') != -1:
+                hr_loc = current_location[:current_location.find(' - Not Applicable')]
+            else:
+                hr_loc = current_location
             officeRooms[hr_loc] = current_location
         
         return SimpleVocabulary.fromItems(officeRooms.items())
