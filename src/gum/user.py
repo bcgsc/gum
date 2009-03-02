@@ -283,9 +283,13 @@ class User(grok.Model):
     @property
     def organization(self):
         "Look-up the Organization object based on the organization attribute"
-        results = Query().searchResults(
-            query.Eq( ('gum_catalog', 'organization_id'), self.o )
-            )
+        try:
+            results = Query().searchResults(
+                query.Eq( ('gum_catalog', 'organization_id'), self.o )
+                )
+        except AssertionError, e:
+            return None
+        
         if results:
             return list(results)[0]
     
