@@ -203,7 +203,7 @@ def view_group_subscriber(group, event):
         sync_ldap_perms(app)
 
 @grok.subscribe(IGroup, grok.IObjectModifiedEvent)
-def view_group_subscriber(group, event):
+def admin_group_subscriber(group, event):
     app = grok.getApplication()
     if group.__name__ == app.ldap_admin_group:
         sync_ldap_perms(app)

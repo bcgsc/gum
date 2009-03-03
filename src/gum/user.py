@@ -1,18 +1,19 @@
-from gum import decombobulate 
-from gum.interfaces import IUser, IUsers, IUserSchemaExtension, IINetOrgPerson 
-from hurry import query 
-from hurry.query.query import Query 
-from ldap.modlist import addModlist, modifyModlist 
-from urllib import urlencode 
-from zope import component 
-from zope import event 
-from zope import schema, interface 
-from zope.formlib.form import FormFields 
-from zope.securitypolicy.interfaces import IPrincipalPermissionManager 
-import SSHA 
-import copy 
-import grok 
-import ldap 
+from gum import decombobulate
+from gum.interfaces import IUser, IUsers, IUserSchemaExtension, IINetOrgPerson
+from hurry import query
+from hurry.query.query import Query
+from ldap.modlist import addModlist, modifyModlist
+from urllib import urlencode
+from zope import component
+from zope import event
+from zope import schema, interface
+from zope.formlib.form import FormFields
+from zope.securitypolicy.interfaces import IPrincipalPermissionManager
+from zope.securitypolicy.interfaces import IPrincipalRoleMap
+import SSHA
+import copy
+import grok
+import ldap
 
 def core_user_fields():
     "List of built-in User schema fields"
@@ -452,7 +453,12 @@ class EditUser(grok.EditForm):
         
         # limit fields which users without the Admin role can edit
         is_admin = False
-        if u'gum.Admin' in self.request.principal.groups: is_admin = True
+
+        prm = IPrincipalRoleMap(grok.getApplication())
+        for role in prm.getRolesForPrincipal(self.request.principal.id):
+            if role[0] == u'gum.Admin':
+                is_admin = True
+        
         for f in form_fields:
             admin_only = getattr(f.field, 'ldap_admin_only', False)
             if not is_admin and admin_only:
