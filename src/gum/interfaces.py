@@ -164,7 +164,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
     )
     o.ldap_admin_only = True
     
-    labeledURI = schema.URI(
+    labeledUri = schema.URI(
         title=u"Home Page",
         description=u"URL of personal web site.",
         required=False,
