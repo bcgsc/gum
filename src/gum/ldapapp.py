@@ -29,9 +29,11 @@ from zope.lifecycleevent import ObjectCreatedEvent
 from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from zope.securitypolicy.interfaces import IPrincipalRoleManager
 from zope.securitypolicy.interfaces import IRolePermissionManager
+from zope.securitypolicy.interfaces import Unset, Allow
 import grok
 import ldap
 import ldappas.authentication
+import zope.securitypolicy.interfaces
 
 def setup_catalog(catalog):
     "Configure Indexes upon catalog creation"
@@ -196,69 +198,49 @@ def grant_roles_to_permissions(obj, event):
     rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
     rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
 
-@grok.subscribe(IGroup, grok.IObjectModifiedEvent)
-def view_group_subscriber(group, event):
-    app = grok.getApplication()
-    if group.__name__ == app.ldap_view_group:
-        sync_ldap_perms(app)
-
-@grok.subscribe(IGroup, grok.IObjectModifiedEvent)
-def admin_group_subscriber(group, event):
-    app = grok.getApplication()
-    if group.__name__ == app.ldap_admin_group:
-        sync_ldap_perms(app)
-
-def sync_ldap_perms(app):
-    # a heavy hammer to sync the LDAP View and Admin groups into the
-    # ZODB as security Annotations
-    prm = IPrincipalRoleManager(app)
-    ppm = IPrincipalPermissionManager(app)
-    view_group = app['groups'][app.ldap_view_group]
-    admin_group = app['groups'][app.ldap_admin_group]
-    
-    view_uids = []
-    if view_group:
-        view_uids = list(view_group.uids)
-    admin_uids = []
-    if admin_group:
-        admin_uids = list(admin_group.uids)
-    all_uids = view_uids
-    for uid in admin_uids:
-        if uid not in view_uids:
-            all_uids.append(uid)
-    
-    # remove stale view permissions
-    for p in ppm.getPrincipalsAndPermissions():
-        if p[1].split('.')[-1] not in all_uids:
-            ppm.unsetPermissionForPrincipal(u'gum.View', p[1])
-    
-    # grant active view permissions
-    for uid in all_uids:
-        ppm.grantPermissionToPrincipal(u'gum.View', u'gum.ldap.%s' % uid)
-    
-    # remove stale admin roles
-    for p in prm.getPrincipalsAndRoles():
-        if p[1].split('.')[-1] not in admin_uids:
-            prm.unsetRoleForPrincipal(u'gum.Admin', p[1])
-    
-    # grant active admin roles
-    for uid in admin_uids:
-        prm.assignRoleToPrincipal(u'gum.Admin', u'gum.ldap.%s' % uid)
-
-    
-class SyncLDAPPermissions(grok.View):
-    """
-    Update the principal with information from LDAP. It's necessary to
-    invoke this view if LDAP data already exists before GUM creation, or
-    is modified by an externally by another application.
-    """
-    grok.require(u'zope.Manager')
+class LDAPPrincipalPermissionMap(grok.Adapter):
     grok.context(LDAPApp)
-    grok.name('syncperms')
+    grok.provides(zope.securitypolicy.interfaces.IPrincipalPermissionMap)
+    
+    def getPrincipalsForPermission(permission_id):
+        # not needed ATM
+        return None
+
+    def getPermissionsForPrincipal(principal_id):
+        # not needed ATM
+        return None
+
+    def getPrincipalsAndPermissions():
+        # not needed ATM
+        return None
+    
+    def getSetting(self, permission_id, principal_id, default=Unset):
+        name = principal_id.split('.')[-1]
+        
+        # View permission
+        if permission_id == u'gum.View':
+            if name in self.context['groups'][self.context.ldap_view_group].uids:
+                return Allow
+
+        # Add/Edit/EditGroup permissions
+        if name in self.context['groups'][self.context.ldap_admin_group].uids:
+            return Allow
+        return Unset
+
+class CleanOldPerms(grok.View):
+    "Migrate away from ZODB stored permissions"
+    grok.context(LDAPApp)
+    grok.require(u'gum.View')
     
     def render(self):
-        sync_ldap_perms(self.context)
-        return '<html><h1>All Done</h1></html>'
+        app = grok.getApplication()
+        prm = IPrincipalRoleManager(app)
+        ppm = IPrincipalPermissionManager(app)
+        for p in ppm.getPrincipalsAndPermissions():
+            ppm.unsetPermissionForPrincipal(u'gum.View', p[1])
+        for p in prm.getPrincipalsAndRoles():
+            prm.unsetRoleForPrincipal(u'gum.Admin', p[1])
+        return 'The deed has been done.'
 
 #
 # User related Views
