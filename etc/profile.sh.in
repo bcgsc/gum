@@ -1,0 +1,8 @@
+# Put the GUM install location on the PATH
+export PATH=${buildout:directory}/bin:$PATH
+
+# Remember what this terminal is for
+export PS1='(gum) \h> '
+
+# shortcut for TextMate users
+alias zmate="mate *.txt *.cfg *.py src/ etc/"
