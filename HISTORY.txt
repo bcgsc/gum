@@ -1,5 +1,5 @@
-Changelog for sbs-viewer
-========================
+Changelog for GUM
+=================
 
 0.8.2 (unreleased)
 ------------------
