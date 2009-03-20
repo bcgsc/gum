@@ -1,7 +1,7 @@
 Changelog for sbs-viewer
 ========================
 
-0.8.1 (unreleased)
+0.8.1 (2009-03-20)
 ------------------
 
 - Basic setup.py metadata and README.txt added.
