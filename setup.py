@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.7'
+version = '0.8dev'
 
 setup(name='gum',
       version=version,
