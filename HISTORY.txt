@@ -1,6 +1,12 @@
 Changelog for sbs-viewer
 ========================
 
+0.8.2 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 0.8.1 (2009-03-20)
 ------------------
 
