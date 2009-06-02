@@ -71,8 +71,11 @@ class OrganizationalUnitsVocab(object):
             ouTypes = []
             
         # account for values not part of the vocab
-        if context.ou not in ouTypes:
-            ouTypes.append(context.ou)
+        try:
+            if context.ou not in ouTypes:
+                ouTypes.append(context.ou)
+        except AttributeError:
+            pass
         
         return SimpleVocabulary.fromValues(ouTypes)
 

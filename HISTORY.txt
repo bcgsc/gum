@@ -6,7 +6,6 @@ Changelog for GUM
 
 - Nothing changed yet.
 
-
 0.8.2 (2009-03-30)
 ------------------
 

@@ -177,7 +177,6 @@ class Edit(grok.EditForm):
         # update the app
         self.context.ldap_admin_group = data['ldap_admin_group']
         self.context.ldap_view_group = data['ldap_view_group']
-        sync_ldap_perms(self.context)
         
         self.redirect(self.url(self.context))
 
@@ -198,21 +197,28 @@ def grant_roles_to_permissions(obj, event):
     rpm.grantPermissionToRole(u'gum.Add', u'gum.Admin')
     rpm.grantPermissionToRole(u'gum.Edit', u'gum.Admin')
 
+class LDAPGrantInfo(grok.Adapter):
+    grok.context(LDAPApp)
+    grok.provides(zope.securitypolicy.interfaces.IGrantInfo)
+    
+    def principalPermissionGrant(self, principal, permission): return None
+    def getRolesForPermission(self, permission): return None
+    def getRolesForPrincipal(self, principal):
+        name = principal.split('.')[-1]
+        roles = []
+        if name in self.context['groups'][self.context.ldap_view_group].uids:
+            roles.append( (u'gum.View', Allow) )
+        if name in self.context['groups'][self.context.ldap_admin_group].uids:
+            roles.append( (u'gum.Admin', Allow) )
+        return roles
+
 class LDAPPrincipalPermissionMap(grok.Adapter):
     grok.context(LDAPApp)
     grok.provides(zope.securitypolicy.interfaces.IPrincipalPermissionMap)
     
-    def getPrincipalsForPermission(permission_id):
-        # not needed ATM
-        return None
-
-    def getPermissionsForPrincipal(principal_id):
-        # not needed ATM
-        return None
-
-    def getPrincipalsAndPermissions():
-        # not needed ATM
-        return None
+    def getPrincipalsForPermission(permission_id): return None
+    def getPermissionsForPrincipal(principal_id): return None
+    def getPrincipalsAndPermissions(): return None
     
     def getSetting(self, permission_id, principal_id, default=Unset):
         name = principal_id.split('.')[-1]
