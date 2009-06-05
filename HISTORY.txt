@@ -4,18 +4,21 @@ Changelog for GUM
 0.8.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+ - Roles for a Principal are now fetched from LDAP.
+
+ - Fix bug where the is_admin was not being correctly determined
+   (and people couldn't edit those fields!)
 
 0.8.2 (2009-03-30)
 ------------------
 
-- Test release only, as a functional test for zest.releaser.
+ - Test release only, as a functional test for zest.releaser.
 
 
 0.8.1 (2009-03-20)
 ------------------
 
-- Basic setup.py metadata and README.txt added.
+ - Basic setup.py metadata and README.txt added.
 
 
 0.8 (2009-03-20)

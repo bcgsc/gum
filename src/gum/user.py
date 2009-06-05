@@ -9,7 +9,6 @@ from zope import event
 from zope import schema, interface
 from zope.formlib.form import FormFields
 from zope.securitypolicy.interfaces import IPrincipalPermissionManager
-from zope.securitypolicy.interfaces import IPrincipalRoleMap
 import SSHA
 import copy
 import grok
@@ -452,12 +451,12 @@ class EditUser(grok.EditForm):
         form_fields += extra_fields
         
         # limit fields which users without the Admin role can edit
+        # erm, this mess could be pushed into a custom IPrincipalRoleMap implementation
         is_admin = False
-
-        prm = IPrincipalRoleMap(grok.getApplication())
-        for role in prm.getRolesForPrincipal(self.request.principal.id):
-            if role[0] == u'gum.Admin':
-                is_admin = True
+        uname = self.request.principal.id.split('.')[-1]
+        app = grok.getApplication()
+        if uname in app['groups'][app.ldap_admin_group].uids:
+            is_admin = True
         
         for f in form_fields:
             admin_only = getattr(f.field, 'ldap_admin_only', False)

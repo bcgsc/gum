@@ -233,21 +233,6 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
             return Allow
         return Unset
 
-class CleanOldPerms(grok.View):
-    "Migrate away from ZODB stored permissions"
-    grok.context(LDAPApp)
-    grok.require(u'gum.View')
-    
-    def render(self):
-        app = grok.getApplication()
-        prm = IPrincipalRoleManager(app)
-        ppm = IPrincipalPermissionManager(app)
-        for p in ppm.getPrincipalsAndPermissions():
-            ppm.unsetPermissionForPrincipal(u'gum.View', p[1])
-        for p in prm.getPrincipalsAndRoles():
-            prm.unsetRoleForPrincipal(u'gum.Admin', p[1])
-        return 'The deed has been done.'
-
 #
 # User related Views
 #
