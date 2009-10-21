@@ -49,6 +49,12 @@ class Delete(grok.View):
     grok.require(u'gum.Edit')
     
     def render(self, name):
+        
+        # handle deletions of broken objects
+        # (there is perhaps a better way to do this than fiddling w/ the fixing_up attr?)
+        import zope.app.container.contained
+        zope.app.container.contained.fixing_up = True
         del self.context[name]
+        zope.app.container.contained.fixing_up = False
         
         return self.redirect(self.url(self.context))

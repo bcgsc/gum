@@ -10,17 +10,21 @@
         <h2>Installed Extensions</h2>
         
         <ul tal:condition="context/installed">
-            <li tal:repeat="ext context/values">
+            <li tal:repeat="kvpair context/items">
+                <tal:ext tal:define="ext python:kvpair[1]">
                 <p><a tal:attributes="href python:view.url(ext)"
-                      tal:content="ext/title" />
+                      tal:content="ext/title"
+                      tal:on-error="string:(broken extension)" />
                 [
-                <a tal:attributes="href python:view.url(ext, 'edit')">
+                <a tal:attributes="href python:view.url(ext, 'edit')"
+                   tal:on-error="string:">
                     edit</a>,
-                <a tal:attributes="href python:view.url(context, 'delete', {'name':ext.__name__} )">
+                <a tal:attributes="href python:view.url(context, 'delete', {'name':kvpair[0]} )">
                     <img src="/@@/resources/delete.png" /> delete</a>]</p>
+                </tal:ext>
             </li>
         </ul>
-    
+        
         <p tal:condition="not: context/installed">
             There are no installed extensions.
         </p>
