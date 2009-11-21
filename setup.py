@@ -34,9 +34,16 @@ setup(name='gum',
         'hurry.query',
         'z3c.testsetup',
         'grokui.admin',
+        'grokcore.startup',
         'bud.nospam',
         #'reportlab', grr! this is not installing ATM!
       ],
       entry_points="""
+      [console_scripts]
+      gum-debug = grokcore.startup:interactive_debug_prompt
+      gum-ctl = grokcore.startup:zdaemon_controller
+
+      [paste.app_factory]
+      main = grokcore.startup:application_factory
       """,
 )

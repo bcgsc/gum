@@ -7,7 +7,7 @@ from binascii import Error as binascii_Error
 from binascii import a2b_base64 
 from binascii import b2a_base64 
 from random import randrange 
-import sha 
+import hashlib
 
 __author__ = 'Dirk Datzert'
 
@@ -27,7 +27,7 @@ def encrypt(password):
     password = str(password)
     salt = generate_salt()
 
-    return b2a_base64(sha.new(password + salt).digest() + salt)[:-1]
+    return b2a_base64(hashlib.sha(password + salt).digest() + salt)[:-1]
 
 def validate(reference, attempt):
     try:
@@ -37,6 +37,6 @@ def validate(reference, attempt):
         return 0
 
     salt = ref[20:]
-    compare = b2a_base64(sha.new(attempt + salt).digest() + salt)[:-1]
+    compare = b2a_base64(hashlib.sha(attempt + salt).digest() + salt)[:-1]
 
     return (compare == reference)

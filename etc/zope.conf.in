@@ -1,0 +1,18 @@
+# Identify the component configuration used to define the site:
+site-definition ${buildout:directory}/etc/site.zcml
+
+<zodb>
+  # Standard Filestorage
+  <filestorage>
+    path ${buildout:directory}/var/filestorage/Data.fs
+  </filestorage>
+</zodb>
+
+<eventlog>
+  <logfile>
+    path ${buildout:directory}/var/log/z3.log
+    formatter zope.exceptions.log.Formatter
+  </logfile>
+</eventlog>
+
+devmode on
