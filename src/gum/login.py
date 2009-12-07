@@ -7,6 +7,7 @@ import grok
 class LoginPage(grok.View):
     grok.context(interface.Interface)
     grok.name('loginForm.html')
+    grok.require('zope.Public')
     
     def __call__(self):
         request = self.request
