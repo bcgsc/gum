@@ -45,5 +45,6 @@ setup(name='gum',
 
       [paste.app_factory]
       main = grokcore.startup:application_factory
+      debug = grokcore.startup:debug_application_factory
       """,
 )
