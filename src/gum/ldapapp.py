@@ -442,7 +442,7 @@ class GUMRPC(grok.XMLRPC):
         group_info['uids'] = group.uids
         return group_info
     
-    def get_user_info_by_id( self, user_id ):
+    def get_user_info_by_id(self, user_id ):
         "Return dictionary of user info given a valid user id"
         try:
             user = self.context['users'][user_id]
@@ -453,3 +453,6 @@ class GUMRPC(grok.XMLRPC):
         user_info['email'] = user.email
         user_info['telephoneNumber'] = user.telephoneNumber
         return user_info
+
+    def modifications_by_date(self, start_date, end_date):
+        return None

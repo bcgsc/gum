@@ -1,12 +1,12 @@
-from gum.ldapapp import Edit 
-from gum.ldapapp import LDAPApp 
-from ldapadapter.interfaces import IManageableLDAPAdapter 
-from zope.app import zapi 
-from zope.app.authentication.interfaces import IAuthenticatorPlugin 
-from zope.app.component.hooks import setSite 
-from zope.app.security.interfaces import IAuthentication 
-from zope.app.testing.functional import getRootFolder 
-import z3c.testsetup 
+import gum.ldapapp
+import ldapadapter.interfaces
+import os.path
+import z3c.testsetup
+import zope.app.authentication.interfaces
+import zope.app.security.interfaces
+import zope.app.testing.functional
+import zope.component
+import zope.site.hooks
 
 LDAP_HOST = '127.0.0.1'
 LDAP_PORT = '1700'
@@ -16,14 +16,20 @@ LDAP_USER_SEARCH_BASE = 'ou=Webusers,dc=example,dc=com'
 LDAP_GROUP_SEARCH_BASE = 'ou=Webgroups,ou=Groups,dc=example,dc=com'
 
 def create_gum_instance(test):
-    root = getRootFolder()
-    root['gumsite'] = LDAPApp()
+    root = zope.app.testing.functional.getRootFolder()
+    root['gumsite'] = gum.ldapapp.LDAPApp()
     root['gumsite'].ldap_admin_group = u'admin'
     root['gumsite'].ldap_view_group = u'admin'
-    setSite(root['gumsite'])
+    zope.site.hooks.setSite(root['gumsite'])
     
-    gumldapda = zapi.queryUtility(IManageableLDAPAdapter, 'gumldapda')
-    auth = zapi.queryUtility(IAuthenticatorPlugin, 'ldap-authenticator')
+    gumldapda = zope.component.queryUtility(
+        ldapadapter.interfaces.IManageableLDAPAdapter,
+        'gumldapda',
+    )
+    auth = zope.component.queryUtility(
+        zope.app.authentication.interfaces.IAuthenticatorPlugin,
+        'ldap-authenticator',
+    )
     
     # update the LDAP Adapter
     gumldapda.host = LDAP_HOST
@@ -46,15 +52,19 @@ def create_gum_instance(test):
     auth.groupIdAttribute = 'cn'
     
     # register the creds and auth plug-ins with the PAU
-    pau = zapi.queryUtility(IAuthentication)
+    pau = zope.component.queryUtility(zope.app.security.interfaces.IAuthentication)
     pau.credentialsPlugins = ('gum-creds',)
     pau.authenticatorPlugins = ('ldap-authenticator', )
     pau.prefix = u'gum.'
 
+ftesting_zcml = os.path.join(os.path.dirname(gum.__file__), 'ftesting.zcml')
+FunctionalLayer = zope.app.testing.functional.ZCMLLayer(
+    ftesting_zcml, __name__,
+    'FunctionalLayer',
+    allow_teardown=True
+)
+                            
 test_suite = z3c.testsetup.register_all_tests(
     'gum',
     setup=create_gum_instance,
-    globs=dict(
-        getRootFolder=getRootFolder,
-    ),
 )

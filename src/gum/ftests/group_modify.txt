@@ -40,5 +40,3 @@ of the Groups container:
 
   >>> del gumsite['groups']['mammoth hunters']
   >>> del gumsite['users']['grok']
-
-

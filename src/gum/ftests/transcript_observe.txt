@@ -34,9 +34,8 @@ However, if we create a User, a transcript is recorded. Note that the
 Views are responsible for firing off the events, so we'll simulate a
 browser session:
 
-  >>> from zope.testbrowser.testing import Browser
-  >>> browser = Browser()
-  >>> browser.handleErrors = False
+  >>> import zope.testbrowser.testing
+  >>> browser = zope.testbrowser.testing.Browser()
   >>> from zope.securitypolicy.rolepermission import rolePermissionManager
   >>> rolePermissionManager.grantPermissionToRole('gum.Add',
   ...                                             'zope.Manager')

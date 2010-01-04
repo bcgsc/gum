@@ -54,6 +54,15 @@ We can also query for information about 'joe':
   >>> gumapi.get_user_info_by_id('joe')
   {'telephoneNumber': [], 'cn': 'ME JOE', 'email': ''}
 
+We can get a range of modifications by date:
+
+  >>> import datetime
+  >>> print gumapi.modifications_by_date(
+  ...     datetime.datetime(2009,12,15)
+  ...     datetime.dateime.now()
+  ... )
+  {here be joe}
+
 Then we gotta remember to clean-up LDAP:
 
   >>> del gumsite['groups']['mammoth hunters']
