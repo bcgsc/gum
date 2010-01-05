@@ -30,6 +30,7 @@ from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from zope.securitypolicy.interfaces import IPrincipalRoleManager
 from zope.securitypolicy.interfaces import IRolePermissionManager
 from zope.securitypolicy.interfaces import Unset, Allow
+import datetime
 import grok
 import ldap
 import ldappas.authentication
@@ -433,6 +434,24 @@ class GUMRPC(grok.XMLRPC):
     "Simple way of fetching user and group information"
     grok.context(LDAPApp)
     
+    def _marshall_user_info(self, user):
+        user_info = {}
+        user_info['__name__'] = user.__name__
+        user_info['cn'] = user.cn
+        user_info['sn'] = user.sn
+        user_info['givenName'] = user.givenName
+        user_info['email'] = user.email
+        user_info['telephoneNumber'] = user.telephoneNumber
+        user_info['street'] = user.street
+        user_info['roomNumber'] = user.roomNumber
+        user_info['description'] = user.description
+        user_info['job_title'] = user.job_title
+        user_info['ou'] = user.ou
+        user_info['employeeType'] = user.employeeType
+        user_info['o'] = user.o
+        user_info['labeledUri'] = user.labeledUri
+        return user_info
+
     def get_group_info_by_id(self, group_id):
         "Return dictionary of group info given a valid group id"
         group = self.context['groups'][group_id]
@@ -454,9 +473,27 @@ class GUMRPC(grok.XMLRPC):
         user_info['telephoneNumber'] = user.telephoneNumber
         return user_info
 
+    def all_users(self):
+        "All users info"
+        out = []
+        users = grok.getApplication()['users']
+        for user in users.values():
+            out.append(self._marshall_user_info(user))
+        return out
+    
     def recent_modifications(self, days=30):
+        """
+        User info for any user modified in the last 30 days
+        """
+        users = {}
+        app = grok.getApplication()
         for mod in self.context['transcripts'].sorted_by_date():
-            print mod
-        users = []
-        return users
-
+            now = datetime.datetime.now()
+            if now - datetime.timedelta(days) < mod.observation_datetime:            
+                name = mod.dn.split(',')[0].split('=')[1]
+                try:
+                    user = app['users'][name]
+                    users[user.__name__] = self._marshall_user_info(user)
+                except KeyError:
+                    pass
+        return users.values()

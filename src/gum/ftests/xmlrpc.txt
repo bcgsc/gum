@@ -61,16 +61,16 @@ single user, then get that information back using the XML-RPC API:
   >>> gumapi.get_group_info_by_id('mammoth hunters')
   {'description': 'band of neanderthals', 'uids': ['joe'], 'title': 'mammoth hunters'}
 
-We can also query for information about 'joe':
-
-  >>> gumapi.get_user_info_by_id('joe')
-  {'telephoneNumber': [], 'cn': 'ME JOE', 'email': 'joe@grok.com'}
-
 We can get a range of modifications by date:
 
-#  >>> import datetime
-#  >>> gumapi.recent_modifications()
-#  {here be joe}
+  >>> import datetime
+  >>> gumapi.recent_modifications()
+  [{'telephoneNumber': [], 'employeeType': None, 'description': '', 'labeledUri': None, 'roomNumber': None, 'o': 'Unknown', 'street': None, 'sn': '-', '__name__': 'joe', 'ou': None, 'givenName': '-', 'email': 'joe@grok.com', 'job_title': None, 'cn': 'ME JOE'}]
+
+We can get all users:
+
+  >>> gumapi.all_users()
+  [{'telephoneNumber': ['(604) 707 5900 extn 5410'], 'employeeType': 'Full Time', 'description': '', 'labeledUri': None, 'roomNumber': ['1st floor - offices'], 'o': 'example', 'street': ['570 West 7th Ave'], 'sn': 'Doe', '__name__': 'jdoe', 'ou': 'Bioinformatics', 'givenName': 'John', 'email': 'jdoe@example.com', 'job_title': 'Staff Scientist', 'cn': 'John Doe'}, {'telephoneNumber': ['(604) 707 5900 extn 5410'], 'employeeType': 'Full Time', 'description': '', 'labeledUri': None, 'roomNumber': ['1st floor - offices'], 'o': 'example', 'street': ['570 West 7th Ave'], 'sn': 'Smith', '__name__': 'ssmith', 'ou': 'Bioinformatics', 'givenName': 'Sally', 'email': 'ssmith@example.com', 'job_title': 'Staff Scientist', 'cn': 'Sally Smith'}, {'telephoneNumber': [], 'employeeType': None, 'description': '', 'labeledUri': None, 'roomNumber': None, 'o': 'Unknown', 'street': None, 'sn': '-', '__name__': 'joe', 'ou': None, 'givenName': '-', 'email': 'joe@grok.com', 'job_title': None, 'cn': 'ME JOE'}]
 
 Then we gotta remember to clean-up LDAP:
 
