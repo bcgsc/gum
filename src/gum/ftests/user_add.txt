@@ -25,6 +25,7 @@ We can now add a user through the web user interface:
   >>> browser.getControl(name="form.telephoneNumber.add").click()
   >>> browser.getControl(name="form.telephoneNumber.0.").value = "1-800-EAT-GROK"
   >>> browser.getControl(name="form.description").value = "The famous mammoth."
+  >>> browser.getControl(name="form.o").value = ["Unknown"]
   >>> browser.getControl("Add User entry").click()
 
 What do we get?

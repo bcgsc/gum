@@ -32,6 +32,7 @@ We can now add a user through the web user interface:
   >>> browser.getControl(name="form.email").value = "manfred@grokmail.cave"
   >>> browser.getControl(name="form.telephoneNumber.add").click()
   >>> browser.getControl(name="form.telephoneNumber.0.").value = "1-800-EAT-GROK"
+  >>> browser.getControl(name="form.o").value = ["Unknown"]
   >>> browser.getControl("Add User entry").click()
 
 We can clean-up our test LDAP by deleting the user that we just created:

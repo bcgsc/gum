@@ -57,13 +57,13 @@ def create_gum_instance(test):
     pau.authenticatorPlugins = ('ldap-authenticator', )
     pau.prefix = u'gum.'
 
-ftesting_zcml = os.path.join(os.path.dirname(gum.__file__), 'ftesting.zcml')
 FunctionalLayer = zope.app.testing.functional.ZCMLLayer(
-    ftesting_zcml, __name__,
+    os.path.join(os.path.dirname(gum.__file__), 'ftesting.zcml'),
+    __name__,
     'FunctionalLayer',
-    allow_teardown=True
+    allow_teardown=True,
 )
-                            
+
 test_suite = z3c.testsetup.register_all_tests(
     'gum',
     setup=create_gum_instance,

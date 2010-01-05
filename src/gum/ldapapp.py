@@ -454,5 +454,9 @@ class GUMRPC(grok.XMLRPC):
         user_info['telephoneNumber'] = user.telephoneNumber
         return user_info
 
-    def modifications_by_date(self, start_date, end_date):
-        return None
+    def recent_modifications(self, days=30):
+        for mod in self.context['transcripts'].sorted_by_date():
+            print mod
+        users = []
+        return users
+

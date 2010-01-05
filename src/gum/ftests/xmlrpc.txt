@@ -36,12 +36,24 @@ bevaviour:
 Let's try and test something useful. We will first create a group, with a
 single user, then get that information back using the XML-RPC API:
 
-  >>> gumsite = getRootFolder()['gumsite']
-  >>> from gum.group import Group
-  >>> from gum.user import User
-  >>> joe = User('joe')
-  >>> joe.cn = 'ME JOE'
-  >>> joe.save()
+  >>> import zope.testbrowser.testing
+  >>> browser = zope.testbrowser.testing.Browser()
+  >>> from zope.securitypolicy.rolepermission import rolePermissionManager
+  >>> rolePermissionManager.grantPermissionToRole('gum.Add',
+  ...                                             'zope.Manager')
+  >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
+  >>> browser.open("http://localhost:8080/gumsite/@@adduser")
+  >>> browser.getControl(name="form.cn").value = "ME JOE"
+  >>> browser.getControl(name="form.sn").value = "-"
+  >>> browser.getControl(name="form.givenName").value = "-"
+  >>> browser.getControl(name="form.email").value = "joe@grok.com"
+  >>> browser.getControl(name="form.o").value = ["Unknown",]
+  >>> browser.getControl(name="form.__name__").value = "joe"
+  >>> browser.getControl("Add User entry").click()
+  >>> gumapi.get_user_info_by_id('joe')
+  {'telephoneNumber': [], 'cn': 'ME JOE', 'email': 'joe@grok.com'}
+  
+  >>> from gum.group import Group  
   >>> tribe = Group('mammoth hunters')
   >>> tribe.description = 'band of neanderthals'
   >>> tribe.uids = ['joe',]
@@ -52,19 +64,17 @@ single user, then get that information back using the XML-RPC API:
 We can also query for information about 'joe':
 
   >>> gumapi.get_user_info_by_id('joe')
-  {'telephoneNumber': [], 'cn': 'ME JOE', 'email': ''}
+  {'telephoneNumber': [], 'cn': 'ME JOE', 'email': 'joe@grok.com'}
 
 We can get a range of modifications by date:
 
-  >>> import datetime
-  >>> print gumapi.modifications_by_date(
-  ...     datetime.datetime(2009,12,15)
-  ...     datetime.dateime.now()
-  ... )
-  {here be joe}
+#  >>> import datetime
+#  >>> gumapi.recent_modifications()
+#  {here be joe}
 
 Then we gotta remember to clean-up LDAP:
 
+  >>> gumsite = getRootFolder()['gumsite']
   >>> del gumsite['groups']['mammoth hunters']
   >>> del gumsite['users']['joe']
 
