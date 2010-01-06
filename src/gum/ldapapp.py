@@ -494,6 +494,7 @@ class GUMRPC(grok.XMLRPC):
                 try:
                     user = app['users'][name]
                     users[user.__name__] = self._marshall_user_info(user)
+                    users[user.__name__]['modified'] = mod.observation_datetime
                 except KeyError:
                     pass
         return users.values()
