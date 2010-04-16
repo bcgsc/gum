@@ -33,6 +33,7 @@ from zope.securitypolicy.interfaces import Unset, Allow
 import datetime
 import grok
 import ldap
+import ldapadapter.interfaces
 import ldappas.authentication
 import zope.securitypolicy.interfaces
 
@@ -205,12 +206,22 @@ class LDAPGrantInfo(grok.Adapter):
     def principalPermissionGrant(self, principal, permission): return None
     def getRolesForPermission(self, permission): return None
     def getRolesForPrincipal(self, principal):
+        # bootstrapper-y: an unconfigured application must allow access
+        free_pass = [ (u'gum.View', Allow), (u'gum.Admin', Allow), ]
+        if not self.context.ldap_view_group or not self.context.ldap_admin_group:
+            return free_pass
+
         name = principal.split('.')[-1]
         roles = []
-        if name in self.context['groups'][self.context.ldap_view_group].uids:
-            roles.append( (u'gum.View', Allow) )
-        if name in self.context['groups'][self.context.ldap_admin_group].uids:
-            roles.append( (u'gum.Admin', Allow) )
+        
+        try:
+            if name in self.context['groups'][self.context.ldap_view_group].uids:
+                roles.append( (u'gum.View', Allow) )
+            if name in self.context['groups'][self.context.ldap_admin_group].uids:
+                roles.append( (u'gum.Admin', Allow) )
+        except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
+            return free_pass
+        
         return roles
 
 class LDAPPrincipalPermissionMap(grok.Adapter):
@@ -222,16 +233,28 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
     def getPrincipalsAndPermissions(): return None
     
     def getSetting(self, permission_id, principal_id, default=Unset):
+        
+        # bootstrapper-y: an unconfigured application must allow access
+        if not self.context.ldap_view_group or not self.context.ldap_admin_group:
+            return Allow
+
         name = principal_id.split('.')[-1]
         
         # View permission
         if permission_id == u'gum.View':
-            if name in self.context['groups'][self.context.ldap_view_group].uids:
+            try:
+                if name in self.context['groups'][self.context.ldap_view_group].uids:
+                    return Allow
+            except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
                 return Allow
-
+        
         # Add/Edit/EditGroup permissions
-        if name in self.context['groups'][self.context.ldap_admin_group].uids:
+        try:
+            if name in self.context['groups'][self.context.ldap_admin_group].uids:
+                return Allow
+        except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
             return Allow
+        
         return Unset
 
 #
@@ -390,10 +413,6 @@ class AutoCompleteSearchUidAddable(grok.View):
 
         # search the User Id (uid)
         for user in users.search('uid', search_term, False):
-            results[user.__name__] = user
-
-        # search the Email (email)
-        for user in users.search('mail', search_term, False):
             results[user.__name__] = user
 
         return results.values()[:15]
