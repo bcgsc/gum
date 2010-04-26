@@ -237,7 +237,14 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
         # bootstrapper-y: an unconfigured application must allow access
         if not self.context.ldap_view_group or not self.context.ldap_admin_group:
             return Allow
-
+            
+        # Allow access if the LDAP server is down
+        try:
+            view_group_names = self.context['groups'][self.context.ldap_view_group].uids
+            admin_group_names = self.context['groups'][self.context.ldap_admin_group].uids
+        except ldapadapter.interfaces.ServerDown:
+            return Allow
+        
         name = principal_id.split('.')[-1]
         
         # View permission
