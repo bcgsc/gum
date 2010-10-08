@@ -20,11 +20,11 @@ from zope.app import zapi
 from zope.app.authentication.interfaces import IAuthenticatorPlugin
 from zope.app.authentication.interfaces import ICredentialsPlugin
 from zope.app.authentication.interfaces import IPrincipalCreated
-from zope.app.catalog.catalog import Catalog
-from zope.app.catalog.field import FieldIndex
-from zope.app.catalog.interfaces import ICatalog
-from zope.app.intid import IntIds
-from zope.app.intid.interfaces import IIntIds
+from zope.catalog.catalog import Catalog
+from zope.catalog.field import FieldIndex
+from zope.catalog.interfaces import ICatalog
+from zope.intid import IntIds
+from zope.intid.interfaces import IIntIds
 from zope.app.security.interfaces import IAuthentication
 from zope.event import notify
 from zope.interface import implements

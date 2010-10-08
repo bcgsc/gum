@@ -9,8 +9,8 @@ from zope import interface
 from zope.app import zapi
 from zope.app.authentication.interfaces import ICredentialsPlugin
 from zope.app.authentication.interfaces import IAuthenticatorPlugin
-from zope.app.catalog.field import FieldIndex
-from zope.app.catalog.interfaces import ICatalog
+from zope.catalog.field import FieldIndex
+from zope.catalog.interfaces import ICatalog
 import grok
 import grokcore.site.interfaces
 import zope.component

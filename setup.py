@@ -36,7 +36,8 @@ setup(name='gum',
         'grokui.admin',
         'grokcore.startup',
         'bud.nospam',
-        #'reportlab', grr! this is not installing ATM!
+        # packages for migration to Grok 1.2
+        'zope.app.session',
       ],
       entry_points="""
       [console_scripts]

@@ -5,5 +5,6 @@
     <includeDependencies package="." />
     <grok:grok package="." />
     <includeOverrides file="overrides.zcml" />
+    <include package="zope.pluggableauth" />
 
 </configure>

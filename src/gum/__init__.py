@@ -4,21 +4,6 @@ import martian
 import re 
 import zope.app.component 
 
-# monkey pizatchel charges!
-def getApplication():
-    site = zope.app.component.hooks.getSite()
-    if grok.interfaces.IApplication.providedBy(site):
-        return site
-    else:
-        # another sub-site is within the application, walk up
-        # the tree until we get to the application
-        obj = site
-        while not grok.interfaces.IApplication.providedBy(obj):
-            obj = obj.__parent__
-        return obj
-
-grok.getApplication = getApplication
-
 class View(grok.Permission):
     grok.name(u'gum.View')
 
