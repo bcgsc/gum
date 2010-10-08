@@ -38,6 +38,9 @@ setup(name='gum',
         'bud.nospam',
         # packages for migration to Grok 1.2
         'zope.app.session',
+        'zope.app.catalog',
+        'zope.app.intid',
+        'zope.app.keyreference',
       ],
       entry_points="""
       [console_scripts]

@@ -109,10 +109,13 @@ class TKTCookieCredentialsPlugin(SessionCredentialsPlugin):
         try:
             ticket = request.cookies[cookie_credentials.cookie_name]
         except KeyError:
-            app = grok.getApplication()
-            request.response.redirect(app.login_url, trusted=True)
+            return None
         ticket = urllib.unquote(ticket)
         return binascii.a2b_base64(ticket).strip()
+    
+    def challenge(self, request):
+        app = grok.getApplication()
+        return request.response.redirect(app.login_url, trusted=True)
     
     def logout(self, request):
         request.response.expireCookie(cookie_credentials.cookie_name, path='/')
@@ -122,6 +125,8 @@ class TKTAuthenticatorPlugin(object):
     implements(IAuthenticatorPlugin)
     
     def authenticateCredentials(self, credentials):
+        if not credentials:
+            return None
         cookie_manager = zope.component.getUtility(
             zope.session.interfaces.IClientIdManager
         )
