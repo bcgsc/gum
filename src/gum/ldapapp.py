@@ -1,6 +1,9 @@
 from gum.cookiecredentials import CookieCredentialsPlugin
+from gum.cookiecredentials import TKTCookieCredentialsPlugin
+from gum.cookiecredentials import TKTAuthenticatorPlugin
 from gum.extensions import Extensions
 from gum.group import Groups, Group
+from gum.interfaces import ICookieConfiguration
 from gum.interfaces import IGroup
 from gum.interfaces import ILDAPUserGroupLocation
 from gum.interfaces import ITranscript, IOrganization
@@ -36,6 +39,7 @@ import ldap
 import ldapadapter.interfaces
 import ldappas.authentication
 import zope.securitypolicy.interfaces
+import zope.session.interfaces
 
 def setup_catalog(catalog):
     "Configure Indexes upon catalog creation"
@@ -48,9 +52,13 @@ def setup_catalog(catalog):
 
 class LDAPApp(grok.Application, grok.Container):
     "Root application object for the gum app"
-    implements(ILDAPUserGroupLocation)
+    implements(ILDAPUserGroupLocation, ICookieConfiguration)
     ldap_admin_group = u''
     ldap_view_group = u''
+    cookie_name = u'gum'
+    shared_secret = u''
+    enable_mod_auth_tkt = False
+    login_url = u''
     
     # GUM does it's Authentication againast LDAP
     # using the Pluggable Authentication Utility (PAU)
@@ -68,6 +76,12 @@ class LDAPApp(grok.Application, grok.Container):
     grok.local_utility( CookieCredentialsPlugin,
                         provides=ICredentialsPlugin,
                         name='gum-creds' )
+    grok.local_utility( TKTCookieCredentialsPlugin,
+                        provides=ICredentialsPlugin,
+                        name='mod_auth_tkt' )
+    grok.local_utility( TKTAuthenticatorPlugin,
+                        provides=IAuthenticatorPlugin,
+                        name='tkt-auth' )
     
     # The 'gumldapda' is a named utility that acts as a database adapter
     # in Zope 3 a connection to ldap is treated like a connection to
@@ -172,13 +186,38 @@ class Edit(grok.EditForm):
         
         # register the creds and auth plug-ins with the PAU
         pau = zapi.queryUtility(IAuthentication)
-        pau.credentialsPlugins = ('gum-creds',)
         pau.authenticatorPlugins = ('ldap-authenticator', )
         pau.prefix = u'gum.'
         
         # update the app
         self.context.ldap_admin_group = data['ldap_admin_group']
         self.context.ldap_view_group = data['ldap_view_group']
+        
+        # update the session settings
+        self.context.login_url = data['login_url']
+        self.context.shared_secret = data['shared_secret']
+        self.context.cookie_name = data['cookie_name']
+        self.context.enable_mod_auth_tkt = data['enable_mod_auth_tkt']
+        cookie_manager = zope.component.getUtility(
+            zope.session.interfaces.IClientIdManager
+        )
+        if data['enable_mod_auth_tkt']:
+            cookie_manager.thirdparty = True
+            cookie_manager.secret = data['shared_secret']
+            cookie_credentials = zope.component.getUtility(
+                ICredentialsPlugin, 'mod_auth_tkt',
+            )
+            cookie_credentials.cookie_name = data['cookie_name']
+            pau.credentialsPlugins = ('mod_auth_tkt',)
+            pau.authenticatorPlugins = ('tkt-auth',)
+        else:
+            cookie_manager.thirdparty = False
+            cookie_credentials = zope.component.getUtility(
+                ICredentialsPlugin, 'gum-creds',
+            )
+            cookie_credentials.cookie_name = data['cookie_name']
+            pau.credentialsPlugins = ('gum-creds',)
+            pau.authenticatorPlugins = ('ldap-authenticator',)
         
         self.redirect(self.url(self.context))
 

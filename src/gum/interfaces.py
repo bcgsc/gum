@@ -32,6 +32,21 @@ class ILDAPUserGroupLocation(Interface):
         title=u'Group that is allowed to view GUM.',
     )
 
+class ICookieConfiguration(Interface):
+    enable_mod_auth_tkt = schema.Bool(
+        title=u'Enable mod_auth_tkt',
+    )
+    cookie_name = schema.TextLine(
+        title=u'Cookie Name',
+    )
+    shared_secret = schema.TextLine(
+        title=u'Shared secret',
+        description=u"For use with SSO systems such as mod_auth_tkt.",
+    )
+    login_url = schema.TextLine(
+        title=u'URL of login page',
+    )
+
 class ILDAPEntry(Interface):
     """Represents any Entry within LDAP"""
     

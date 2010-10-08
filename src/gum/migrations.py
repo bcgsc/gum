@@ -1,13 +1,19 @@
-from gum.extensions import Extensions 
-from gum.interfaces import IOrganization 
-from gum.ldapapp import LDAPApp 
-from gum.organization import Organizations 
-from gum.smart import SmartSearches 
-from zope import interface 
-from zope.app import zapi 
-from zope.app.catalog.field import FieldIndex 
-from zope.app.catalog.interfaces import ICatalog 
-import grok 
+from gum.cookiecredentials import TKTCookieCredentialsPlugin
+from gum.cookiecredentials import TKTAuthenticatorPlugin
+from gum.extensions import Extensions
+from gum.interfaces import IOrganization
+from gum.ldapapp import LDAPApp
+from gum.organization import Organizations
+from gum.smart import SmartSearches
+from zope import interface
+from zope.app import zapi
+from zope.app.authentication.interfaces import ICredentialsPlugin
+from zope.app.authentication.interfaces import IAuthenticatorPlugin
+from zope.app.catalog.field import FieldIndex
+from zope.app.catalog.interfaces import ICatalog
+import grok
+import grokcore.site.interfaces
+import zope.component
 
 class migrate04to05(object):
     def __init__(self, app):
@@ -52,6 +58,35 @@ class migrate06to08(object):
         
         return 'Extensions Container added.'
 
+class migrate08to081(object):
+    def __init__(self, app):
+        self.app = app
+
+    def up(self):
+        self.app.version = (0,8,1)
+        setup = zope.component.getUtility(grokcore.site.interfaces.IUtilityInstaller)
+        setup(grok.getApplication(),
+              TKTCookieCredentialsPlugin(),
+              ICredentialsPlugin,
+              name='mod_auth_tkt',
+        )
+        setup(grok.getApplication(),
+              TKTAuthenticatorPlugin(),
+              IAuthenticatorPlugin,
+              name='tkt-auth',
+        )
+
+        return 'TKTCookieCredentials and TKTAuthenticator utilities installed.'
+
+class VersionSetter(grok.View):
+    grok.context(LDAPApp)
+    grok.require(u'gum.View')
+    
+    def render(self):
+        version = self.request.form.get('version', None)
+        self.context.version = tuple([int(x) for x in version.split('.')])
+        return 'Version set to %s' % str(self.context.version)
+
 class upgradeApplication(grok.View):
     """
     Migrate the Schema to the latest version
@@ -81,6 +116,11 @@ class upgradeApplication(grok.View):
             ( '.'.join( [str(x) for x in self.context.version] ), results )
         elif self.context.version == (0,6,0):
             migration = migrate06to08(app = self.context)
+            results = migration.up()
+            return "Application upgraded to %s.\n\n%s\n" % \
+            ( '.'.join( [str(x) for x in self.context.version] ), results )
+        elif self.context.version == (0,8,0):
+            migration = migrate08to081(app = self.context)
             results = migration.up()
             return "Application upgraded to %s.\n\n%s\n" % \
             ( '.'.join( [str(x) for x in self.context.version] ), results )
