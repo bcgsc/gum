@@ -111,7 +111,14 @@ class TKTCookieCredentialsPlugin(SessionCredentialsPlugin):
         except KeyError:
             return None
         ticket = urllib.unquote(ticket)
-        return binascii.a2b_base64(ticket).strip()
+        credentials = binascii.a2b_base64(ticket).strip()
+        # validate the credentials: people can have logged in with
+        # a different cookie format and they will need to get a proper cookie
+        try:
+            data = splitTicket(credentials)
+        except ValueError:
+            return None
+        return credentials
     
     def challenge(self, request):
         app = grok.getApplication()
