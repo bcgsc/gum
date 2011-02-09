@@ -586,7 +586,7 @@ class GUMRPC(grok.XMLRPC):
             email=email,
             telephoneNumber=telephoneNumber,
             description=description,
-            o,
+            o=o,
         )
         user.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify( ObjectCreatedEvent(user) )
