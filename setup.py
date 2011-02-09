@@ -41,6 +41,7 @@ setup(name='gum',
         'zope.app.catalog',
         'zope.app.intid',
         'zope.app.keyreference',
+        'zope.app.securitypolicy',
       ],
       entry_points="""
       [console_scripts]
