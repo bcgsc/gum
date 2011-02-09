@@ -563,3 +563,35 @@ class GUMRPC(grok.XMLRPC):
                 except KeyError:
                     pass
         return users.values()
+
+    @grok.require(u'gum.Add')
+    def create_user(self,
+        username,
+        email,
+        password='****',
+        cn='Created with GUM API',
+        sn='Created with GUM API',
+        givenName='Created with GUM API',
+        telephoneNumber='',
+        description='',
+        o='',):
+        "Create a new user account"
+        users = self.context['users']
+        user = User(
+            username,
+            container=users,
+            cn=cn,
+            sn=sn,
+            givenName=givenName,
+            email=email,
+            telephoneNumber=telephoneNumber,
+            description=description,
+            o,
+        )
+        user.principal_id = self.request.principal.id # XXX oh the hackery!!!
+        notify( ObjectCreatedEvent(user) )
+        users[user_id] = user
+        user.changePassword(password, password)
+        user.save()
+        
+        return True
