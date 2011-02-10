@@ -52,7 +52,9 @@ class CheckRequireGrokker(martian.ClassGrokker):
 
     def execute(self, class_, permission, **data):
         if not permission and \
-        str(class_) != "<class 'gum.login.LoginPage'>":
+        str(class_) not in [
+            "<class 'gum.login.LoginPage'>",
+            "<class 'gum.ldapapp.ResetSessionSettings'>",]:
             raise grok.GrokError(
                 'This application requires %r to use the grok.require '
                 'directive!' % class_, class_)

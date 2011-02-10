@@ -100,7 +100,6 @@ class TKTCookieCredentialsPlugin(SessionCredentialsPlugin):
     cookie_name = 'gum.auth'
     
     def extractCredentials(self, request):
-        import pdb; pdb.set_trace();
         cookie_manager = zope.component.getUtility(
             zope.session.interfaces.IClientIdManager
         )
