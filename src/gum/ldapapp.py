@@ -222,6 +222,22 @@ class Edit(grok.EditForm):
         
         self.redirect(self.url(self.context))
 
+class ResetSessionSettings(grok.View):
+    """
+    Session settings are global, but PAU settings are local,
+    so we need to disable mod_auth_tkt in order to use the Grok admin UI.
+    """
+    grok.name('reset')
+    grok.context(zope.interface.Interface)
+    
+    def render(self):
+        cookie_manager = zope.component.getUtility(
+            zope.session.interfaces.IClientIdManager
+        )
+        cookie_manager.thirdparty = False
+        cookie_manager.secret = ''
+        return 'Reset to normal cookie login'
+
 @grok.subscribe(IPrincipalCreated)
 def update_principal_info_from_ldap(event):
     "Update the principal with information from LDAP"
@@ -591,7 +607,7 @@ class GUMRPC(grok.XMLRPC):
         )
         user.principal_id = self.request.principal.id # XXX oh the hackery!!!
         notify( ObjectCreatedEvent(user) )
-        users[user_id] = user
+        users[username] = user
         user.changePassword(password, password)
         user.save()
         
