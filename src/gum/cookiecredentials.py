@@ -12,7 +12,7 @@ import grok
 import hashlib
 import time
 import urllib
-import zope.pluggableauth.plugins.principalfolder
+import zope.pluggableauth.factories
 import zope.session.interfaces
 
 class ICookieCredentials(Interface):
@@ -143,7 +143,7 @@ class TKTAuthenticatorPlugin(object):
             cookie_manager.secret, userid, tokens, user_data,
             '0.0.0.0', timestamp, 'utf8')
         
-        principal_info = zope.pluggableauth.plugins.PrincipalInfo(
+        principal_info = zope.pluggableauth.factories.PrincipalInfo(
             u'gum.' + userid, userid, u'', u'')
         
         # To-Do: implement a cookie timeout feature
