@@ -4,7 +4,7 @@ from gum.smart import SmartSearch
 from tempfile import TemporaryFile
 from urllib import urlencode
 from zope import interface
-from zope.app.container.interfaces import INameChooser
+from zope.container.interfaces import INameChooser
 from zope.securitypolicy.interfaces import IGrantInfo
 import grok
 

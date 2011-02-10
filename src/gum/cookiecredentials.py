@@ -1,8 +1,8 @@
 from socket import inet_aton
 from struct import pack
-from zope.app.authentication.interfaces import IAuthenticatorPlugin
-from zope.app.authentication.interfaces import ICredentialsPlugin
-from zope.app.authentication.session import SessionCredentialsPlugin
+from zope.pluggableauth.interfaces import IAuthenticatorPlugin
+from zope.pluggableauth.interfaces import ICredentialsPlugin
+from zope.pluggableauth.plugins.session import SessionCredentialsPlugin
 from zope.interface import Interface, implements
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.schema import ASCIILine
@@ -12,7 +12,7 @@ import grok
 import hashlib
 import time
 import urllib
-import zope.app.authentication.principalfolder
+import zope.pluggableauth.plugins.principalfolder
 import zope.session.interfaces
 
 class ICookieCredentials(Interface):
@@ -100,6 +100,7 @@ class TKTCookieCredentialsPlugin(SessionCredentialsPlugin):
     cookie_name = 'gum.auth'
     
     def extractCredentials(self, request):
+        import pdb; pdb.set_trace();
         cookie_manager = zope.component.getUtility(
             zope.session.interfaces.IClientIdManager
         )
@@ -143,7 +144,7 @@ class TKTAuthenticatorPlugin(object):
             cookie_manager.secret, userid, tokens, user_data,
             '0.0.0.0', timestamp, 'utf8')
         
-        principal_info = zope.app.authentication.principalfolder.PrincipalInfo(
+        principal_info = zope.pluggableauth.plugins.PrincipalInfo(
             u'gum.' + userid, userid, u'', u'')
         
         # To-Do: implement a cookie timeout feature

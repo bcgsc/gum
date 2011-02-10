@@ -5,11 +5,11 @@ from hurry import query
 from hurry.query.query import Query 
 from zope import event 
 from zope import interface, schema 
-from zope.app.security.settings import Allow 
+from zope.securitypolicy.settings import Allow 
 from zope.lifecycleevent import ObjectModifiedEvent 
 from zope.securitypolicy.interfaces import IGrantInfo 
 from zope.securitypolicy.interfaces import IPrincipalPermissionManager 
-import grok 
+import grok
 
 class Groups(grok.Container):
     "Collection of Groups"

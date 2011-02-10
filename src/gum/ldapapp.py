@@ -1,6 +1,6 @@
 from gum.cookiecredentials import CookieCredentialsPlugin
-from gum.cookiecredentials import TKTCookieCredentialsPlugin
 from gum.cookiecredentials import TKTAuthenticatorPlugin
+from gum.cookiecredentials import TKTCookieCredentialsPlugin
 from gum.extensions import Extensions
 from gum.group import Groups, Group
 from gum.interfaces import ICookieConfiguration
@@ -15,29 +15,30 @@ from gum.user import core_user_fields
 from ldapadapter.interfaces import IManageableLDAPAdapter
 from ldapadapter.utility import ManageableLDAPAdapter
 from zope import component
-from zope.app import authentication
-from zope.app import zapi
-from zope.app.authentication.interfaces import IAuthenticatorPlugin
-from zope.app.authentication.interfaces import ICredentialsPlugin
-from zope.app.authentication.interfaces import IPrincipalCreated
+from zope.authentication.interfaces import IAuthentication
 from zope.catalog.catalog import Catalog
 from zope.catalog.field import FieldIndex
 from zope.catalog.interfaces import ICatalog
-from zope.intid import IntIds
-from zope.intid.interfaces import IIntIds
-from zope.app.security.interfaces import IAuthentication
 from zope.event import notify
 from zope.interface import implements
+from zope.intid import IntIds
+from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import ObjectCreatedEvent
+from zope.pluggableauth.interfaces import IAuthenticatorPlugin
+from zope.pluggableauth.interfaces import ICredentialsPlugin
+from zope.pluggableauth.interfaces import IPrincipalCreated
 from zope.securitypolicy.interfaces import IPrincipalPermissionManager
 from zope.securitypolicy.interfaces import IPrincipalRoleManager
 from zope.securitypolicy.interfaces import IRolePermissionManager
 from zope.securitypolicy.interfaces import Unset, Allow
 import datetime
 import grok
+import grokcore.site
 import ldap
 import ldapadapter.interfaces
 import ldappas.authentication
+import zope.component
+import zope.pluggableauth
 import zope.securitypolicy.interfaces
 import zope.session.interfaces
 
@@ -68,7 +69,7 @@ class LDAPApp(grok.Application, grok.Container):
     # * authenitcation plugins for determining if the creds are valid
     # we are just going to use a single cookie creds plugin and a
     # ldap auth plugin
-    grok.local_utility( authentication.PluggableAuthentication,
+    grok.local_utility( zope.pluggableauth.authentication.PluggableAuthentication,
                         provides=IAuthentication, )
     grok.local_utility( ldappas.authentication.LDAPAuthentication,
                         provides=IAuthenticatorPlugin,
@@ -113,36 +114,36 @@ class LDAPApp(grok.Application, grok.Container):
     
     def ldap_connection(self):
         "LDAP connection"
-        return zapi.queryUtility(IManageableLDAPAdapter, 'gumldapda').connect()
+        return zope.component.queryUtility(IManageableLDAPAdapter, 'gumldapda').connect()
     
     # GUM LDAP settings, these are pulled from the configured
     # LDAP adapter and LDAP authenticator objects in PAU
     
     @property
     def ldap_host(self):
-        return zapi.queryUtility(IManageableLDAPAdapter,'gumldapda').host
+        return zope.component.queryUtility(IManageableLDAPAdapter,'gumldapda').host
     
     @property
     def ldap_port(self):
-        return zapi.queryUtility(IManageableLDAPAdapter,'gumldapda').port
+        return zope.component.queryUtility(IManageableLDAPAdapter,'gumldapda').port
     
     @property
     def ldap_login(self):
-        return zapi.queryUtility(IManageableLDAPAdapter,'gumldapda').bindDN
+        return zope.component.queryUtility(IManageableLDAPAdapter,'gumldapda').bindDN
     
     @property
     def ldap_password(self):
-        return zapi.queryUtility(
+        return zope.component.queryUtility(
             IManageableLDAPAdapter,'gumldapda').bindPassword
     
     @property
     def ldap_user_search_base(self):
-        return zapi.queryUtility(
+        return zope.component.queryUtility(
             IAuthenticatorPlugin, 'ldap-authenticator').searchBase
     
     @property
     def ldap_group_search_base(self):
-        return zapi.queryUtility(
+        return zope.component.queryUtility(
             IAuthenticatorPlugin, 'ldap-authenticator').groupsSearchBase
 
 
@@ -161,8 +162,8 @@ class Edit(grok.EditForm):
     
     @grok.action('Save changes')
     def edit(self, **data):
-        gumldapda = zapi.queryUtility(IManageableLDAPAdapter,'gumldapda')
-        auth = zapi.queryUtility(IAuthenticatorPlugin, 'ldap-authenticator')
+        gumldapda = zope.component.queryUtility(IManageableLDAPAdapter,'gumldapda')
+        auth = zope.component.queryUtility(IAuthenticatorPlugin, 'ldap-authenticator')
         
         # update the LDAP Adapter
         gumldapda.host = data['ldap_host']
@@ -185,7 +186,7 @@ class Edit(grok.EditForm):
         auth.groupIdAttribute = 'cn'
         
         # register the creds and auth plug-ins with the PAU
-        pau = zapi.queryUtility(IAuthentication)
+        pau = zope.component.queryUtility(IAuthentication)
         pau.authenticatorPlugins = ('ldap-authenticator', )
         pau.prefix = u'gum.'
         
@@ -208,8 +209,8 @@ class Edit(grok.EditForm):
                 ICredentialsPlugin, 'mod_auth_tkt',
             )
             cookie_credentials.cookie_name = data['cookie_name']
-            pau.credentialsPlugins = ('mod_auth_tkt',)
-            pau.authenticatorPlugins = ('tkt-auth',)
+            pau.credentialsPlugins = ('mod_auth_tkt','gum-creds',)
+            pau.authenticatorPlugins = ('tkt-auth','ldap-authenticator',)
         else:
             cookie_manager.thirdparty = False
             cookie_credentials = zope.component.getUtility(
@@ -231,7 +232,7 @@ def update_principal_info_from_ldap(event):
     principal.title = user.cn
     principal.__name__ = __name__
 
-@grok.subscribe(grok.interfaces.IApplication, grok.IObjectAddedEvent)
+@grok.subscribe(grokcore.site.interfaces.IApplication, grok.IObjectAddedEvent)
 def grant_roles_to_permissions(obj, event):
     # grant roles to permissions
     rpm = IRolePermissionManager(obj)

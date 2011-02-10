@@ -6,9 +6,8 @@ from gum.ldapapp import LDAPApp
 from gum.organization import Organizations
 from gum.smart import SmartSearches
 from zope import interface
-from zope.app import zapi
-from zope.app.authentication.interfaces import ICredentialsPlugin
-from zope.app.authentication.interfaces import IAuthenticatorPlugin
+from zope.pluggableauth.interfaces import ICredentialsPlugin
+from zope.pluggableauth.interfaces import IAuthenticatorPlugin
 from zope.catalog.field import FieldIndex
 from zope.catalog.interfaces import ICatalog
 import grok
@@ -26,7 +25,7 @@ class migrate04to05(object):
         orgs.title = u'Organizations'
         self.app['orgs'] = orgs
         
-        catalog = zapi.queryUtility(ICatalog, 'gum_catalog')
+        catalog = zope.component.queryUtility(ICatalog, 'gum_catalog')
         catalog['organization_id'] = FieldIndex('__name__', IOrganization)
         
         return "Organizations Container added. organization_id Index added."

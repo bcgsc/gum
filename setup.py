@@ -27,21 +27,28 @@ setup(name='gum',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+        # grok requires
         'setuptools',
         'grok',
+        'grokui.admin',
+        'fanstatic',
+        'zope.fanstatic',
+        'grokcore.startup',
+        
+        # gum requires
         'ldappas',
         'ldapadapter',
         'hurry.query',
         'z3c.testsetup',
-        'grokui.admin',
-        'grokcore.startup',
         'bud.nospam',
-        # packages for migration to Grok 1.2
-        'zope.app.session',
-        'zope.app.catalog',
-        'zope.app.intid',
-        'zope.app.keyreference',
-        'zope.app.securitypolicy',
+        'zope.app.content',
+        'zope.app.form',
+       
+        # old zope 3 imports for migration to ZTK
+        'zope.dublincore',
+        'zope.principalannotation',
+        'zope.app.security',
+        
       ],
       entry_points="""
       [console_scripts]

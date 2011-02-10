@@ -4,7 +4,7 @@ from gum.interfaces import ITranscript, ITranscripts
 from hurry import query 
 from hurry.query.query import Query 
 from zope import interface 
-from zope.app.container.interfaces import INameChooser 
+from zope.container.interfaces import INameChooser 
 import grok 
 
 def uniqueMemberDiff(before, after):

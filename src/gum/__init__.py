@@ -1,8 +1,7 @@
 from zope import schema 
 import grok 
 import martian 
-import re 
-import zope.app.component 
+import re
 
 class View(grok.Permission):
     grok.name(u'gum.View')

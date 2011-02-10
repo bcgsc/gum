@@ -1,9 +1,8 @@
 from gum.interfaces import IUser, IGroup, IOrganization 
-from zope.app import zapi 
 from zope.app.content.interfaces import IContentType 
-from zope.app.interface import queryType 
-from zope.app.security.interfaces import IAuthentication 
-from zope.app.security.interfaces import IUnauthenticatedPrincipal 
+from zope.app.content import queryType 
+from zope.authentication.interfaces import IAuthentication 
+from zope.authentication.interfaces import IUnauthenticatedPrincipal 
 from zope.interface import Interface 
 from zope.securitypolicy.interfaces import IGrantInfo 
 import grok 
