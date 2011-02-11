@@ -581,7 +581,6 @@ class GUMRPC(grok.XMLRPC):
                     pass
         return users.values()
 
-    @grok.require(u'gum.Add')
     def create_user(self,
         username,
         email,
