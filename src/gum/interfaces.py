@@ -1,6 +1,8 @@
 from zope import schema 
 from zope.app.content.interfaces import IContentType 
 from zope.interface import Interface, Attribute, alsoProvides 
+from gum.sources import organizational_units_source, \
+organizations_source, employee_type_source, office_locations_source
 
 class ILDAPUserGroupLocation(Interface):
     """
@@ -152,7 +154,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
     ou = schema.Choice(
          title=u"Organizational Unit",
          description=u"e.g. Systems, Administration, Purchasing.",
-         vocabulary="Organizational Units",
+         source=organizational_units_source,
          required=False
     )
     ou.ldap_admin_only = True
@@ -162,7 +164,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
          description=u"""
  Choices available is based on the Organizational field.
          """,
-         vocabulary="Employee Types",
+         source=employee_type_source,
          required=False,
          missing_value=u"Unknown"
     )
@@ -175,7 +177,7 @@ This e-mail address may be used to authenticate the account to recover lost pass
  the Employee Type, Office Location and Organizational Unit field dropdown will
  change based on the settings for that Organization.
  """,
-        vocabulary="Organizations",
+        source=organizations_source,
     )
     o.ldap_admin_only = True
     
@@ -209,7 +211,7 @@ class IUser(IINetOrgPerson):
         current Organization the account belongs to.""",
         value_type=schema.Choice(
             title=u"Office Location",
-            vocabulary="Office Locations",
+            source=office_locations_source,
             required=True,
         ),
     )
