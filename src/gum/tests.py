@@ -2,8 +2,8 @@ import gum.ldapapp
 import ldapadapter.interfaces
 import os.path
 import z3c.testsetup
-import zope.app.authentication.interfaces
-import zope.app.security.interfaces
+import zope.pluggableauth.interfaces
+import zope.authentication.interfaces
 import zope.app.testing.functional
 import zope.component
 import zope.site.hooks
@@ -27,7 +27,7 @@ def create_gum_instance(test):
         'gumldapda',
     )
     auth = zope.component.queryUtility(
-        zope.app.authentication.interfaces.IAuthenticatorPlugin,
+        zope.pluggableauth.interfaces.IAuthenticatorPlugin,
         'ldap-authenticator',
     )
     
@@ -52,7 +52,7 @@ def create_gum_instance(test):
     auth.groupIdAttribute = 'cn'
     
     # register the creds and auth plug-ins with the PAU
-    pau = zope.component.queryUtility(zope.app.security.interfaces.IAuthentication)
+    pau = zope.component.queryUtility(zope.authentication.interfaces.IAuthentication)
     pau.credentialsPlugins = ('gum-creds',)
     pau.authenticatorPlugins = ('ldap-authenticator', )
     pau.prefix = u'gum.'
