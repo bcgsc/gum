@@ -43,7 +43,8 @@ setup(name='gum',
         'bud.nospam',
         'zope.app.content',
         'zope.app.form',
-       
+        'zope.app.testing',
+        
         # old zope 3 imports for migration to ZTK
         'zope.dublincore',
         'zope.principalannotation',
