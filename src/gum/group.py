@@ -220,7 +220,7 @@ class GroupEdit(grok.EditForm):
     template = grok.PageTemplateFile('gum_edit_form.pt')
     
     label = 'Edit Group'
-    form_fields = grok.AutoFields(Group).omit('dn')
+    form_fields = grok.AutoFields(Group).omit('dn',)
     form_fields['uids'].custom_widget = AjaxUserChooserWidget
     
     @grok.action('Save Changes')

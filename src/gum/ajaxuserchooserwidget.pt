@@ -24,7 +24,7 @@
   <button
       type="button" onclick="sequenceRemoveItem('foo')"
       tal:attributes="onclick string:sequenceRemoveItem('${view/name}')"
-      i18n:translate="button-remove">
+      name="Remove">
     Remove
   </button>
 </p>

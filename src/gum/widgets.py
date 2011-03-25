@@ -1,10 +1,11 @@
-from zope.app.form.browser.textwidgets import TextWidget
-from zope.app.form.browser.widget import SimpleInputWidget
-from zope.app.form.interfaces import IInputWidget
-from zope.component import getMultiAdapter
 import grok
+import zope.component
+import zope.formlib.interfaces
+import zope.formlib.textwidgets
+import zope.formlib.widget
+import zope.pagetemplate.pagetemplatefile
 
-class AjaxUserChooserWidget(SimpleInputWidget):
+class AjaxUserChooserWidget(zope.formlib.widget.SimpleInputWidget):
     
     def _getFormInput(self):
         value = super(AjaxUserChooserWidget, self)._getFormInput()
@@ -22,16 +23,24 @@ class AjaxUserChooserWidget(SimpleInputWidget):
     def hidden(self):
         s = ''
         for value in self._getFormValue():
-            widget = getMultiAdapter( 
-                (self.context.value_type, self.request), IInputWidget
+            widget = zope.component.getMultiAdapter( 
+                (self.context.value_type, self.request), zope.formlib.interfaces.IInputWidget
             )
             widget.name = self.name
             widget.setRenderedValue(value)
             s += widget.hidden()
         return s
 
-    __call__ = grok.PageTemplateFile('ajaxuserchooserwidget.pt')
+    def __call__(self):
+        # a better way to do this? this broke during the Grok 1.1 to 1.3 upgrade
+        # and the code below works but could be simpler?
+        namespace = {}
+        namespace['context'] = self.context
+        namespace['request'] = self.request
+        namespace['view'] = self
+        return zope.pagetemplate.pagetemplatefile.PageTemplateFile(
+            'ajaxuserchooserwidget.pt').pt_render(namespace,)
 
-class LongTextWidget(TextWidget):
+class LongTextWidget(zope.formlib.textwidgets.TextWidget):
     # make the default length 35 instead of 20
     displayWidth = 35
