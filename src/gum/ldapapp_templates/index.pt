@@ -2,19 +2,14 @@
 
     <div metal:fill-slot="content">
 
-		<h2>GUM: Group, User Manager application</h2>
-		
-		<p>
-		GUM allows you to browse and search through users and groups
-		in an LDAP server.
-		</p>
-		
-		<table><tr><td style="width: 50%; padding-right: 2em; vertical-align: top;">
+        <h3>User Accounts</h3>
+        
+        <p>Search by a person's name</p>
+        
 		<form action="./simpleusersearch" 
 			  method="get"
-			  style="margin-top: 2em; margin-bottom: 4em;">
-		<h1>Quick User Search</h1>
-			<input type="text" id="autocomplete" name="search_term"/><input type="submit" value=" Search "/>
+			  style="margin-top: 0; margin-bottom: 1em; width: auto;">
+			<input type="text" id="autocomplete" name="search_term" size="60"/> <input type="submit" value=" Search "/>
 			<div id="autocomplete_choices" class="autocomplete"></div>
 
 			<script type="text/javascript">
@@ -23,9 +18,13 @@
 			//]]>
 			</script>
 		</form>
-		
-		</td><td style="width: 50%; vertical-align: top;">
 
+        <h3>Groups</h3>
+        
+        <p>Browse a <a href="#" tal:attributes="href python: view.url(context['groups'])">listing of all groups</a>.</p>
+        
+        <h3>Connection Settings</h3>
+        
 		<table class="listing">
 			<tr>
 				<th>LDAP Server</th>
@@ -41,9 +40,6 @@
 			</tr>	
 		</table>
 
-		</td></tr>
-		</table>
-		
     </div>
 
 </html>
