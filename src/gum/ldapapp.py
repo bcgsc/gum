@@ -484,6 +484,21 @@ class AutoCompleteSearchUidAddable(grok.View):
 # Group related Views
 #
 
+def check_for_whitespace(form, action, data):
+    # do not allow the Space character in the name
+    # some applications do not work with groups with this character (e.g. Confluence)
+    if form.widgets['cn'].getInputValue().find(' ') != -1:
+        from zope.formlib.interfaces import WidgetInputError
+        return [
+            WidgetInputError(
+                field_name='cn',
+                widget_title=(u'Common Name'),
+                errors=(u'Spaces are not allowed in the name.'),
+            )
+        ]
+    return []
+
+    
 class AddGroup(grok.AddForm):
     grok.context(LDAPApp)
     grok.name('addgroup')
@@ -493,9 +508,9 @@ class AddGroup(grok.AddForm):
     form_fields = grok.AutoFields(Group).omit('dn','title')
     label = "Add Group"
     
-    @grok.action('Add Group entry')
+    @grok.action('Add Group entry', validator=check_for_whitespace,)
     def add(self, **data):
-        gid = data['cn']
+        gid = data['cn'] 
         groups = self.context['groups']
         group = Group(
             gid,
