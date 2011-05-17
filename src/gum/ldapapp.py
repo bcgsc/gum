@@ -496,6 +496,12 @@ def check_for_whitespace(form, action, data):
                 errors=(u'Spaces are not allowed in the name.'),
             )
         ]
+    # to-do: I do not know why we manually copy the data from the form
+    # but it is necessary to make this work ...
+    data['cn'] = form.widgets['cn'].getInputValue()
+    data['description'] = form.widgets['description'].getInputValue()
+    data['uids'] = form.widgets['uids'].getInputValue()
+    
     return []
 
     
