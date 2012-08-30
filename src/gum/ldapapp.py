@@ -555,6 +555,27 @@ class GUMRPC(grok.XMLRPC):
         user_info['labeledUri'] = user.labeledUri
         return user_info
 
+    def search(self, search_term):
+        "Search for users and return matches (15 max)"
+        search_term = ldap.filter.escape_filter_chars(
+            search_term
+        )
+        if not search_term or len(search_term) < 3:
+            return []
+        users = self.context['users']
+        results = {}
+        
+        # search the Canonical Name (cn)
+        for user in users.search('cn', search_term, False):
+            results[user.__name__] = user.cn
+        # search the User Id (uid)
+        for user in users.search('uid', search_term, False):
+            results[user.__name__] = user.cn
+        
+        return [
+            {'uid':uid,'name':name} for uid,name in results.items()
+        ]
+    
     def get_group_info_by_id(self, group_id):
         "Return dictionary of group info given a valid group id"
         group = self.context['groups'][group_id]
