@@ -22,7 +22,7 @@ From here you can start a development LDAP server with:
   
 Then start the web server with:
 
-  $ ./bin/zopectl start
+  $ ./bin/paster serve parts/etc/debug.ini
   
 This will start the server on port 8080.
 

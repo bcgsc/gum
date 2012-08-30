@@ -574,7 +574,7 @@ class GUMRPC(grok.XMLRPC):
         
         return [
             {'uid':uid,'name':name} for uid,name in results.items()
-        ]
+        ][:15]
     
     def get_group_info_by_id(self, group_id):
         "Return dictionary of group info given a valid group id"
