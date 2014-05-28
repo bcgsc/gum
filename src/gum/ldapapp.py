@@ -573,7 +573,7 @@ class GUMRPC(grok.XMLRPC):
             results[user.__name__] = user.cn
         # search the Email (email)
         for user in users.search('mail', search_term, False):
-            results[user.__name__] = user
+            results[user.__name__] = user.cn
         
         return [
             {'uid':uid,'name':name} for uid,name in results.items()
