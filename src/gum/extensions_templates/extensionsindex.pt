@@ -16,10 +16,10 @@
                       tal:content="ext/title"
                       tal:on-error="string:(broken extension)" />
                 [
-                <a tal:attributes="href python:view.url(ext, 'edit')"
+                <a tal:attributes="href python:view.url(ext, '@@edit')"
                    tal:on-error="string:">
                     edit</a>,
-                <a tal:attributes="href python:view.url(context, 'delete', {'name':kvpair[0]} )">
+                <a tal:attributes="href python:view.url(context, '@@delete', {'name':kvpair[0]} )">
                     <img src="/@@/resources/delete.png" /> delete</a>]</p>
                 </tal:ext>
             </li>

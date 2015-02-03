@@ -31,6 +31,15 @@ class Users(grok.Container):
     "Collection of Users"
     interface.implements(IUsers)
     
+    def _get_ldap_connection(self):
+        app = grok.getApplication()
+        return app.ldap_connection()
+        
+    @property
+    def ldap_user_search_base(self):
+        app = grok.getApplication()
+        return app.ldap_user_search_base
+        
     def create_user_from_ldap_results(self, data):
         userdata = {
             'container' : self,
@@ -47,8 +56,7 @@ class Users(grok.Container):
     
     def search(self, param, term, exact_match=True):
         "Search through users and return matches as User objects in a list"
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
+        dbc = self._get_ldap_connection()
         
         if not exact_match:
             term = '*' + term + '*'
@@ -60,7 +68,7 @@ class Users(grok.Container):
             filter_ext += ")"
         else:
             filter_ext = "(%s=%s)" % (param, term)
-        results = dbc.search( app.ldap_user_search_base,
+        results = dbc.search( self.ldap_user_search_base,
                               scope='one',
                               filter="(&(objectclass=inetOrgPerson)%s)"
                               % filter_ext
@@ -72,9 +80,9 @@ class Users(grok.Container):
     
     def search_count(self, param, term):
         "Search through users, but only return a count of matches"
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
-        results = dbc.search( app.ldap_user_search_base,
+        dbc = self._get_ldap_connection()
+        
+        results = dbc.search( self.ldap_user_search_base,
                               scope='one',
                               filter="(&(objectclass=inetOrgPerson)(%s=%s))"
                               % (param, term) )
@@ -86,8 +94,7 @@ class Users(grok.Container):
         "Search through users by organizational criteria"
         # the normal user.search() could be generalized to handle this search
         # but constructing LDAP searches can get rather hairy ...
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
+        dbc = self._get_ldap_connection()
         
         org_sub_filter = ''
         if search_criteria.organizations:
@@ -123,7 +130,7 @@ class Users(grok.Container):
             emp_sub_filter,
             orgunit_sub_filter
         )
-        results = dbc.search( app.ldap_user_search_base,
+        results = dbc.search( self.ldap_user_search_base,
                               scope='one',
                               filter=filter_str )
         users = []
@@ -132,9 +139,9 @@ class Users(grok.Container):
         return users
     
     def values(self):
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
-        results = dbc.search( app.ldap_user_search_base,
+        dbc = self._get_ldap_connection()
+        
+        results = dbc.search( self.ldap_user_search_base,
                              scope='one',
                              filter="(&(objectclass=inetOrgPerson))" )
         
@@ -146,9 +153,9 @@ class Users(grok.Container):
     
     def __getitem__(self, key):
         "Mapping of keys to LDAP-backed User objects"
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
-        results = dbc.search( app.ldap_user_search_base,
+        dbc = self._get_ldap_connection()
+        
+        results = dbc.search( self.ldap_user_search_base,
                               scope='one',
                               filter="(&(objectclass=inetOrgPerson)(%s=%s))"
                               % (IUser['__name__'].ldap_name, key,)
@@ -175,10 +182,10 @@ class Users(grok.Container):
 
     def __delitem__(self, key):
         "delete user"
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
+        dbc = self._get_ldap_connection()
+        
         dbc.delete( u"%s=%s,%s" % (
-            IUser['__name__'].ldap_name, key, app.ldap_user_search_base)
+            IUser['__name__'].ldap_name, key, self.ldap_user_search_base)
         )
 
     def __setitem__(self, key, value):
@@ -204,6 +211,15 @@ class User(grok.Model):
         for name, value in keywords.items():
             setattr(self, name, value)
     
+    def _get_ldap_connection(self):
+        app = grok.getApplication()
+        return app.ldap_connection()
+
+    @property
+    def ldap_user_search_base(self):
+        app = grok.getApplication()
+        return app.ldap_user_search_base
+    
     def __cmp__(self, other):
         "Sorted by sn then givenName"
         if cmp(other.sn, self.sn) == 0:
@@ -213,8 +229,8 @@ class User(grok.Model):
 
     def save(self):
         "Writes any changes made to the User object back into LDAP"
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
+        dbc = self._get_ldap_connection()
+        
         # create
         if not self.exists_in_ldap:
             # Ug. Need to scrub empty attributes from add, but keep them
@@ -241,7 +257,7 @@ class User(grok.Model):
     def dn(self):
         app = grok.getApplication()
         return u"%s=%s,%s" % (
-            IUser['__name__'].ldap_name, self.__name__, app.ldap_user_search_base
+            IUser['__name__'].ldap_name, self.__name__, self.ldap_user_search_base
         )
     
     @property
@@ -348,13 +364,12 @@ class User(grok.Model):
         if password != confirm:
             return "Waaaaa!"
         encrypted_pw = '{SSHA}' + SSHA.encrypt(password).strip()
-        app = grok.getApplication()
-        dbc = app.ldap_connection()
+        dbc = self._get_ldap_connection()
         dbc.modify(
             "%s=%s,%s" % (
                 IUser['__name__'].ldap_name,
                 self.__name__,
-                app.ldap_user_search_base,
+                self.ldap_user_search_base,
             ),
             {'userPassword':[encrypted_pw]}
         )

@@ -52,9 +52,9 @@ class Delete(grok.View):
         
         # handle deletions of broken objects
         # (there is perhaps a better way to do this than fiddling w/ the fixing_up attr?)
-        import zope.app.container.contained
-        zope.app.container.contained.fixing_up = True
+        import zope.container.contained
+        zope.container.contained.fixing_up = True
         del self.context[name]
-        zope.app.container.contained.fixing_up = False
+        zope.container.contained.fixing_up = False
         
         return self.redirect(self.url(self.context))
