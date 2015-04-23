@@ -189,6 +189,7 @@ class Group(grok.Model):
     
     def users(self):
         "Users who belong to the Group"
+        if len(self.uids) == 0:	return []
         app = grok.getApplication()
         users = []
         return app['users'].search('uid', self.uids)
