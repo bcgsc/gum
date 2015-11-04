@@ -229,8 +229,11 @@ class GroupEdit(grok.EditForm):
         # XXX validation hack
         # need to improve the validation and the UI experience
         app = grok.getApplication()
+        unique_uids = {}
+        for uid in data['uids']:
+            unique_uids[uid] = None
         try:
-            for uid in data['uids']:
+            for uid in unique_uids.keys():
                 app['users'][uid]
         except KeyError:
             pass
