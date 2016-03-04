@@ -297,7 +297,7 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
         # bootstrapper-y: an unconfigured application must allow access
         if not self.context.ldap_view_group or not self.context.ldap_admin_group:
             return Allow
-            
+        
         # Allow access if the LDAP server is down
         try:
             view_group_names = self.context['groups'][self.context.ldap_view_group].uids
@@ -317,11 +317,12 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
                 return Allow
         
         # Add/Edit/EditGroup permissions
-        try:
-            if name in self.context['groups'][self.context.ldap_admin_group].uids:
+        if permission_id in [u'gum.Add', u'gum.Edit', u'gum.EditGroup',]:
+            try:
+                if name in self.context['groups'][self.context.ldap_admin_group].uids:
+                    return Allow
+            except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
                 return Allow
-        except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
-            return Allow
 
         # SysAdmin level permissions
         try:
@@ -668,3 +669,4 @@ class GUMRPC(grok.XMLRPC):
         user.save()
         
         return True
+
