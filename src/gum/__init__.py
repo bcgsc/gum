@@ -15,6 +15,9 @@ class Edit(grok.Permission):
 class EditGroup(grok.Permission):
     grok.name(u'gum.EditGroup')
 
+class SysAdmin(grok.Permission):
+    grok.name(u'gum.SysAdmin')
+
 class Manager(grok.Permission):
     grok.name('zope.Manager')
 

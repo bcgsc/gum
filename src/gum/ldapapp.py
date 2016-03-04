@@ -55,6 +55,7 @@ class LDAPApp(grok.Application, grok.Container):
     "Root application object for the gum app"
     implements(ILDAPUserGroupLocation, ICookieConfiguration)
     ldap_admin_group = u''
+    ldap_sysadmin_group = u''
     ldap_view_group = u''
     cookie_name = u'gum'
     shared_secret = u''
@@ -192,6 +193,7 @@ class Edit(grok.EditForm):
         
         # update the app
         self.context.ldap_admin_group = data['ldap_admin_group']
+        self.context.ldap_sysadmin_group = data['ldap_sysadmin_group']
         self.context.ldap_view_group = data['ldap_view_group']
         
         # update the session settings
@@ -275,6 +277,8 @@ class LDAPGrantInfo(grok.Adapter):
                 roles.append( (u'gum.View', Allow) )
             if name in self.context['groups'][self.context.ldap_admin_group].uids:
                 roles.append( (u'gum.Admin', Allow) )
+            if name in self.context['groups'][self.context.ldap_sysadmin_group].uids:
+                roles.append( (u'gum.SysAdmin', Allow) )
         except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
             return free_pass
         
@@ -298,6 +302,7 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
         try:
             view_group_names = self.context['groups'][self.context.ldap_view_group].uids
             admin_group_names = self.context['groups'][self.context.ldap_admin_group].uids
+            sysadmin_group_names = self.context['groups'][self.context.ldap_sysadmin_group].uids
         except ldapadapter.interfaces.ServerDown:
             return Allow
         
@@ -314,6 +319,13 @@ class LDAPPrincipalPermissionMap(grok.Adapter):
         # Add/Edit/EditGroup permissions
         try:
             if name in self.context['groups'][self.context.ldap_admin_group].uids:
+                return Allow
+        except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
+            return Allow
+
+        # SysAdmin level permissions
+        try:
+            if name in self.context['groups'][self.context.ldap_sysadmin_group].uids:
                 return Allow
         except ldapadapter.interfaces.NoSuchObject, ldapadapter.interfaces.InvalidCredentials:
             return Allow
