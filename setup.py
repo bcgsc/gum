@@ -6,7 +6,7 @@ version = '0.8.3dev'
 setup(name='gum',
       version=version,
       description="GUM is a web application for managing users and groups stored in an LDAP server.",
-      long_description=(open(os.path.join('README.txt')).read() +
+      long_description=(open(os.path.join('README.md')).read() +
                         '\n\n' +
                         open(os.path.join('HISTORY.txt')).read()),
       classifiers=[
