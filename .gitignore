@@ -3,3 +3,9 @@ eggs
 etc
 log
 var
+*.egg-info
+src/gum-gsc-systems
+bin
+develop-eggs
+parts
+.installed.cfg
